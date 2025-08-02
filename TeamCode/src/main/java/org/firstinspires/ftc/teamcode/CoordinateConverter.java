@@ -8,6 +8,7 @@ public class CoordinateConverter {
     private static final Properties prop = new Properties();
     public static double saturation;
     public static double sensitivity;
+    public static double deadZone;
     public static boolean invertY;
     public static boolean invertX;
 
@@ -37,6 +38,13 @@ public class CoordinateConverter {
             System.err.println("Invalid saturation format. Using default.");
         }
 
+        deadZone = 0.0;
+        try {
+            deadZone = Double.parseDouble(prop.getProperty("Robot.Joystick_Deadzone", "0.0"));
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid saturation format. Using default.");
+        }
+
         invertX = false;
         try {
             invertX = Boolean.parseBoolean(prop.getProperty("Robot.Joystick_invertX", "false"));
@@ -53,7 +61,7 @@ public class CoordinateConverter {
 
     }
 
-    public static double computeX(double X, double Y, double deadZone, double range) {
+    public static double computeX(double X, double Y, double range) {
         // Read saturation from config
 
         double r = coerceValue(Math.sqrt((X * X) + (Y * Y)), 0.0, 1.0);
@@ -65,7 +73,7 @@ public class CoordinateConverter {
         return x;
     }
 
-    public static double computeY(double X, double Y, double deadZone, double range) {
+    public static double computeY(double X, double Y, double range) {
 
         double r = coerceValue(Math.sqrt((X * X) + (Y * Y)), 0.0, 1.0);
         double a = Math.atan2(Y, X);
