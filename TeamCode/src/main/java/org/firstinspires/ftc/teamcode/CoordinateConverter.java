@@ -1,0 +1,114 @@
+package org.firstinspires.ftc.teamcode;
+
+import java.io.InputStream;
+import java.util.Properties;
+
+public class CoordinateConverter {
+
+    private static final Properties prop = new Properties();
+    public static double saturation;
+    public static double sensitivity;
+    public static double deadZone;
+    public static boolean invertY;
+    public static boolean invertX;
+
+    static {
+        try (InputStream input = CoordinateConverter.class.getResourceAsStream("/Robot.config")) {
+            if (input != null) {
+                prop.load(input);
+            } else {
+                System.err.println("Robot.config not found.");
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to load Robot.config: " + e.getMessage());
+        }
+
+        // Read saturation from config
+        saturation = 1.0;
+        try {
+            saturation = Double.parseDouble(prop.getProperty("Robot.Joystick_Saturation", "1.0"));
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid saturation format. Using default.");
+        }
+
+        sensitivity = 1.0;
+        try {
+            sensitivity = Double.parseDouble(prop.getProperty("Robot.Joystick_Sensitivity", "1.0"));
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid saturation format. Using default.");
+        }
+
+        deadZone = 0.0;
+        try {
+            deadZone = Double.parseDouble(prop.getProperty("Robot.Joystick_Deadzone", "0.0"));
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid saturation format. Using default.");
+        }
+
+        invertX = false;
+        try {
+            invertX = Boolean.parseBoolean(prop.getProperty("Robot.Joystick_invertX", "false"));
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid saturation format. Using default.");
+        }
+
+        invertY = false;
+        try {
+            invertY = Boolean.parseBoolean(prop.getProperty("Robot.Joystick_invertX", "false"));
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid saturation format. Using default.");
+        }
+
+    }
+
+    public static double computeX(double X, double Y, double range) {
+        // Read saturation from config
+
+        double r = coerceValue(Math.sqrt((X * X) + (Y * Y)), 0.0, 1.0);
+        double a = Math.atan2(Y, X);
+        double value = computeModifiers(r, deadZone, saturation, sensitivity, range);
+
+        double x = value * Math.cos(a);
+        if (invertX) x = -x;
+        return x;
+    }
+
+    public static double computeY(double X, double Y, double range) {
+
+        double r = coerceValue(Math.sqrt((X * X) + (Y * Y)), 0.0, 1.0);
+        double a = Math.atan2(Y, X);
+        double value = computeModifiers(r, deadZone, saturation, sensitivity, range);
+
+        double y = value * Math.sin(a);
+        if (invertY) y = -y;
+        return y;
+    }
+
+    private static double computeModifiers(double value, double deadZone, double saturation, double sensitivity, double range) {
+        if (deadZone > 0.0 || saturation < 1.0) {
+            double edgeSpace = (1 - saturation) + deadZone;
+            if (edgeSpace < 1.0) {
+                double multiplier = 1.0 / (1.0 - edgeSpace);
+                value = (value - deadZone) * multiplier;
+                value = coerceValue(value, 0.0, 1.0);
+            } else {
+                value = Math.round(value);
+            }
+        }
+
+        if (sensitivity != 0.0) {
+            value = value + ((value - Math.sin(value * (Math.PI / 2))) * (sensitivity * 2));
+            value = coerceValue(value, 0.0, 1.0);
+        }
+
+        if (range < 1.0) {
+            value = value * range;
+        }
+
+        return coerceValue(value, 0.0, 1.0);
+    }
+
+    private static double coerceValue(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
+    }
+}
