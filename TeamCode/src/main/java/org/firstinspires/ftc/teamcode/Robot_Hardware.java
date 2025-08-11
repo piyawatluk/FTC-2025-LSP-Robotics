@@ -8,10 +8,10 @@ import java.util.Properties;
 
 public class Robot_Hardware {
 
-    public String frontLeftMotorName = "null";
-    public String rearLeftMotorName = "null";
-    public String frontRightMotorName = "null";
-    public String rearRightMotorName = "null";
+    public String frontLeftMotorName;
+    public String rearLeftMotorName;
+    public String frontRightMotorName;
+    public String rearRightMotorName;
 
     public DcMotor frontLeftMotor = null;
     public DcMotor rearLeftMotor = null;
