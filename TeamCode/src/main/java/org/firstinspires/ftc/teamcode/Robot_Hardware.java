@@ -8,8 +8,6 @@ import java.util.Properties;
 
 public class Robot_Hardware {
 
-    private Properties prop = new Properties();
-
     public String frontLeftMotorName = "null";
     public String rearLeftMotorName = "null";
     public String frontRightMotorName = "null";
@@ -22,6 +20,7 @@ public class Robot_Hardware {
 
     public Robot_Hardware() {
         // Load config on object creation
+        Properties prop = new Properties();
         try (InputStream input = Robot_Hardware.class.getResourceAsStream("/Robot.config")) {
             if (input != null) {
                 prop.load(input);

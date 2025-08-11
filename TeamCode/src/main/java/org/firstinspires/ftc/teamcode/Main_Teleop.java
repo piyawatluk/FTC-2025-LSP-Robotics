@@ -8,14 +8,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class Main_Teleop extends OpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
-    private Robot_Hardware robotHardware;
     private MecanumDrive mecanumDrive;
 
     @Override
     public void init() {
         telemetry.addData("Status", "Initialized");
 
-        robotHardware = new Robot_Hardware();
+        Robot_Hardware robotHardware = new Robot_Hardware();
         robotHardware.init(hardwareMap);
 
         mecanumDrive = new MecanumDrive(robotHardware);

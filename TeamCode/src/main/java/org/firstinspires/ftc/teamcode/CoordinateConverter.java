@@ -64,7 +64,7 @@ public class CoordinateConverter {
     public static double computeX(double X, double Y, double range) {
         // Read saturation from config
 
-        double r = coerceValue(Math.sqrt((X * X) + (Y * Y)), 0.0, 1.0);
+        double r = coerceValue(Math.sqrt((X * X) + (Y * Y)));
         double a = Math.atan2(Y, X);
         double value = computeModifiers(r, deadZone, saturation, sensitivity, range);
 
@@ -75,7 +75,7 @@ public class CoordinateConverter {
 
     public static double computeY(double X, double Y, double range) {
 
-        double r = coerceValue(Math.sqrt((X * X) + (Y * Y)), 0.0, 1.0);
+        double r = coerceValue(Math.sqrt((X * X) + (Y * Y)));
         double a = Math.atan2(Y, X);
         double value = computeModifiers(r, deadZone, saturation, sensitivity, range);
 
@@ -90,7 +90,7 @@ public class CoordinateConverter {
             if (edgeSpace < 1.0) {
                 double multiplier = 1.0 / (1.0 - edgeSpace);
                 value = (value - deadZone) * multiplier;
-                value = coerceValue(value, 0.0, 1.0);
+                value = coerceValue(value);
             } else {
                 value = Math.round(value);
             }
@@ -98,17 +98,17 @@ public class CoordinateConverter {
 
         if (sensitivity != 0.0) {
             value = value + ((value - Math.sin(value * (Math.PI / 2))) * (sensitivity * 2));
-            value = coerceValue(value, 0.0, 1.0);
+            value = coerceValue(value);
         }
 
         if (range < 1.0) {
             value = value * range;
         }
 
-        return coerceValue(value, 0.0, 1.0);
+        return coerceValue(value);
     }
 
-    private static double coerceValue(double value, double min, double max) {
-        return Math.max(min, Math.min(max, value));
+    private static double coerceValue(double value) {
+        return Math.max(0.0, Math.min(1.0, value));
     }
 }
