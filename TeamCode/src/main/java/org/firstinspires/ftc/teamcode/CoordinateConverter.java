@@ -54,7 +54,7 @@ public class CoordinateConverter {
 
         invertY = false;
         try {
-            invertY = Boolean.parseBoolean(prop.getProperty("Robot.Joystick_invertX", "false"));
+            invertY = Boolean.parseBoolean(prop.getProperty("Robot.Joystick_invertY", "false"));
         } catch (NumberFormatException e) {
             System.err.println("Invalid saturation format. Using default.");
         }
