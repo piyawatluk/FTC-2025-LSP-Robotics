@@ -1,4 +1,4 @@
-## Quick Reference
+# Quick Reference
 - **Season:** DECODE 2025-2026
   
 # Member Notices: All notices regarding the repo will be displayed here
@@ -10,3 +10,4 @@ Please create a branch for additional adjustments, such as bug fixes. For exampl
 ### Create a pull request before merging into the main branch
 
 Please create a pull request for code review before merging into the main branch
+
