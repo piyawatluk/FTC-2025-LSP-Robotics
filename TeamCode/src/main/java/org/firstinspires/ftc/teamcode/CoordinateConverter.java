@@ -35,28 +35,26 @@ public class CoordinateConverter {
         try {
             sensitivity = Double.parseDouble(prop.getProperty("Robot.Joystick_Sensitivity", "1.0"));
         } catch (NumberFormatException e) {
-            System.err.println("Invalid saturation format. Using default.");
+            System.err.println("Invalid sensitivity format. Using default.");
         }
 
         deadZone = 0.0;
         try {
             deadZone = Double.parseDouble(prop.getProperty("Robot.Joystick_Deadzone", "0.0"));
         } catch (NumberFormatException e) {
-            System.err.println("Invalid saturation format. Using default.");
+            System.err.println("Invalid deadZone format. Using default.");
         }
 
-        invertX = false;
-        try {
-            invertX = Boolean.parseBoolean(prop.getProperty("Robot.Joystick_invertX", "false"));
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid saturation format. Using default.");
+        String xProp = prop.getProperty("Robot.Joystick_invertX", "false");
+        invertX = Boolean.parseBoolean(xProp);
+        if (!xProp.equalsIgnoreCase("true") && !xProp.equalsIgnoreCase("false")) {
+            System.err.println("Invalid invertX format. Using default");
         }
 
-        invertY = false;
-        try {
-            invertY = Boolean.parseBoolean(prop.getProperty("Robot.Joystick_invertY", "false"));
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid saturation format. Using default.");
+        String yProp = prop.getProperty("Robot.Joystick_invertY", "false");
+        invertY = Boolean.parseBoolean(yProp);
+        if (!yProp.equalsIgnoreCase("true") && !yProp.equalsIgnoreCase("false")) {
+            System.err.println("Invalid invertY format. Using default");
         }
 
     }
