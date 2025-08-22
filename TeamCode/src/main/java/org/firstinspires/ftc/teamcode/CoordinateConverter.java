@@ -40,7 +40,7 @@ public class CoordinateConverter {
 
         deadZone = 0.0;
         try {
-            deadZone = Double.parseDouble(prop.getProperty("Robot.Joystick_Deadzone", "0.0"));
+            deadZone = Double.parseDouble(prop.getProperty("Robot.Joystick_deadZone", "0.0"));
         } catch (NumberFormatException e) {
             System.err.println("Invalid deadZone format. Using default.");
         }
