@@ -55,6 +55,7 @@ public class CoordinateConverter {
         invertY = Boolean.parseBoolean(yProp);
         if (!yProp.equalsIgnoreCase("true") && !yProp.equalsIgnoreCase("false")) {
             System.err.println("Invalid invertY format. Using default");
+
         }
 
     }
