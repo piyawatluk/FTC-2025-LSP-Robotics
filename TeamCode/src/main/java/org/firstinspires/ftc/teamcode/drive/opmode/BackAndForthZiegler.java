@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 // run this to figure out what is the ideal Ku and Pu then put in the Nichols-Ziegler urself in calculator or something
-@Cuonfig
+@Config
 @Autonomous(group = "drive")
 public class BackAndForthZiegler extends LinearOpMode {
 
