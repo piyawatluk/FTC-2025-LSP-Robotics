@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-// run this to find Ku and Pu
-@Config
+// run this to figure out what is the ideal Ku and Pu then put in the Nichols-Ziegler urself in calculator or something
+@Cuonfig
 @Autonomous(group = "drive")
 public class BackAndForthZiegler extends LinearOpMode {
 
@@ -20,7 +20,7 @@ public class BackAndForthZiegler extends LinearOpMode {
 
         FtcDashboard dashboard = FtcDashboard.getInstance();
 
-        telemetry.addLine("Set kI = 0 and kD = 0 in SampleMecanumDrive before ur gonna run");
+        telemetry.addLine("Set kI = 0, kD = 0 in SampleMecanumDrive before ur gonna run");
         telemetry.update();
 
         waitForStart();
@@ -48,12 +48,12 @@ public class BackAndForthZiegler extends LinearOpMode {
             TelemetryPacket packet = new TelemetryPacket();
             packet.put("kP_test", kP_test);
             packet.put("Error", error);
-            packet.put("OscillationPeriod", period);
+            packet.put("Oscillation Period", period);
             dashboard.sendTelemetryPacket(packet);
 
             telemetry.addData("Test kP", kP_test);
             telemetry.addData("Error", error);
-            telemetry.addData("OscillationPeriod", period);
+            telemetry.addData("Oscillation Period", period);
             telemetry.update();
         }
     }
