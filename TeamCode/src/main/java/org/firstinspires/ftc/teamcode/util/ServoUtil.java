@@ -3,11 +3,11 @@ package org.firstinspires.ftc.teamcode.util;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class ServoUtil {
-    public void moveIncrement(Servo servo, double pos) {
+    public static void moveIncrement(Servo servo, double pos) {
         safeSetPosition(servo, servo.getPosition() + pos);
     }
 
-    public void moveIncrement(Servo servo, int deg, int maxDeg, int minDeg) {
+    public static void moveIncrement(Servo servo, int deg, int maxDeg, int minDeg) {
         moveIncrement(servo, degToPos(deg, maxDeg, minDeg));
     }
 
@@ -23,7 +23,7 @@ public class ServoUtil {
         return Math.max(0.0, Math.min(1.0, pos));
     }
 
-    public void safeSetPosition(Servo servo, double pos) {
+    public static void safeSetPosition(Servo servo, double pos) {
         servo.setPosition(clamp(pos)); // won't explode when pos is <1.0 and >0.0
     }
 

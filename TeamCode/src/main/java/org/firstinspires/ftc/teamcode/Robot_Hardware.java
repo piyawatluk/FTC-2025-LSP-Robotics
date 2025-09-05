@@ -48,12 +48,12 @@ public class Robot_Hardware {
         rearLeftMotorName = prop.getProperty("Robot.REAR_LEFT_MOTOR_NAME", "null");
         rearRightMotorName = prop.getProperty("Robot.REAR_RIGHT_MOTOR_NAME", "null");
 
-        /*
+
         placeholderServoName1 = prop.getProperty("Robot.PLACEHOLDER_SERVO1_NAME", "null");
         placeholderServoName2 = prop.getProperty("Robot.PLACEHOLDER_SERVO2_NAME", "null");
         placeholderServoName3 = prop.getProperty("Robot.PLACEHOLDER_SERVO3_NAME", "null");
         placeholderServoName4 = prop.getProperty("Robot.PLACEHOLDER_SERVO4_NAME", "null");
-        */
+
     }
 
     public void init(HardwareMap hardwareMap) {
@@ -72,7 +72,7 @@ public class Robot_Hardware {
         frontRightMotor.setDirection(DcMotor.Direction.FORWARD);
         rearRightMotor.setDirection(DcMotor.Direction.FORWARD);
 
-        /*
+
         placeholderServo1 = hardwareMap.get(Servo.class, placeholderServoName1);
         placeholderServo2 = hardwareMap.get(Servo.class, placeholderServoName2);
         placeholderServo3 = hardwareMap.get(Servo.class, placeholderServoName3);
@@ -82,6 +82,6 @@ public class Robot_Hardware {
         placeholderServo2.setDirection(Servo.Direction.FORWARD);
         placeholderServo3.setDirection(Servo.Direction.FORWARD);
         placeholderServo4.setDirection(Servo.Direction.FORWARD);
-        */
+
     }
 }
