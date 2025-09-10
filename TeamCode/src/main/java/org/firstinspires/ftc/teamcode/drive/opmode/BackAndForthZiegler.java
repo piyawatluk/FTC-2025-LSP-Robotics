@@ -3,66 +3,91 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
-// run this to figure out what is the ideal Ku and Pu then put in the Nichols-Ziegler urself in calculator or something
+/**
+ * Road-Runner follower Ziegler–Nichols tuner.
+ *  - run this opmode and increase Kp until steady oscillation.
+ *  - When steady oscillation occurs: kP_test = Ku, displayed Pu = oscillation period.
+ *  - Put the computed Z-N PID value into Translation PID in SampleMacanumDrive.
+ */
 @Config
 @Autonomous(group = "drive")
 public class BackAndForthZiegler extends LinearOpMode {
 
+    // Slide this in Dashboard to tune. Start at 0 and increase slowly.
     public static double kP_test = 0.0;
+
+    // Imaginary target 24 inch away
     public static double TARGET_X = 24.0;
 
     @Override
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-
         FtcDashboard dashboard = FtcDashboard.getInstance();
 
-        telemetry.addLine("Set kI = 0, kD = 0 in SampleMecanumDrive before ur gonna run");
+        telemetry.addLine("Prepare: ensure TRANSLATIONAL_PID I and D = 0 (or set to 0 here).");
+        telemetry.addLine("Use Dashboard to increase kP_test until steady oscillation.");
         telemetry.update();
 
-        waitForStart();
+        // Build a simple forward trajectory to the target (robot assumes start pose = 0).
+        Trajectory trajToTarget = drive.trajectoryBuilder(new Pose2d())
+                .forward(TARGET_X)
+                .build();
 
-        double lastError = 0;
-        double firstCrossingTime = -1;
-        double Pu = 0;
+        waitForStart();
+        drive.followTrajectoryAsync(trajToTarget);
+
+        double lastError = 0.0;
+        double lastCrossingTime = -1.0;
+        double Pu = 0.0;     // measured oscillation period
+        double Ku = 0.0;     // ultimate gain
 
         while (opModeIsActive() && !isStopRequested()) {
-
-            drive.setPIDFCoefficients(
-                    DcMotor.RunMode.RUN_USING_ENCODER,
-                    new PIDFCoefficients(kP_test, 0, 0, 0)
-                );
+            SampleMecanumDrive.TRANSLATIONAL_PID = new PIDCoefficients(kP_test, 0.0, 0.0);
+            drive.update();
 
             double currentX = drive.getPoseEstimate().getX();
             double error = TARGET_X - currentX;
             double now = getRuntime();
 
-
             if ((error > 0 && lastError < 0) || (error < 0 && lastError > 0)) {
                 if (lastCrossingTime > 0) {
                     Pu = now - lastCrossingTime;
+                    Ku = kP_test;
                 }
                 lastCrossingTime = now;
             }
             lastError = error;
 
-            // Send data
+            // 4) Send live telemetry to Dashboard + Driver Station
             TelemetryPacket packet = new TelemetryPacket();
-            packet.put("kP_test", kP_test);
-            packet.put("Error", error);
+            packet.put("kP_test (Ku candidate)", kP_test);
+            packet.put("Error (inches)", error);
             packet.put("Pu (sec)", Pu);
+            packet.put("Ku (if steady)", Ku);
             dashboard.sendTelemetryPacket(packet);
 
-            telemetry.addData("Test kP", kP_test);
-            telemetry.addData("Error", error);
-            telemetry.addData("Pu (sec)", Pu);
+            telemetry.addData("kP_test (Ku?)", kP_test);
+            telemetry.addData("Error (in)", error);
+            telemetry.addData("Pu (s)", Pu);
+            telemetry.addData("Ku (if steady)", Ku);
+
+            //Compute and show Ziegler–Nichols PID
+            if (Pu > 0 && Ku > 0) {
+                double Kp = 0.6 * Ku;
+                double Ki = 2.0 * Kp / Pu;
+                double Kd = (Kp * Pu) / 8.0;
+                telemetry.addData("Z-N Kp", "%.4f", Kp);
+                telemetry.addData("Z-N Ki", "%.4f", Ki);
+                telemetry.addData("Z-N Kd", "%.4f", Kd);
+            }
             telemetry.update();
         }
     }
