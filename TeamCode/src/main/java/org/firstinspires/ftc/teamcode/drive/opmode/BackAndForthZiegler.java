@@ -30,6 +30,7 @@ public class BackAndForthZiegler extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        drive.setPoseEstimate(new Pose2d(0, 0, 0));
         FtcDashboard dashboard = FtcDashboard.getInstance();
 
         telemetry.addLine("Prepare: ensure TRANSLATIONAL_PID I and D = 0 (or set to 0 here).");
