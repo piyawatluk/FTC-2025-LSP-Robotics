@@ -43,10 +43,10 @@ public class Robot_Hardware {
             System.err.println("Failed to load Robot.config: " + e.getMessage());
         }
 
-        frontLeftMotorName = prop.getProperty("Robot.FRONT_LEFT_MOTOR_NAME", "null");
-        frontRightMotorName = prop.getProperty("Robot.FRONT_RIGHT_MOTOR_NAME", "null");
-        rearLeftMotorName = prop.getProperty("Robot.REAR_LEFT_MOTOR_NAME", "null");
-        rearRightMotorName = prop.getProperty("Robot.REAR_RIGHT_MOTOR_NAME", "null");
+        frontLeftMotorName = prop.getProperty("Robot.FRONT_LEFT_MOTOR_NAME", "flm");
+        frontRightMotorName = prop.getProperty("Robot.FRONT_RIGHT_MOTOR_NAME", "frm");
+        rearLeftMotorName = prop.getProperty("Robot.REAR_LEFT_MOTOR_NAME", "rlm");
+        rearRightMotorName = prop.getProperty("Robot.REAR_RIGHT_MOTOR_NAME", "rrm");
 
 
         /*
