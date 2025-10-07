@@ -11,59 +11,54 @@ public class CoordinateConverter {
     public static double deadZone;
     public static boolean invertY;
     public static boolean invertX;
+    public static String configError = null; // For reporting config errors to OpMode
 
     static {
         try (InputStream input = CoordinateConverter.class.getResourceAsStream("/Robot.config")) {
             if (input != null) {
                 prop.load(input);
             } else {
-                System.err.println("Robot.config not found.");
+                configError = "Robot.config not found.";
             }
         } catch (Exception e) {
-            System.err.println("Failed to load Robot.config: " + e.getMessage());
+            configError = "Failed to load Robot.config: " + e.getMessage();
         }
 
-        // Read saturation from config
         saturation = 1.0;
         try {
             saturation = Double.parseDouble(prop.getProperty("Robot.Joystick_Saturation", "1.0"));
         } catch (NumberFormatException e) {
-            System.err.println("Invalid saturation format. Using default.");
+            configError = "Invalid saturation format. Using default.";
         }
 
         sensitivity = 1.0;
         try {
             sensitivity = Double.parseDouble(prop.getProperty("Robot.Joystick_Sensitivity", "1.0"));
         } catch (NumberFormatException e) {
-            System.err.println("Invalid saturation format. Using default.");
+            configError = "Invalid sensitivity format. Using default.";
         }
 
         deadZone = 0.0;
         try {
-            deadZone = Double.parseDouble(prop.getProperty("Robot.Joystick_Deadzone", "0.0"));
+            deadZone = Double.parseDouble(prop.getProperty("Robot.Joystick_deadZone", "0.0"));
         } catch (NumberFormatException e) {
-            System.err.println("Invalid saturation format. Using default.");
+            configError = "Invalid deadZone format. Using default.";
         }
 
-        invertX = false;
-        try {
-            invertX = Boolean.parseBoolean(prop.getProperty("Robot.Joystick_invertX", "false"));
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid saturation format. Using default.");
+        String xProp = prop.getProperty("Robot.Joystick_invertX", "false");
+        invertX = Boolean.parseBoolean(xProp);
+        if (!xProp.equalsIgnoreCase("true") && !xProp.equalsIgnoreCase("false")) {
+            configError = "Invalid invertX format. Using default";
         }
 
-        invertY = false;
-        try {
-            invertY = Boolean.parseBoolean(prop.getProperty("Robot.Joystick_invertX", "false"));
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid saturation format. Using default.");
+        String yProp = prop.getProperty("Robot.Joystick_invertY", "false");
+        invertY = Boolean.parseBoolean(yProp);
+        if (!yProp.equalsIgnoreCase("true") && !yProp.equalsIgnoreCase("false")) {
+            configError = "Invalid invertY format. Using default";
         }
-
     }
 
-    public static double computeX(double X, double Y, double range) {
-        // Read saturation from config
-
+    public static double computeX(float X, float Y, float range) {
         double r = coerceValue(Math.sqrt((X * X) + (Y * Y)));
         double a = Math.atan2(Y, X);
         double value = computeModifiers(r, deadZone, saturation, sensitivity, range);
@@ -73,8 +68,7 @@ public class CoordinateConverter {
         return x;
     }
 
-    public static double computeY(double X, double Y, double range) {
-
+    public static double computeY(float X, float Y, float range) {
         double r = coerceValue(Math.sqrt((X * X) + (Y * Y)));
         double a = Math.atan2(Y, X);
         double value = computeModifiers(r, deadZone, saturation, sensitivity, range);
