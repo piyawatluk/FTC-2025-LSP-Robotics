@@ -34,16 +34,21 @@ public class Main_Teleop extends OpMode {
 
     @Override
     public void start() {
+        Sequence1.add(servo1, 0.5, 2000);
+        Sequence1.add(servo1, 0.2, 600, true);
+        Sequence2.add(servo2, 0.6, 100);
+        Sequence2.add(830);
+
         runtime.reset();
-        Sequence1.add(servo1, 90, 2000, 180, 0);
-        Sequence2.add(servo2, 80, 1000, 180, 0);
     }
 
     @Override
     public void loop() {
         mecanumDrive.drive(gamepad1);
         Sequence1.step();
-        Sequence2.step();
+        if (Sequence1.actionCounter > 1) {
+            Sequence2.step();
+        }
     }
 
     @Override
