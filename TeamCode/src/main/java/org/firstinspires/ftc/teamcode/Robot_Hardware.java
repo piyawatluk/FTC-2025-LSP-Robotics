@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
+import android.content.res.AssetManager;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -33,12 +37,10 @@ public class Robot_Hardware {
     public Robot_Hardware() {
         // Load config on object creation
         Properties prop = new Properties();
-        try (InputStream input = Robot_Hardware.class.getResourceAsStream("/Robot.config")) {
-            if (input != null) {
-                prop.load(input);
-            } else {
-                System.err.println("Robot.config not found.");
-            }
+        try {
+            AssetManager assetManager = hardwareMap.appContext.getAssets();
+            InputStream input = assetManager.open("Robot.config");
+            prop.load(input);
         } catch (Exception e) {
             System.err.println("Failed to load Robot.config: " + e.getMessage());
         }
@@ -55,7 +57,7 @@ public class Robot_Hardware {
         placeholderServoName3 = prop.getProperty("Robot.PLACEHOLDER_SERVO3_NAME", "null");
         placeholderServoName4 = prop.getProperty("Robot.PLACEHOLDER_SERVO4_NAME", "null");
         */
-      
+
     }
 
     public void init(HardwareMap hardwareMap) {
