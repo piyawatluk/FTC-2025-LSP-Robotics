@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
-import android.content.res.AssetManager;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.RobotLog;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.io.InputStream;
 import java.util.Properties;
@@ -34,15 +34,20 @@ public class Robot_Hardware {
     public Servo placeholderServo3 = null;
     public Servo placeholderServo4 = null;
 
-    public Robot_Hardware() {
+    public Robot_Hardware() { }
+
+    public void init(HardwareMap hardwareMap, Telemetry telemetry) {
+
         // Load config on object creation
         Properties prop = new Properties();
-        try {
-            AssetManager assetManager = hardwareMap.appContext.getAssets();
-            InputStream input = assetManager.open("Robot.config");
+        try(InputStream input = hardwareMap.appContext.getAssets().open("Robot.config")){
             prop.load(input);
         } catch (Exception e) {
-            System.err.println("Failed to load Robot.config: " + e.getMessage());
+            RobotLog.ee("Robot_Hardware", e, "Failed to load Robot.config");
+            if (telemetry != null) {
+                telemetry.addData("ERROR", "Cannot read assets/Robot.config");
+            }
+            return;
         }
 
         frontLeftMotorName = prop.getProperty("Robot.FRONT_LEFT_MOTOR_NAME", "flm");
@@ -58,9 +63,7 @@ public class Robot_Hardware {
         placeholderServoName4 = prop.getProperty("Robot.PLACEHOLDER_SERVO4_NAME", "null");
         */
 
-    }
-
-    public void init(HardwareMap hardwareMap) {
+        // map hardware
         frontLeftMotor = hardwareMap.get(DcMotor.class, frontLeftMotorName);
         rearLeftMotor = hardwareMap.get(DcMotor.class, rearLeftMotorName);
         frontRightMotor = hardwareMap.get(DcMotor.class, frontRightMotorName);

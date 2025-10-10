@@ -16,7 +16,7 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Status", "Initialized");
 
         Robot_Hardware robotHardware = new Robot_Hardware();
-        robotHardware.init(hardwareMap);
+        robotHardware.init(hardwareMap,telemetry);
 
         mecanumDrive = new MecanumDrive(robotHardware);
     }
