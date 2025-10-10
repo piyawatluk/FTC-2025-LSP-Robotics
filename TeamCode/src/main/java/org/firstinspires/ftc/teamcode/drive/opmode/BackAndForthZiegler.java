@@ -39,8 +39,11 @@ public class BackAndForthZiegler extends LinearOpMode {
 
         // Build a simple forward trajectory to the target (robot assumes start pose = 0).
         Trajectory trajToTarget = drive.trajectoryBuilder(new Pose2d())
-                .forward(TARGET_X)
-                .build();
+            .forward(TARGET_X)
+            .build();
+        Trajectory trajBack = drive.trajectoryBuilder(trajToTarget.end(), true)
+            .forward(TARGET_X)
+            .build();
 
         waitForStart();
         drive.followTrajectoryAsync(trajToTarget);
@@ -53,6 +56,8 @@ public class BackAndForthZiegler extends LinearOpMode {
         while (opModeIsActive() && !isStopRequested()) {
             SampleMecanumDrive.TRANSLATIONAL_PID = new PIDCoefficients(kP_test, 0.0, 0.0);
             drive.update();
+            drive.followTrajectory(trajToTarget);
+            drive.followTrajectory(trajBack);
 
             double currentX = drive.getPoseEstimate().getX();
             double error = TARGET_X - currentX;
