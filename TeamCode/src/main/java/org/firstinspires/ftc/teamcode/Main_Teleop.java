@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -22,7 +23,7 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Status", "Initialized");
 
         Robot_Hardware robotHardware = new Robot_Hardware();
-        robotHardware.init(hardwareMap);
+        robotHardware.init(hardwareMap,telemetry);
 
         mecanumDrive = new MecanumDrive(robotHardware);
         servo1 = robotHardware.placeholderServo1;
