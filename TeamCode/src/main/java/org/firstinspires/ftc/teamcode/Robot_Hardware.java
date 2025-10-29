@@ -62,8 +62,6 @@ public class Robot_Hardware {
         placeholderServoName3 = prop.getProperty("Robot.PLACEHOLDER_SERVO3_NAME", "null");
         placeholderServoName4 = prop.getProperty("Robot.PLACEHOLDER_SERVO4_NAME", "null");
 
-    }
-
         // map hardware
         frontLeftMotor = hardwareMap.get(DcMotor.class, frontLeftMotorName);
         rearLeftMotor = hardwareMap.get(DcMotor.class, rearLeftMotorName);
