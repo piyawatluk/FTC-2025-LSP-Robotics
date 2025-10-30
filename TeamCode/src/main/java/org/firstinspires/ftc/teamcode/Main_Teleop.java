@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.teamcode.util.generalUtil;
 
 import org.firstinspires.ftc.teamcode.util.Sequencer;
 
@@ -45,11 +46,16 @@ public class Main_Teleop extends OpMode {
 
     @Override
     public void loop() {
+        telemetry.addLine("LSP robotic senior - Teleop");
         mecanumDrive.drive(gamepad1);
-        Sequence1.step();
-        if (Sequence1.actionCounter > 1) {
-            Sequence2.step();
-        }
+        //Sequence1.step();
+        //if (Sequence1.actionCounter > 1) {
+            //Sequence2.step();
+        //}
+        generalUtil.servo_test(gamepad1.a);
+
+
+
     }
 
     @Override
