@@ -56,7 +56,8 @@ public class Main_Teleop extends OpMode {
         //    sequence2.step();
         //}
 
-        generalUtil.servo_test(gamepad1.a);
+        generalUtil.servo_test(hardwareMap, gamepad1.a, telemetry);
+
         telemetry.update();
     }
 
