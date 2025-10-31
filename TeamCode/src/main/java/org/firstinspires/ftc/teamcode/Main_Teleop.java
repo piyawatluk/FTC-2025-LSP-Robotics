@@ -45,7 +45,7 @@ public class Main_Teleop extends OpMode {
         mecanumDrive.drive(gamepad1);
 
         telemetry.addLine("LSP Robotic Senior - Teleop");
-        telemetry.addLine("____________________");
+        telemetry.addLine("___________________________");
         telemetry.addData("Left front motor speed", mecanumDrive.getMotorPower("LFM"));
         telemetry.addData("Right front motor speed", mecanumDrive.getMotorPower("RFM"));
         telemetry.addData("Left rear motor speed", mecanumDrive.getMotorPower("LBM"));
