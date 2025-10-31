@@ -34,11 +34,17 @@ public class generalUtil {
 
     }
     public static void servo_test(boolean logic) {
-        Sequence1.add(servo1, 0.5, 2000);
-        Sequence1.add(servo1, 0.2, 600, true);
-        Sequence1.add(830);
-        if (logic) {
-            Sequence1.step();
+        if (servo1 == null){
+            telemetry.addData("servo1 is null nigger");
         }
+        else{
+            sequence1.add(servo1, 0.5, 2000);
+            sequence1.add(servo1, 0.2, 600, true);
+            sequence1.add(830);
+            if (logic) {
+                sequence1.step();
+            }
+        }
+
     }
 }
