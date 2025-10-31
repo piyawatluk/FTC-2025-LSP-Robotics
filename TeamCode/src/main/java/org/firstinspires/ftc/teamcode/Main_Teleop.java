@@ -17,6 +17,7 @@ public class Main_Teleop extends OpMode {
 
     private Sequencer sequence1 = new Sequencer();
     private Sequencer sequence2 = new Sequencer();
+    private boolean prevA = false;
 
     @Override
     public void init() {
@@ -30,7 +31,7 @@ public class Main_Teleop extends OpMode {
         servo2 = robotHardware.placeholderServo2;
     }
 
-    @Override
+    /*@Override
     public void start() {
         sequence1.add(servo1, 0.5, 2000);
         sequence1.add(servo1, 0.2, 600, true);
@@ -38,26 +39,26 @@ public class Main_Teleop extends OpMode {
         sequence2.add(830);
 
         runtime.reset();
-    }
+    }*/
 
     @Override
     public void loop() {
         mecanumDrive.drive(gamepad1);
 
+        boolean currentA = gamepad1.a;
+
+        // Start the sequence once per press
+        boolean startSequence = currentA && !prevA;
+
+        generalUtil.servo_test(hardwareMap, startSequence, telemetry);
+
+        prevA = currentA;
+
         telemetry.addLine("LSP Robotic Senior - Teleop");
-        telemetry.addLine("___________________________");
         telemetry.addData("Left front motor speed", mecanumDrive.getMotorPower("LFM"));
         telemetry.addData("Right front motor speed", mecanumDrive.getMotorPower("RFM"));
         telemetry.addData("Left rear motor speed", mecanumDrive.getMotorPower("LBM"));
         telemetry.addData("Right rear motor speed", mecanumDrive.getMotorPower("RBM"));
-
-        //sequence1.step();
-        //if (sequence1.actionCounter > 1) {
-        //    sequence2.step();
-        //}
-
-        generalUtil.servo_test(hardwareMap, gamepad1.a, telemetry);
-
         telemetry.update();
     }
 

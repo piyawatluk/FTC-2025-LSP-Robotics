@@ -14,6 +14,7 @@ public class generalUtil {
     static Sequencer Sequence1 = new Sequencer();
     public static Servo servo1 = null;
 
+
     Robot_Hardware robotHardware = new Robot_Hardware();
 
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -29,17 +30,23 @@ public class generalUtil {
         }
     }
 
-    public static void servo_test(HardwareMap hardwareMap, boolean logic, Telemetry telemetry) {
+    public static void servo_test(HardwareMap hardwareMap, boolean start, Telemetry telemetry) {
         Servo servo1 = hardwareMap.get(Servo.class, "tbd_0");
+
         if (servo1 == null) {
             telemetry.addData("ERROR", "The servo is NULL");
-        } else {
+            return;
+        }
+
+        // When the button is pressed (start == true), define the sequence
+        if (start) {
+            Sequence1 = new Sequencer();
             Sequence1.add(servo1, 0.5, 2000);
             Sequence1.add(servo1, 0.2, 600, true);
             Sequence1.add(830);
-            if (logic) {
-                Sequence1.step();
-            }
         }
+
+        // Always step the sequence each loop (it runs automatically)
+        Sequence1.step();
     }
 }
