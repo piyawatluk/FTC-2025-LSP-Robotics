@@ -33,7 +33,7 @@ public class generalUtil {
         servo1 = robotHardware.placeholderServo1;
 
     }
-    public static void servo_test(boolean logic) {
+    public static void servo_test(boolean logic, Telemetry telemetry) {
         if (servo1 == null){
             telemetry.addData("servo1 is null nigger");
         }
