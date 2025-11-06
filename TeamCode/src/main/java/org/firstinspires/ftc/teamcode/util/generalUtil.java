@@ -41,8 +41,8 @@ public class generalUtil {
         // When the button is pressed (start == true), define the sequence
         if (start) {
             Sequence1 = new Sequencer();
-            Sequence1.add(servo1, 0.5, 2000);
-            Sequence1.add(servo1, 0.2, 600, true);
+            Sequence1.add(servo1, 0.5, 500);
+            Sequence1.add(servo1, 0.2, 500, true);
             Sequence1.add(830);
         }
 
