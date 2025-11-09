@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -74,9 +75,9 @@ public class Robot_Hardware {
         rearRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-        rearLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-        frontRightMotor.setDirection(DcMotor.Direction.FORWARD);
-        rearRightMotor.setDirection(DcMotor.Direction.FORWARD);
+        rearLeftMotor.setDirection(DcMotor.Direction.FORWARD);
+        frontRightMotor.setDirection(DcMotor.Direction.REVERSE);
+        rearRightMotor.setDirection(DcMotor.Direction.REVERSE);
 
 
         placeholderServo1 = hardwareMap.get(Servo.class, placeholderServoName1);
