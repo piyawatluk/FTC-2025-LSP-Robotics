@@ -85,6 +85,8 @@ public class Main_Teleop extends OpMode {
                     telemetry.addLine(String.format(" PRY (deg) %6.1f %6.1f %6.1f", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
                 } else {
                     telemetry.addLine(String.format("ID %d: Unknown  Center (px) %6.0f %6.0f", detection.id, detection.center.x, detection.center.y));
+                    telemetry.addData("Metadata", detection.metadata);
+                    telemetry.addData("ftcPose" , detection.ftcPose);
                 }
             }
         }
