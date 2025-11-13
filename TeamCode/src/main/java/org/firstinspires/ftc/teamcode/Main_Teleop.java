@@ -5,9 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.util.AreaLimiter;
 import org.firstinspires.ftc.teamcode.util.generalUtil;
 import org.firstinspires.ftc.teamcode.util.Sequencer;
 import org.firstinspires.ftc.teamcode.util.AprilTagEasyHelper;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
@@ -18,12 +21,16 @@ public class Main_Teleop extends OpMode {
 
     private final ElapsedTime runtime = new ElapsedTime();
     private MecanumDrive mecanumDrive;
+    private SampleMecanumDrive rrDrive;
     private Servo servo1;
     private Servo servo2;
 
     private Sequencer sequence1 = new Sequencer();
     private Sequencer sequence2 = new Sequencer();
     private boolean prevA = false;
+
+    //Area Limiter
+    private AreaLimiter areaLimiter = new AreaLimiter();
 
     // AprilTag helper
     private AprilTagEasyHelper aprilTagHelper;
@@ -39,23 +46,33 @@ public class Main_Teleop extends OpMode {
         servo1 = robotHardware.placeholderServo1;
         servo2 = robotHardware.placeholderServo2;
 
+        // Road Runner drive for pose
+        rrDrive = new SampleMecanumDrive(hardwareMap);
+        rrDrive.setPoseEstimate(new Pose2d(0, 0, 0)); // starting pose
+
         // Initialize AprilTag helper: change useWebcam/name if you want phone camera instead
         aprilTagHelper = new AprilTagEasyHelper(true, "Webcam 1");
         aprilTagHelper.initialize(hardwareMap);
     }
 
-    /*@Override
-    public void start() {
-        sequence1.add(servo1, 0.5, 2000);
-        sequence1.add(servo1, 0.2, 600, true);
-        sequence2.add(servo2, 0.6, 100);
-        sequence2.add(830);
-
-        runtime.reset();
-    }*/
-
     @Override
     public void loop() {
+        //Start counting Displacement For limiter
+        rrDrive.update();
+        Pose2d pose = rrDrive.getPoseEstimate();
+        double x = pose.getX();
+        double y = pose.getY();
+
+        double rawLX = gamepad1.left_stick_x;      // strafe (left/right)
+        double rawLY = -gamepad1.left_stick_y;     // forward/back (invert so up = +)
+        double turn  = gamepad1.right_stick_x;     // rotation
+
+        double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
+        double limitedLX = limited[0];
+        double limitedLY = limited[1];
+
+        mecanumDrive.driveLimited(limitedLX, limitedLY, turn);
+
         mecanumDrive.drive(gamepad1);
 
         boolean currentA = gamepad1.a;
