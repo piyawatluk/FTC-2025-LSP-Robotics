@@ -200,6 +200,7 @@ public class Sequencer {
             this.durationMs = durationMs;
         }
 
+
         @Override
         public boolean execute() {
             motor.setPower(Math.min(1, Math.max(-1, power)));

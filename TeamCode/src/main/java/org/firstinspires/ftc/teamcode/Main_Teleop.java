@@ -24,6 +24,7 @@ public class Main_Teleop extends OpMode {
     private Sequencer sequence1 = new Sequencer();
     private Sequencer sequence2 = new Sequencer();
     private boolean prevA = false;
+    private boolean prevB = false;
 
     // AprilTag helper
     private AprilTagEasyHelper aprilTagHelper;
@@ -59,13 +60,18 @@ public class Main_Teleop extends OpMode {
         mecanumDrive.drive(gamepad1);
 
         boolean currentA = gamepad1.a;
+        boolean currentB = gamepad1.b;
 
         // Start the sequence once per press
         boolean startSequence = currentA && !prevA;
+        boolean lift_logic = currentB && !prevB;
+
 
         generalUtil.servo_test(hardwareMap, startSequence, telemetry);
-
         prevA = currentA;
+        prevB = currentB;
+
+
 
         // Allow toggling camera streaming to save CPU if needed
         if (gamepad1.dpad_down) {

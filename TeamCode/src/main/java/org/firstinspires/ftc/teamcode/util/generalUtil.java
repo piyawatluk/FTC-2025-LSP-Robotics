@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.RobotHardware;
 import org.firstinspires.ftc.teamcode.Robot_Hardware;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -12,10 +15,16 @@ import java.util.Properties;
 public class generalUtil {
 
     static Sequencer Sequence1 = new Sequencer();
+    static Sequencer lift_seq = new Sequencer();
+    private final Robot_Hardware hardware;
     public static Servo servo1 = null;
 
 
     Robot_Hardware robotHardware = new Robot_Hardware();
+
+    public generalUtil(Robot_Hardware hardware) {
+        this.hardware = hardware;
+    }
 
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
         // Load config on object creation
@@ -48,5 +57,17 @@ public class generalUtil {
 
         // Always step the sequence each loop (it runs automatically)
         Sequence1.step();
+    }
+
+    public void lift(HardwareMap hardwareMap, boolean start, Telemetry telemetry){
+
+        final DcMotor liftMotor = hardware.liftMotor;
+        if (start){
+            lift_seq =new Sequencer();
+            lift_seq.
+            liftMotor.setTargetPosition(1900);
+        }
+
+
     }
 }
