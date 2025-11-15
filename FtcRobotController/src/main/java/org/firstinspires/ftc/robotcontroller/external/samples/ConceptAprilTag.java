@@ -53,7 +53,7 @@ import java.util.List;
  * the current Season's AprilTags and a small set of "test Tags" in the high number range.
  *
  * When an AprilTag in the TagLibrary is detected, the SDK provides location and orientation of the tag, relative to the camera.
- * This information is provided in the "ftcPose" member of the returned "detection", aand is explained in the ftc-docs page linked below.
+ * This information is provided in the "ftcPose" member of the returned "detection", and is explained in the ftc-docs page linked below.
  * https://ftc-docs.firstinspires.org/apriltag-detection-values
  *
  * To experiment with using AprilTags to navigate, try out these two driving samples:
@@ -66,6 +66,7 @@ import java.util.List;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
 @TeleOp(name = "Concept: AprilTag", group = "Concept")
+@Disabled
 public class ConceptAprilTag extends LinearOpMode {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
