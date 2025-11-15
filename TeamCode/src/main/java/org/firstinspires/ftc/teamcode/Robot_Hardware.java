@@ -20,6 +20,7 @@ public class Robot_Hardware {
     public String rearRightMotorName;
     public String rightShooterMotorName;
     public String leftShooterMotorName;
+    public String liftMotorName;
 
     public DcMotor frontLeftMotor = null;
     public DcMotor rearLeftMotor = null;
@@ -27,6 +28,7 @@ public class Robot_Hardware {
     public DcMotor rearRightMotor = null;
     public DcMotor rightShooterMotor = null;
     public DcMotor leftShooterMotor = null;
+    public DcMotor liftMotor = null;
 
     // Rename the servos
     public String placeholderServoName1;
@@ -63,6 +65,8 @@ public class Robot_Hardware {
         rightShooterMotorName = prop.getProperty("Robot.RIGHT_SHOOTER_MOTOR_NAME", "rsm");
         leftShooterMotorName = prop.getProperty("Robot.LEFT_SHOOTER_MOTOR_NAME", "lsm");
 
+        liftMotorName = prop.getProperty("Robot.LIFT_MOTOR_NAME","lft");
+
 
 
         placeholderServoName1 = prop.getProperty("Robot.PLACEHOLDER_SERVO1_NAME", "null");
@@ -79,6 +83,8 @@ public class Robot_Hardware {
         rightShooterMotor = hardwareMap.get(DcMotor.class, rightShooterMotorName);
         leftShooterMotor = hardwareMap.get(DcMotor.class, leftShooterMotorName);
 
+        liftMotor = hardwareMap.get(DcMotor.class, liftMotorName);
+
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rearLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -87,6 +93,8 @@ public class Robot_Hardware {
         rightShooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         leftShooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
+        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         frontLeftMotor.setDirection(DcMotor.Direction.FORWARD);
         rearLeftMotor.setDirection(DcMotor.Direction.FORWARD);
         frontRightMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -94,6 +102,8 @@ public class Robot_Hardware {
 
         rightShooterMotor.setDirection(DcMotorSimple.Direction.FORWARD); //tbd
         leftShooterMotor.setDirection(DcMotorSimple.Direction.FORWARD); //tbd
+
+        liftMotor.setDirection(DcMotorSimple.Direction.FORWARD); //tbd
 
 
         placeholderServo1 = hardwareMap.get(Servo.class, placeholderServoName1);
