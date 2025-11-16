@@ -63,7 +63,7 @@ public class Main_Teleop extends OpMode {
         //boolean lift_logic = currentB && !prevB;
 
         util.servo_test(hardwareMap, startSequence, telemetry);
-        util.belt(gamepad1.b);
+        util.shooter(gamepad1.b, 6000);
 
         prevA = currentA;
         //prevB = currentB;

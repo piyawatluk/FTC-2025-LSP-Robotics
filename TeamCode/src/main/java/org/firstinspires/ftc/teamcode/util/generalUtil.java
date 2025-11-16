@@ -28,6 +28,7 @@ public class generalUtil {
     private Sequencer sequence1 = new Sequencer();
     private Sequencer lift_seq = new Sequencer();
     private Sequencer belt = new Sequencer();
+    private Sequencer shooter = new Sequencer();
 
     // Hardware references
     private Servo servo1;
@@ -86,12 +87,13 @@ public class generalUtil {
         sequence1.step();
     }
 
-    public void belt(boolean atr){
-        if (atr){
-            belt = new Sequencer();
-            belt.add(hardware.leftBeltDriveMotor,1,hardware.rightBeltDriveMotor,1,5000);
+    public void shooter(boolean bool, double target_RPM){
+        double power = target_RPM/6000;
+        if (bool){
+            shooter = new Sequencer();
+            shooter.add(hardware.leftShooterMotor, power,hardware.rightShooterMotor,power,5000);
         }
-        belt.step();
+        shooter.step();
     }
 
     // ----------------------------------------
