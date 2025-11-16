@@ -93,7 +93,7 @@ public class Robot_Hardware {
         rightBeltDriveMotor = hardwareMap.get(DcMotor.class, rightBeltDriveMotorName);
         leftBeltDriveMotor = hardwareMap.get(DcMotor.class, leftBeltDriveMotorName);
 
-        liftMotor = hardwareMap.get(DcMotor.class, liftMotorName);
+        //liftMotor = hardwareMap.get(DcMotor.class, liftMotorName);
 
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rearLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -106,7 +106,8 @@ public class Robot_Hardware {
         rightBeltDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBeltDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         frontLeftMotor.setDirection(DcMotor.Direction.FORWARD);
         rearLeftMotor.setDirection(DcMotor.Direction.FORWARD);
@@ -117,9 +118,9 @@ public class Robot_Hardware {
         leftShooterMotor.setDirection(DcMotorSimple.Direction.FORWARD); //tbd
 
         rightBeltDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);//tbd
-        leftBeltDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);//tbd
+        leftBeltDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        liftMotor.setDirection(DcMotorSimple.Direction.FORWARD); //tbd
+        //liftMotor.setDirection(DcMotorSimple.Direction.FORWARD); //tbd
 
 
         placeholderServo1 = hardwareMap.get(Servo.class, placeholderServoName1);

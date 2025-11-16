@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.RobotHardware;
 import org.firstinspires.ftc.teamcode.Robot_Hardware;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -12,62 +10,117 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Utility class for Sequencer-based actions.
+ *
+ * HOW TO USE:
+ * 1) Create new generalUtil(hw)
+ * 2) Call util.init(hardwareMap, telemetry)
+ * 3) In loop(): call util.Belt(startButton) or util.servo_test(...)
+ */
 public class generalUtil {
 
-    static Sequencer Sequence1 = new Sequencer();
-    static Sequencer lift_seq = new Sequencer();
     private final Robot_Hardware hardware;
-    public static Servo servo1 = null;
 
+    // ----------------------------------------
+    // Sequencers (NOT STATIC — resets every OpMode run)
+    // ----------------------------------------
+    private Sequencer sequence1 = new Sequencer();
+    private Sequencer lift_seq = new Sequencer();
+    private Sequencer belt = new Sequencer();
 
-    Robot_Hardware robotHardware = new Robot_Hardware();
+    // Hardware references
+    private Servo servo1;
+    private DcMotor leftBeltDriveMotor;
+    private DcMotor rightBeltDriveMotor;
 
-    public generalUtil(Robot_Hardware hardware) {
-        this.hardware = hardware;
+    // ----------------------------------------
+    // Constructor
+    // ----------------------------------------
+    public generalUtil(Robot_Hardware hw) {
+        this.hardware = hw;
     }
 
+    // ----------------------------------------
+    // Initialization
+    // ----------------------------------------
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
-        // Load config on object creation
+
+        // Load configs from assets (optional)
         Properties prop = new Properties();
         try (InputStream input = hardwareMap.appContext.getAssets().open("Robot.config")) {
             prop.load(input);
         } catch (Exception e) {
             RobotLog.ee("Robot_Hardware", e, "Failed to load Robot.config");
-            if (telemetry != null) {
+            if (telemetry != null)
                 telemetry.addData("ERROR", "Cannot read assets/Robot.config");
-            }
         }
+
+        // Assign hardware AFTER config
+        this.leftBeltDriveMotor = hardware.leftBeltDriveMotor;
+        this.rightBeltDriveMotor = hardware.rightBeltDriveMotor;
+
+        //this.servo1 = hardware.servo1; // optional if needed
     }
 
-    public static void servo_test(HardwareMap hardwareMap, boolean start, Telemetry telemetry) {
-        Servo servo1 = hardwareMap.get(Servo.class, "tbd_0");
+    // ----------------------------------------
+    // SERVO TEST SEQUENCE
+    // ----------------------------------------
+    public void servo_test(HardwareMap hardwareMap, boolean start, Telemetry telemetry) {
 
-        if (servo1 == null) {
+        Servo s = hardwareMap.get(Servo.class, "tbd_0");
+
+        if (s == null) {
             telemetry.addData("ERROR", "The servo is NULL");
             return;
         }
 
-        // When the button is pressed (start == true), define the sequence
         if (start) {
-            Sequence1 = new Sequencer();
-            Sequence1.add(servo1, 0.5, 500);
-            Sequence1.add(servo1, 0.2, 500, true);
-            Sequence1.add(830);
+            sequence1 = new Sequencer();  // reset sequence
+            sequence1.add(s, 0.5, 500);           // move to 0.5
+            sequence1.add(s, 0.2, 500, true);     // interpolate to 0.2
+            sequence1.add(830);                   // delay
         }
 
-        // Always step the sequence each loop (it runs automatically)
-        Sequence1.step();
+        // Step every loop
+        sequence1.step();
     }
 
-    public void lift(HardwareMap hardwareMap, boolean start, Telemetry telemetry){
-
-        final DcMotor liftMotor = hardware.liftMotor;
-        if (start){
-            lift_seq =new Sequencer();
-            lift_seq.
-            liftMotor.setTargetPosition(1900);
+    public void belt(boolean atr){
+        if (atr){
+            belt = new Sequencer();
+            belt.add(hardware.leftBeltDriveMotor,1,hardware.rightBeltDriveMotor,1,5000);
         }
-
-
+        belt.step();
     }
+
+    // ----------------------------------------
+    // BELT MOTOR SEQUENCE
+    // ----------------------------------------
+    //public void Belt(boolean start, Telemetry telemetry) {
+
+        //if (leftBeltDriveMotor == null || rightBeltDriveMotor == null)
+            //telemetry.addLine("kuy");
+            //return;
+
+        //if (start) {
+            //leftBeltDriveMotor.setPower(1);
+            //rightBeltDriveMotor.setPower(1);
+
+        //}
+
+        //// Step every loop
+        //belt.step();
+    //}
+
+    // ----------------------------------------
+    // Utility: check if sequence finished
+    // ----------------------------------------
+    //public boolean beltFinished() {
+        //return belt.sequenceFinished();
+    //}
+
+    //public boolean servoSeqFinished() {
+        //return sequence1.sequenceFinished();
+    //}
 }

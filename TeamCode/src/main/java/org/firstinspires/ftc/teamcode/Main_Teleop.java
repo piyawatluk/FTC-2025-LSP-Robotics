@@ -2,9 +2,12 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.util.generalUtil;
 import org.firstinspires.ftc.teamcode.util.Sequencer;
 import org.firstinspires.ftc.teamcode.util.AprilTagEasyHelper;
@@ -18,13 +21,14 @@ public class Main_Teleop extends OpMode {
 
     private final ElapsedTime runtime = new ElapsedTime();
     private MecanumDrive mecanumDrive;
-    private Servo servo1;
-    private Servo servo2;
-
-    private Sequencer sequence1 = new Sequencer();
-    private Sequencer sequence2 = new Sequencer();
     private boolean prevA = false;
     private boolean prevB = false;
+    private Sequencer belt = new Sequencer();
+    public static DcMotor leftBeltDriveMotor;
+    public static DcMotor rightBeltDriveMotor;
+    Robot_Hardware hw = new Robot_Hardware();
+    generalUtil util = new generalUtil(hw);
+
 
     // AprilTag helper
     private AprilTagEasyHelper aprilTagHelper;
@@ -32,44 +36,37 @@ public class Main_Teleop extends OpMode {
     @Override
     public void init() {
         telemetry.addData("Status", "Initialized");
+        hw.init(hardwareMap, telemetry);
 
-        Robot_Hardware robotHardware = new Robot_Hardware();
-        robotHardware.init(hardwareMap, telemetry);
-
-        mecanumDrive = new MecanumDrive(robotHardware);
-        servo1 = robotHardware.placeholderServo1;
-        servo2 = robotHardware.placeholderServo2;
+        mecanumDrive = new MecanumDrive(hw);
 
         // Initialize AprilTag helper: change useWebcam/name if you want phone camera instead
         aprilTagHelper = new AprilTagEasyHelper(true, "Webcam 1");
         aprilTagHelper.initialize(hardwareMap);
     }
 
-    /*@Override
+    @Override
     public void start() {
-        sequence1.add(servo1, 0.5, 2000);
-        sequence1.add(servo1, 0.2, 600, true);
-        sequence2.add(servo2, 0.6, 100);
-        sequence2.add(830);
 
         runtime.reset();
-    }*/
+    }
 
     @Override
     public void loop() {
         mecanumDrive.drive(gamepad1);
 
         boolean currentA = gamepad1.a;
-        boolean currentB = gamepad1.b;
+        //boolean currentB = gamepad1.b;
 
         // Start the sequence once per press
         boolean startSequence = currentA && !prevA;
-        boolean lift_logic = currentB && !prevB;
+        //boolean lift_logic = currentB && !prevB;
 
+        util.servo_test(hardwareMap, startSequence, telemetry);
+        util.belt(gamepad1.b);
 
-        generalUtil.servo_test(hardwareMap, startSequence, telemetry);
         prevA = currentA;
-        prevB = currentB;
+        //prevB = currentB;
 
 
 
