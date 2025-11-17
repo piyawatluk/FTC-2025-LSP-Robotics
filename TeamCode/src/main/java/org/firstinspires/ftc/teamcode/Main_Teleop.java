@@ -2,9 +2,12 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.util.AreaLimiter;
 import org.firstinspires.ftc.teamcode.util.generalUtil;
@@ -28,6 +31,13 @@ public class Main_Teleop extends OpMode {
     private Sequencer sequence1 = new Sequencer();
     private Sequencer sequence2 = new Sequencer();
     private boolean prevA = false;
+    private boolean prevB = false;
+    private Sequencer belt = new Sequencer();
+    public static DcMotor leftBeltDriveMotor;
+    public static DcMotor rightBeltDriveMotor;
+    Robot_Hardware hw = new Robot_Hardware();
+    generalUtil util = new generalUtil(hw);
+
 
     //Area Limiter
     private AreaLimiter areaLimiter = new AreaLimiter();
@@ -38,13 +48,9 @@ public class Main_Teleop extends OpMode {
     @Override
     public void init() {
         telemetry.addData("Status", "Initialized");
+        hw.init(hardwareMap, telemetry);
 
-        Robot_Hardware robotHardware = new Robot_Hardware();
-        robotHardware.init(hardwareMap, telemetry);
-
-        mecanumDrive = new MecanumDrive(robotHardware);
-        servo1 = robotHardware.placeholderServo1;
-        servo2 = robotHardware.placeholderServo2;
+        mecanumDrive = new MecanumDrive(hw);
 
         // Road Runner drive for pose
         rrDrive = new SampleMecanumDrive(hardwareMap);
@@ -79,13 +85,19 @@ public class Main_Teleop extends OpMode {
 
 
         boolean currentA = gamepad1.a;
+        //boolean currentB = gamepad1.b;
 
         // Start the sequence once per press
         boolean startSequence = currentA && !prevA;
+        //boolean lift_logic = currentB && !prevB;
 
-        generalUtil.servo_test(hardwareMap, startSequence, telemetry);
+        util.servo_test(hardwareMap, startSequence, telemetry);
+        util.shooter(gamepad1.b, 6000);
 
         prevA = currentA;
+        //prevB = currentB;
+
+
 
         // Allow toggling camera streaming to save CPU if needed
         if (gamepad1.dpad_down) {

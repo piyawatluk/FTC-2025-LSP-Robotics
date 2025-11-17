@@ -94,6 +94,11 @@ public class Sequencer {
         actionQueue.add(new MotorAction(motor, power, durationMs));
     }
 
+    public void add(DcMotor m1, double p1, DcMotor m2, double p2, long durationMs) {
+        actionQueue.add(new DualMotorAction(m1, p1, m2, p2, durationMs));
+    }
+
+
     /**
      * Adds a Delay Action to Queue
      * <p>A Non-blocking wait within the Sequencer</p>
@@ -200,6 +205,7 @@ public class Sequencer {
             this.durationMs = durationMs;
         }
 
+
         @Override
         public boolean execute() {
             motor.setPower(Math.min(1, Math.max(-1, power)));
@@ -210,6 +216,34 @@ public class Sequencer {
             return false;
         }
     }
+
+    public final class DualMotorAction implements SeqAction {
+        public final DcMotor m1, m2;
+        public final double p1, p2;
+        public final long durationMs;
+
+        public DualMotorAction(DcMotor m1, double p1, DcMotor m2, double p2, long durationMs) {
+            this.m1 = m1;
+            this.p1 = p1;
+            this.m2 = m2;
+            this.p2 = p2;
+            this.durationMs = durationMs;
+        }
+
+        @Override
+        public boolean execute() {
+            m1.setPower(Math.min(1, Math.max(-1, p1)));
+            m2.setPower(Math.min(1, Math.max(-1, p2)));
+
+            if (timer.milliseconds() >= durationMs) {
+                m1.setPower(0);
+                m2.setPower(0);
+                return true;
+            }
+            return false;
+        }
+    }
+
 
     /**
      * Waits the specified milliseconds
