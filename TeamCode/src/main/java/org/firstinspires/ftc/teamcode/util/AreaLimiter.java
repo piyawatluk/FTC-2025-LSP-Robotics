@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 public class AreaLimiter {
     // Allowed virtual box (inches)
     public double X_MIN = -60;
@@ -10,14 +12,26 @@ public class AreaLimiter {
     public double[] limit(double x, double y, double driveX, double driveY) {
 
         // Left wall
-        if (x <= X_MIN && driveX < 0) driveX = 0;
+        if (x <= X_MIN && driveX < 0) {
+            driveX = 0;
+            telemetry.addData("Limit reached (X axis)", driveX);
+        }
         // Right wall
-        if (x >= X_MAX && driveX > 0) driveX = 0;
+        if (x >= X_MAX && driveX > 0) {
+            driveX = 0;
+            telemetry.addData("Limit reached (X axis)", driveX);
+        }
 
         // Bottom wall
-        if (y <= Y_MIN && driveY < 0) driveY = 0;
+        if (y <= Y_MIN && driveY < 0) {
+            driveY = 0;
+            telemetry.addData("Limit reached (Y axis)", driveX);
+        }
         // Top wall
-        if (y >= Y_MAX && driveY > 0) driveY = 0;
+        if (y >= Y_MAX && driveY > 0) {
+            driveY = 0;
+            telemetry.addData("Limit reached (Y axis)", driveX);
+        }
 
         return new double[]{driveX, driveY};
     }
