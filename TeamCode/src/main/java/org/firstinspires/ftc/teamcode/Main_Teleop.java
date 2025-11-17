@@ -8,9 +8,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.util.AreaLimiter;
 import org.firstinspires.ftc.teamcode.util.generalUtil;
 import org.firstinspires.ftc.teamcode.util.Sequencer;
 import org.firstinspires.ftc.teamcode.util.AprilTagEasyHelper;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
@@ -21,6 +24,12 @@ public class Main_Teleop extends OpMode {
 
     private final ElapsedTime runtime = new ElapsedTime();
     private MecanumDrive mecanumDrive;
+    private SampleMecanumDrive rrDrive;
+    private Servo servo1;
+    private Servo servo2;
+
+    private Sequencer sequence1 = new Sequencer();
+    private Sequencer sequence2 = new Sequencer();
     private boolean prevA = false;
     private boolean prevB = false;
     private Sequencer belt = new Sequencer();
@@ -29,6 +38,9 @@ public class Main_Teleop extends OpMode {
     Robot_Hardware hw = new Robot_Hardware();
     generalUtil util = new generalUtil(hw);
 
+
+    //Area Limiter
+    private AreaLimiter areaLimiter = new AreaLimiter();
 
     // AprilTag helper
     private AprilTagEasyHelper aprilTagHelper;
@@ -40,20 +52,37 @@ public class Main_Teleop extends OpMode {
 
         mecanumDrive = new MecanumDrive(hw);
 
+        // Road Runner drive for pose
+        rrDrive = new SampleMecanumDrive(hardwareMap);
+        rrDrive.setPoseEstimate(new Pose2d(0, 0, 0)); // starting pose
+
         // Initialize AprilTag helper: change useWebcam/name if you want phone camera instead
         aprilTagHelper = new AprilTagEasyHelper(true, "Webcam 1");
         aprilTagHelper.initialize(hardwareMap);
     }
 
     @Override
-    public void start() {
-
-        runtime.reset();
-    }
-
-    @Override
     public void loop() {
-        mecanumDrive.drive(gamepad1);
+        //Start counting Displacement For limiter
+        rrDrive.update();
+        Pose2d pose = rrDrive.getPoseEstimate();
+        double x = pose.getX();
+        double y = pose.getY();
+
+        double rawLX = gamepad1.left_stick_x;      // strafe (left/right)
+        double rawLY = -gamepad1.left_stick_y;     // forward/back (invert so up = +)
+        double turn  = gamepad1.right_stick_x;     // rotation
+
+        double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
+        double limitedLX = limited[0];
+        double limitedLY = limited[1];
+
+        /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
+        right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
+
+        mecanumDrive.driveLimited(limitedLX, limitedLY, turn);
+        //mecanumDrive.drive(gamepad1);
+
 
         boolean currentA = gamepad1.a;
         //boolean currentB = gamepad1.b;
@@ -108,4 +137,5 @@ public class Main_Teleop extends OpMode {
             aprilTagHelper.shutdown();
         }
     }
+
 }

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 public class MecanumDrive {
@@ -52,5 +53,45 @@ public class MecanumDrive {
             case "RBM": return backRightPower;
             default: return 0.0;
         }
+    }
+
+    public void driveLimited(double driveX, double driveY, double turn) {
+        // Standard mecanum math
+        float stickLX = (float) driveX;
+        float stickLY = (float) -driveY;
+
+        double computedX_l = CoordinateConverter.computeX(stickLX, stickLY, 1);
+        double computedY_l = CoordinateConverter.computeY(stickLX, stickLY, 1);
+
+        float stickRX = (float) turn;
+        double computedX_r = CoordinateConverter.computeX(stickRX, 0f, 1);
+
+        // Same motor mixing as in drive()
+        double fl = (computedY_l - computedX_l) - computedX_r;
+        double fr = (computedY_l + computedX_l) + computedX_r;
+        double bl = (computedY_l + computedX_l) - computedX_r;
+        double br = (computedY_l - computedX_l) + computedX_r;
+
+        // Normalize so no wheel |power| > 1
+        double max = Math.max(1.0,
+                Math.max(Math.max(Math.abs(fl), Math.abs(fr)),
+                        Math.max(Math.abs(bl), Math.abs(br))));
+        fl /= max;
+        fr /= max;
+        bl /= max;
+        br /= max;
+
+        // Save for telemetry
+        frontLeftPower  = fl;
+        frontRightPower = fr;
+        backLeftPower   = bl;
+        backRightPower  = br;
+
+        // Send to motors
+        hardware.frontLeftMotor.setPower(fl);
+        hardware.frontRightMotor.setPower(fr);
+        hardware.rearLeftMotor.setPower(bl);
+        hardware.rearRightMotor.setPower(br);
+
     }
 }
