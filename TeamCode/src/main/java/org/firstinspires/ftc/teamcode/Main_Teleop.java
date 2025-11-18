@@ -40,7 +40,7 @@ public class Main_Teleop extends OpMode {
 
 
     //Area Limiter
-    private AreaLimiter areaLimiter = new AreaLimiter();
+    private AreaLimiter areaLimiter = new AreaLimiter(telemetry);
 
     // AprilTag helper
     private AprilTagEasyHelper aprilTagHelper;
