@@ -95,6 +95,7 @@ public class Main_Teleop extends OpMode {
 
         util.servo_test(hardwareMap, startSequence, telemetry);
         util.shooter(gamepad1.b, 6000);
+        util.lift(gamepad1.x);
 
         prevA = currentA;
         //prevB = currentB;

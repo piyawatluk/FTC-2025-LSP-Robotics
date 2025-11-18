@@ -96,6 +96,17 @@ public class generalUtil {
         shooter.step();
     }
 
+    public void lift(boolean bool){
+        if (bool){
+             hardware.liftMotor.setTargetPosition(1600);
+        }
+        else {
+            hardware.liftMotor.setTargetPosition(0);
+        }
+        hardware.liftMotor.setPower(0.5);
+        hardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
     // ----------------------------------------
     // BELT MOTOR SEQUENCE
     // ----------------------------------------
