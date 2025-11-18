@@ -76,14 +76,14 @@ public class Main_Teleop extends OpMode {
         double turn  = gamepad1.right_stick_x;     // rotation
 
         double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
-        double limitedLX = limited[0];
-        double limitedLY = limited[1];
+        double limitedLX = limited[1];
+        double limitedLY = limited[0];
 
         /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
         right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
 
-        //mecanumDrive.driveLimited(limitedLX, limitedLY, turn);
-        mecanumDrive.drive(gamepad1);
+        mecanumDrive.driveLimited(limitedLX, limitedLY, turn);
+        //mecanumDrive.drive(gamepad1);
 
 
         boolean currentA = gamepad1.a;
@@ -130,6 +130,8 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Right front motor speed", mecanumDrive.getMotorPower("RFM"));
         telemetry.addData("Left rear motor speed", mecanumDrive.getMotorPower("LBM"));
         telemetry.addData("Right rear motor speed", mecanumDrive.getMotorPower("RBM"));
+        telemetry.addData("X",x);
+        telemetry.addData("Y",y);
         telemetry.update();
     }
 
