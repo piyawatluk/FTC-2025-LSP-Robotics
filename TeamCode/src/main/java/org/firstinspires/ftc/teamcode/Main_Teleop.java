@@ -119,8 +119,9 @@ public class Main_Teleop extends OpMode {
                     telemetry.addLine(String.format("ID %d: %s", detection.id, detection.metadata.name));
                     telemetry.addLine(String.format(" XYZ (in)  %6.1f %6.1f %6.1f", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
                     telemetry.addLine(String.format(" PRY (deg) %6.1f %6.1f %6.1f", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                    telemetry.addData("Distance to Tag (in)", detection.ftcPose.z);
+
                     double distanceToAprilTag = sqrt(detection.ftcPose.x * detection.ftcPose.x + detection.ftcPose.y * detection.ftcPose.y);
+                    telemetry.addData("Distance to Tag (in)",distanceToAprilTag);
                     if (distanceToAprilTag >= 67 && areaLimiter.inShootingZone(x,y)) { //1.7m is about 67in (no meme intended)
                         telemetry.addLine("Can shoot!");
                         //lock wheels and shoot idk, P'Wat said its ok ^-^
