@@ -19,12 +19,12 @@ public class AreaLimiter {
         //telemetry.addData("Current X", x);
         //telemetry.addData("Current Y", y); //for debug purposes
         // Left wall
-        if (x <= X_MIN && driveX < 0) {
+        if (x <= X_MIN && driveX > 0) {
             driveX = 0;
             telemetry.addData("Limit reached (X axis)", driveX);
         }
         // Right wall
-        if (x >= X_MAX && driveX > 0) {
+        if (x >= X_MAX && driveX < 0) {
             driveX = 0;
             telemetry.addData("Limit reached (X axis)", driveX);
         }
@@ -32,12 +32,12 @@ public class AreaLimiter {
         // Bottom wall
         if (y <= Y_MIN && driveY < 0) {
             driveY = 0;
-            telemetry.addData("Limit reached (Y axis)", driveX);
+            telemetry.addData("Limit reached (Y axis)", driveY);
         }
         // Top wall
         if (y >= Y_MAX && driveY > 0) {
             driveY = 0;
-            telemetry.addData("Limit reached (Y axis)", driveX);
+            telemetry.addData("Limit reached (Y axis)", driveY);
         }
 
         return new double[]{driveX, driveY};
