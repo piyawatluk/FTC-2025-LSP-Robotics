@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.util;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class AreaLimiter {
-    private Telemetry telemetry;
+    private final Telemetry telemetry;
     // Allowed virtual box (inches)
 
     public AreaLimiter(Telemetry telemetry) {
@@ -41,5 +41,11 @@ public class AreaLimiter {
         }
 
         return new double[]{driveX, driveY};
+    }
+    public Boolean inShootingZone (double x, double y)
+    {
+        //note this assumes that the center is (0,0) and the obelisk is at x-positive just tell me if i'm wrong
+        // this also only applies to the top shooting zone since the bottom seems unlikely
+        return y <= x && y >= -x && x >= 0;
     }
 }
