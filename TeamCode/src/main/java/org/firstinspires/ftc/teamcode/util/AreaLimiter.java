@@ -12,12 +12,12 @@ public class AreaLimiter {
     }
     public double X_MIN = -60;
     public double X_MAX =  60;
-    public double Y_MIN =   0;
+    public double Y_MIN =  -72;
     public double Y_MAX =  72;
 
     public double[] limit(double x, double y, double driveX, double driveY) {
-        telemetry.addData("Current X", x);
-        telemetry.addData("Current Y", y); //for debug purposes
+        //telemetry.addData("Current X", x);
+        //telemetry.addData("Current Y", y); //for debug purposes
         // Left wall
         if (x <= X_MIN && driveX < 0) {
             driveX = 0;
