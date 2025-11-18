@@ -1,12 +1,18 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class AreaLimiter {
+    private Telemetry telemetry;
     // Allowed virtual box (inches)
+
+    public AreaLimiter(Telemetry telemetry) {
+        this.telemetry = telemetry;
+    }
     public double X_MIN = -60;
     public double X_MAX =  60;
-    public double Y_MIN =   0;
+    public double Y_MIN =  -72;
     public double Y_MAX =  72;
 
     public double[] limit(double x, double y, double driveX, double driveY) {

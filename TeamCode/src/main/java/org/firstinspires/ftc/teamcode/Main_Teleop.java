@@ -40,13 +40,15 @@ public class Main_Teleop extends OpMode {
 
 
     //Area Limiter
-    private AreaLimiter areaLimiter = new AreaLimiter();
+    private AreaLimiter areaLimiter;
 
     // AprilTag helper
     private AprilTagEasyHelper aprilTagHelper;
 
     @Override
     public void init() {
+        areaLimiter = new AreaLimiter(telemetry);
+
         telemetry.addData("Status", "Initialized");
         hw.init(hardwareMap, telemetry);
 
