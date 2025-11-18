@@ -69,8 +69,8 @@ public class Robot_Hardware {
         rightShooterMotorName = prop.getProperty("Robot.RIGHT_SHOOTER_MOTOR_NAME", "rsm");
         leftShooterMotorName = prop.getProperty("Robot.LEFT_SHOOTER_MOTOR_NAME", "lsm");
 
-        rightBeltDriveMotorName = prop.getProperty("Robot.RIGHT_BELT_DRIVE_MOTOR_NAME","rbdm");
-        leftBeltDriveMotorName = prop.getProperty("Robot.LEFT_BELT_DRIVE_MOTOR_NAME","lbdm");
+        //rightBeltDriveMotorName = prop.getProperty("Robot.RIGHT_BELT_DRIVE_MOTOR_NAME","rbdm");
+        //leftBeltDriveMotorName = prop.getProperty("Robot.LEFT_BELT_DRIVE_MOTOR_NAME","lbdm");
 
         liftMotorName = prop.getProperty("Robot.LIFT_MOTOR_NAME","lft");
 
@@ -90,10 +90,10 @@ public class Robot_Hardware {
         rightShooterMotor = hardwareMap.get(DcMotor.class, rightShooterMotorName);
         leftShooterMotor = hardwareMap.get(DcMotor.class, leftShooterMotorName);
 
-        rightBeltDriveMotor = hardwareMap.get(DcMotor.class, rightBeltDriveMotorName);
-        leftBeltDriveMotor = hardwareMap.get(DcMotor.class, leftBeltDriveMotorName);
+        //rightBeltDriveMotor = hardwareMap.get(DcMotor.class, rightBeltDriveMotorName);
+        //leftBeltDriveMotor = hardwareMap.get(DcMotor.class, leftBeltDriveMotorName);
 
-        //liftMotor = hardwareMap.get(DcMotor.class, liftMotorName);
+        liftMotor = hardwareMap.get(DcMotor.class, liftMotorName);
 
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rearLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -103,11 +103,11 @@ public class Robot_Hardware {
         rightShooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         leftShooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        rightBeltDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftBeltDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //rightBeltDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //leftBeltDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        //liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         frontLeftMotor.setDirection(DcMotor.Direction.FORWARD);
         rearLeftMotor.setDirection(DcMotor.Direction.FORWARD);
@@ -119,10 +119,10 @@ public class Robot_Hardware {
         leftShooterMotor.setDirection(DcMotorSimple.Direction.FORWARD); //tbd
         leftShooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        rightBeltDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);//tbd
-        leftBeltDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        //rightBeltDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);//tbd
+        //leftBeltDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        //liftMotor.setDirection(DcMotorSimple.Direction.FORWARD); //tbd
+        liftMotor.setDirection(DcMotorSimple.Direction.FORWARD); //tbd
 
 
         placeholderServo1 = hardwareMap.get(Servo.class, placeholderServoName1);
