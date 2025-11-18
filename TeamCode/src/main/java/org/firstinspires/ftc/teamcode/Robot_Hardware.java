@@ -116,7 +116,7 @@ public class Robot_Hardware {
 
         rightShooterMotor.setDirection(DcMotorSimple.Direction.FORWARD); //tbd
         rightShooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftShooterMotor.setDirection(DcMotorSimple.Direction.FORWARD); //tbd
+        leftShooterMotor.setDirection(DcMotorSimple.Direction.REVERSE); //tbd
         leftShooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //rightBeltDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);//tbd
