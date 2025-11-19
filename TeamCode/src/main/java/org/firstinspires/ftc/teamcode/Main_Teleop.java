@@ -40,6 +40,8 @@ public class Main_Teleop extends OpMode {
     Robot_Hardware hw = new Robot_Hardware();
     generalUtil util = new generalUtil(hw);
 
+    private boolean prevY = false;
+
 
     //Area Limiter
     private AreaLimiter areaLimiter;
@@ -77,15 +79,22 @@ public class Main_Teleop extends OpMode {
         double rawLY = -gamepad1.left_stick_y;     // forward/back (invert so up = +)
         double turn  = gamepad1.right_stick_x;     // rotation
 
+        if (gamepad1.y && !prevY) {
+            areaLimiter.WantToShoot = !areaLimiter.WantToShoot;
+        }
+        prevY = gamepad1.y;
+
         double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
         double limitedLX = limited[1];
         double limitedLY = limited[0];
+
 
         /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
         right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
 
         mecanumDrive.driveLimited(limitedLX, limitedLY, turn);
         //mecanumDrive.drive(gamepad1);
+
 
 
         boolean currentA = gamepad1.a;

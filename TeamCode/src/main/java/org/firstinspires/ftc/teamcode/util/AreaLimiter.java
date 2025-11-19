@@ -15,6 +15,8 @@ public class AreaLimiter {
     public double Y_MIN =  -72;
     public double Y_MAX =  72;
 
+    public boolean WantToShoot = false;
+
     public double[] limit(double x, double y, double driveX, double driveY) {
         //telemetry.addData("Current X", x);
         //telemetry.addData("Current Y", y); //for debug purposes
@@ -38,6 +40,11 @@ public class AreaLimiter {
         if (y >= Y_MAX && driveY > 0) {
             driveY = 0;
             telemetry.addData("Limit reached (Y axis)", driveY);
+        }
+        //Shooting zone
+        if (inShootingZone(x,y) && WantToShoot){
+            driveX = 0;
+            driveY = 0;
         }
 
         return new double[]{driveX, driveY};
