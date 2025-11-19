@@ -3,28 +3,29 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+//import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.util.AreaLimiter;
 import org.firstinspires.ftc.teamcode.util.generalUtil;
 import org.firstinspires.ftc.teamcode.util.Sequencer;
 import org.firstinspires.ftc.teamcode.util.AprilTagEasyHelper;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
 
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import java.util.List;
+import org.firstinspires.ftc.teamcode.Drawing;
+import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @TeleOp(name = "Teleop", group = "Iterative OpMode")
 public class Main_Teleop extends OpMode {
 
     private final ElapsedTime runtime = new ElapsedTime();
-    private MecanumDrive mecanumDrive;
-    private SampleMecanumDrive rrDrive;
+    private MecanumDrive_own mecanumDriveOwn;
+    private MecanumDrive rrDrive;
     private Servo servo1;
     private Servo servo2;
 
@@ -52,11 +53,11 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Status", "Initialized");
         hw.init(hardwareMap, telemetry);
 
-        mecanumDrive = new MecanumDrive(hw);
+        mecanumDriveOwn = new MecanumDrive_own(hw);
 
         // Road Runner drive for pose
-        rrDrive = new SampleMecanumDrive(hardwareMap);
-        rrDrive.setPoseEstimate(new Pose2d(0, 0, 0)); // starting pose
+        rrDrive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
+        //rrDrive.setPoseEstimate(new Pose2d(0, 0, 0)); // starting pose
 
         // Initialize AprilTag helper: change useWebcam/name if you want phone camera instead
         aprilTagHelper = new AprilTagEasyHelper(true, "Webcam 1");
@@ -66,10 +67,10 @@ public class Main_Teleop extends OpMode {
     @Override
     public void loop() {
         //Start counting Displacement For limiter
-        rrDrive.update();
-        Pose2d pose = rrDrive.getPoseEstimate();
-        double x = pose.getX();
-        double y = pose.getY();
+        //rrDrive.update();
+        Pose2d pose = rrDrive.localizer.getPose();
+        double x = pose.position.x;
+        double y = pose.position.y;
 
         double rawLX = gamepad1.left_stick_x;      // strafe (left/right)
         double rawLY = -gamepad1.left_stick_y;     // forward/back (invert so up = +)
@@ -84,7 +85,7 @@ public class Main_Teleop extends OpMode {
         /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
         right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
 
-        mecanumDrive.driveLimited(limitedLX, limitedLY, turn);
+        mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
         //mecanumDrive.drive(gamepad1);
 
 
@@ -129,10 +130,10 @@ public class Main_Teleop extends OpMode {
         //}
 
         telemetry.addLine("LSP Robotic Senior - Teleop");
-        telemetry.addData("Left front motor speed", mecanumDrive.getMotorPower("LFM"));
-        telemetry.addData("Right front motor speed", mecanumDrive.getMotorPower("RFM"));
-        telemetry.addData("Left rear motor speed", mecanumDrive.getMotorPower("LBM"));
-        telemetry.addData("Right rear motor speed", mecanumDrive.getMotorPower("RBM"));
+        telemetry.addData("Left front motor speed", mecanumDriveOwn.getMotorPower("LFM"));
+        telemetry.addData("Right front motor speed", mecanumDriveOwn.getMotorPower("RFM"));
+        telemetry.addData("Left rear motor speed", mecanumDriveOwn.getMotorPower("LBM"));
+        telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
         telemetry.addData("X",x);
         telemetry.addData("Y",y);
         telemetry.update();
