@@ -87,4 +87,10 @@ public class AreaLimiter {
     public void hardWall(boolean b) {
         hardWall = true;
     }
+    public Boolean inShootingZone (double x, double y)
+    {
+        //note this assumes that the center is (0,0) and the obelisk is at x-positive just tell me if i'm wrong
+        // this also only applies to the top shooting zone since the bottom seems unlikely
+        return y <= x && y >= -x && x >= 0;
+    }
 }

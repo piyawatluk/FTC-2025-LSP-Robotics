@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static java.lang.Math.sqrt;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,6 +21,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Drawing;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+
+import java.util.List;
 
 @TeleOp(name = "Teleop", group = "Iterative OpMode")
 public class Main_Teleop extends OpMode {
@@ -128,6 +133,18 @@ public class Main_Teleop extends OpMode {
         //}
         //}
         //}
+        final double INFF = 999999; //kinda like INF
+        double distanceToAprilTag = INFF;
+        boolean canShoot = false;
+
+        List<AprilTagDetection> detections = aprilTagHelper.getDetections();
+        if(!detections.isEmpty()) {
+            AprilTagDetection detection = detections.get(0);
+            distanceToAprilTag = sqrt(detection.ftcPose.x * detection.ftcPose.x + detection.ftcPose.y * detection.ftcPose.y);
+            if (distanceToAprilTag >= 67) canShoot = true; //1.7m according to the most handsome guy whose name starts with W and ends in Y
+        }
+
+        boolean inTriangle = areaLimiter.inShootingZone(x,y);
 
         telemetry.addLine("LSP Robotic Senior - Teleop");
         telemetry.addData("Left front motor speed", mecanumDriveOwn.getMotorPower("LFM"));
@@ -136,6 +153,12 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
         telemetry.addData("X",x);
         telemetry.addData("Y",y);
+        if (distanceToAprilTag < INFF) telemetry.addData("Distance to April Tag",distanceToAprilTag);
+        else telemetry.addLine("April Tag not detected");
+        telemetry.addData("In shooting range", canShoot);
+        telemetry.addData("In Shooting Area (Front)", inTriangle);
+        if (canShoot && inTriangle) telemetry.addLine("GO SHOOT!!!");
+        else telemetry.addLine("DO NOT SHOOT!!!");
         telemetry.update();
     }
 

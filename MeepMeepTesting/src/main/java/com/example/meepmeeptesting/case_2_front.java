@@ -6,7 +6,7 @@ import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
-public class MeepMeepTesting {
+public class case_2_front {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(600);
 
@@ -15,17 +15,14 @@ public class MeepMeepTesting {
                 .setConstraints(98.26, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(55, 10, Math.toRadians(210)))
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(55, -10, Math.toRadians(200)))
                 .splineToLinearHeading(new Pose2d(36,-30,Math.toRadians(90)), Math.toRadians(-90))
-                .strafeTo(new Vector2d(36,-55))
-                .strafeToLinearHeading(new Vector2d(55,10),Math.toRadians(210))
-                .strafeToLinearHeading(new Vector2d(12,-30),Math.toRadians(90))
-                .strafeTo(new Vector2d(12,-55))
-                .strafeToLinearHeading(new Vector2d(55,10),Math.toRadians(210))
-                .strafeToLinearHeading(new Vector2d(-12,-30),Math.toRadians(90))
-                .strafeTo(new Vector2d(-12,-55))
-                .strafeToLinearHeading(new Vector2d(55,10),Math.toRadians(210))
-                .strafeToLinearHeading(new Vector2d(55,-55),Math.toRadians(180))
+                .strafeTo(new Vector2d(36,-50))
+                .strafeToLinearHeading(new Vector2d(55,-10),Math.toRadians(200))
+                //.strafeToLinearHeading(new Vector2d(-12,-30),Math.toRadians(90))
+                //.strafeTo(new Vector2d(-12,-55))
+                //.strafeToLinearHeading(new Vector2d(55,10),Math.toRadians(210))
+                .strafeToLinearHeading(new Vector2d(55,55),Math.toRadians(180))
                 .build());
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_JUICE_DARK)
