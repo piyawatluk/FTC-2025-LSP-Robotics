@@ -79,7 +79,7 @@ public class Main_Teleop extends OpMode {
         double limitedLX = limited[1];
         double limitedLY = limited[0];
 
-        areaLimiter.hardWall(gamepad1.left_bumper&&gamepad1.right_bumper);
+        areaLimiter.hardWall(!gamepad1.left_bumper && !gamepad1.right_bumper);
 
         /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
         right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
