@@ -104,29 +104,29 @@ public class Main_Teleop extends OpMode {
 
 
 
-        // Allow toggling camera streaming to save CPU if needed
-        if (gamepad1.dpad_down) {
-            if (aprilTagHelper != null) aprilTagHelper.stopStreaming();
-        } else if (gamepad1.dpad_up) {
-            if (aprilTagHelper != null) aprilTagHelper.resumeStreaming();
-        }
+        //// Allow toggling camera streaming to save CPU if needed
+        //if (gamepad1.dpad_down) {
+            //if (aprilTagHelper != null) aprilTagHelper.stopStreaming();
+        //} else if (gamepad1.dpad_up) {
+            //if (aprilTagHelper != null) aprilTagHelper.resumeStreaming();
+        //}
 
-        // Display AprilTag detections on telemetry
-        if (aprilTagHelper != null) {
-            List<AprilTagDetection> detections = aprilTagHelper.getDetections();
-            telemetry.addData("# AprilTags Detected", detections.size());
-            for (AprilTagDetection detection : detections) {
-                if (detection.metadata != null && detection.ftcPose != null) {
-                    telemetry.addLine(String.format("ID %d: %s", detection.id, detection.metadata.name));
-                    telemetry.addLine(String.format(" XYZ (in)  %6.1f %6.1f %6.1f", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                    telemetry.addLine(String.format(" PRY (deg) %6.1f %6.1f %6.1f", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                } else {
-                    telemetry.addLine(String.format("ID %d: Unknown  Center (px) %6.0f %6.0f", detection.id, detection.center.x, detection.center.y));
-                    telemetry.addData("Metadata", detection.metadata);
-                    telemetry.addData("ftcPose" , detection.ftcPose);
-                }
-            }
-        }
+        //// Display AprilTag detections on telemetry
+        //if (aprilTagHelper != null) {
+            //List<AprilTagDetection> detections = aprilTagHelper.getDetections();
+            //telemetry.addData("# AprilTags Detected", detections.size());
+            //for (AprilTagDetection detection : detections) {
+                //if (detection.metadata != null && detection.ftcPose != null) {
+                    //telemetry.addLine(String.format("ID %d: %s", detection.id, detection.metadata.name));
+                    //telemetry.addLine(String.format(" XYZ (in)  %6.1f %6.1f %6.1f", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
+                    //telemetry.addLine(String.format(" PRY (deg) %6.1f %6.1f %6.1f", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
+                //} else {
+                    //telemetry.addLine(String.format("ID %d: Unknown  Center (px) %6.0f %6.0f", detection.id, detection.center.x, detection.center.y));
+                    //telemetry.addData("Metadata", detection.metadata);
+                    //telemetry.addData("ftcPose" , detection.ftcPose);
+                //}
+            //}
+        //}
 
         telemetry.addLine("LSP Robotic Senior - Teleop");
         telemetry.addData("Left front motor speed", mecanumDrive.getMotorPower("LFM"));
