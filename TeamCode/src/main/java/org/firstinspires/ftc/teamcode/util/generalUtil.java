@@ -98,7 +98,7 @@ public class generalUtil {
 
     public void lift(boolean bool, Telemetry telemetry){
         if (bool){
-             hardware.liftMotor.setTargetPosition(1600);
+             hardware.liftMotor.setTargetPosition(-555);
         }
         else {
             hardware.liftMotor.setTargetPosition(0);
@@ -106,6 +106,9 @@ public class generalUtil {
         hardware.liftMotor.setPower(0.5);
         hardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         telemetry.addData("lift position", hardware.liftMotor.getCurrentPosition());
+    }
+    public void the_gettho(double l2, double l1){
+        hardware.rightBeltDriveMotor.setPower(-l2+l1);
     }
 
     // ----------------------------------------
