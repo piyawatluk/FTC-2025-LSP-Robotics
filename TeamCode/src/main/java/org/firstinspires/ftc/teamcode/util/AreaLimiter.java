@@ -42,7 +42,7 @@ public class AreaLimiter {
             telemetry.addData("Limit reached (Y axis)", driveY);
         }
         //Shooting zone
-        if (inShootingZone(x,y) && WantToShoot){
+        if (inShootingZone(x,y) && WantToShoot || inFarShootZone(x,y) && WantToShoot){
             driveX = 0;
             driveY = 0;
         }
@@ -54,5 +54,11 @@ public class AreaLimiter {
         //note this assumes that the center is (0,0) and the obelisk is at x-positive just tell me if i'm wrong
         // this also only applies to the top shooting zone since the bottom seems unlikely
         return y <= x && y >= -x && x >= 0;
+    }
+    public boolean inFarShootZone(double x, double y) {
+        double relX = x - 47;  // apex shift
+
+        return relX >= 0 && relX <= 23 &&
+                y >= -relX && y <= relX;
     }
 }
