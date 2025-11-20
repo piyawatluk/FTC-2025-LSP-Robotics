@@ -19,7 +19,6 @@ public class AreaLimiter {
     public boolean WantToShoot = false;
     public double DisplaceX;
     public double DisplaceY;
-    public double Buff_range = 10; //Buffer
 
     public double[] limit(double x, double y, double driveX, double driveY) {
         //telemetry.addData("Current X", x);
