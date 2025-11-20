@@ -16,6 +16,7 @@ public class AreaLimiter {
     public double Y_MAX =  72;
     public boolean softWall = false;
     public boolean hardWall = true;
+    public boolean WantToShoot = false;
     public double DisplaceX;
     public double DisplaceY;
     public double Buff_range = 10; //Buffer
@@ -43,6 +44,12 @@ public class AreaLimiter {
         if (y >= Y_MAX && driveY > 0 && hardWall) {
             driveY = 0;
             telemetry.addData("Limit reached (Y axis)", driveY);
+        }
+
+        //Shooting zone
+        if (inShootingZone(x,y) && WantToShoot || inFarShootZone(x,y) && WantToShoot){
+            driveX = 0;
+            driveY = 0;
         }
 
         return new double[]{driveX, driveY};
