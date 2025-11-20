@@ -42,7 +42,7 @@ public class AreaLimiter {
         // Top wall
         if (y >= Y_MAX && driveY > 0 && hardWall) {
             driveY = 0;
-            telemetry.addData("Softwall reached (Y axis)", driveY);
+            telemetry.addData("Limit reached (Y axis)", driveY);
         }
 
         return new double[]{driveX, driveY};
@@ -56,5 +56,12 @@ public class AreaLimiter {
         //note this assumes that the center is (0,0) and the obelisk is at x-positive just tell me if i'm wrong
         // this also only applies to the top shooting zone since the bottom seems unlikely
         return y <= x && y >= -x && x >= 0;
+    }
+
+    public boolean inFarShootZone(double x, double y) {
+        double relX = x - 47;  // apex shift
+
+        return relX >= 0 && relX <= 23 &&
+                y >= -relX && y <= relX;
     }
 }
