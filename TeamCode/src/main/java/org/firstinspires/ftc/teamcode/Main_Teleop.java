@@ -38,6 +38,8 @@ public class Main_Teleop extends OpMode {
     private Sequencer sequence2 = new Sequencer();
     private boolean prevA = false;
     private boolean prevB = false;
+
+    private boolean prevY = false;
     private Sequencer belt = new Sequencer();
     public static DcMotor leftBeltDriveMotor;
     public static DcMotor rightBeltDriveMotor;
@@ -80,6 +82,11 @@ public class Main_Teleop extends OpMode {
         double rawLX = gamepad1.left_stick_x;      // strafe (left/right)
         double rawLY = -gamepad1.left_stick_y;     // forward/back (invert so up = +)
         double turn  = gamepad1.right_stick_x;     // rotation
+
+        if (gamepad1.y && !prevY) {
+            areaLimiter.WantToShoot = !areaLimiter.WantToShoot;
+        }
+        prevY = gamepad1.y;
 
         double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
         double limitedLX = limited[1];
