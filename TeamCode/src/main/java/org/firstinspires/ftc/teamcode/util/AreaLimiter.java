@@ -45,42 +45,6 @@ public class AreaLimiter {
             telemetry.addData("Softwall reached (Y axis)", driveY);
         }
 
-        //Soft wall (Buffer zone)
-
-
-        if (x <= X_MIN+Buff_range && driveX > 0 && softWall) {
-            while (x >= X_MIN){
-                DisplaceX = x-X_MIN;
-                driveX = DisplaceX/10;
-            }
-            telemetry.addData("Softwall reached (X axis)", driveX);
-        }
-        // Right wall
-        if (x >= X_MAX-Buff_range && driveX < 0 && softWall) {
-            while (x <= X_MAX){
-                DisplaceX = X_MAX-x;
-                driveX = DisplaceX/10;
-            }
-            telemetry.addData("Softwall reached (X axis)", driveX);
-        }
-
-        // Bottom wall
-        if (y <= Y_MIN+Buff_range && driveY < 0 && softWall) {
-            while (y >= Y_MIN){
-                DisplaceY = y-Y_MIN;
-                driveY = DisplaceY/10;
-            }
-            telemetry.addData("Softwall reached (Y axis)", driveY);
-        }
-        // Top wall
-        if (y >= Y_MAX-Buff_range && driveY > 0 && softWall) {
-            while (y <= Y_MAX){
-                DisplaceY = Y_MAX-y;
-                driveY = DisplaceY/10;
-            }
-            telemetry.addData("Softwall reached (Y axis)", driveY);
-        }
-
         return new double[]{driveX, driveY};
     }
 
