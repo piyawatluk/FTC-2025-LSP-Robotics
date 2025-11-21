@@ -48,6 +48,7 @@ public class Main_Teleop extends OpMode {
     final double INFF = 999999; //kinda like INF
     double distanceToAprilTag = INFF;
     boolean canShoot = false;
+    boolean shooter_Overwrite = false;
 
 
     //Area Limiter
@@ -108,8 +109,8 @@ public class Main_Teleop extends OpMode {
         /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
         right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
 
-        mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
-        //mecanumDriveOwn.drive(gamepad1);
+        //mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
+        mecanumDriveOwn.drive(gamepad1);
 
 
         boolean currentA = gamepad1.a;
@@ -120,13 +121,20 @@ public class Main_Teleop extends OpMode {
 
         //util.servo_test(hardwareMap, startSequence, telemetry);
         if (distanceToAprilTag < INFF){
-            util.shooter(gamepad1.b, ((distanceToAprilTag/196))+0);
+            util.shooter(gamepad1.b, (((distanceToAprilTag/235))+0)*(6000));
         }
-        else util.shooter(gamepad1.b, 3000);
+        else if (shooter_Overwrite || distanceToAprilTag > INFF) {
+            util.shooter(gamepad1.b, 3000);
+        }
 
         util.feeder(gamepad1.a);
         util.lift(gamepad1.x, telemetry);
         util.the_gettho(gamepad1.left_trigger,gamepad1.right_trigger);
+
+        //overwrite logic
+        if (gamepad1.left_bumper && gamepad1.right_bumper && gamepad1.b){
+            shooter_Overwrite = true;
+        }
 
         prevA = currentA;
         //prevB = currentB;
@@ -169,14 +177,18 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
         telemetry.addData("X",x);
         telemetry.addData("Y",y);
-        if (distanceToAprilTag < INFF) telemetry.addData("Distance to April Tag",distanceToAprilTag);
-        else telemetry.addLine("April Tag not detected");
+        if (distanceToAprilTag < INFF) {
+            telemetry.addData("Distance to April Tag",distanceToAprilTag);
+            telemetry.addData("target motor speed", (distanceToAprilTag/196)*6000);
+        }
+
+        else {telemetry.addLine("April Tag not detected");}
         telemetry.addData("In shooting range", canShoot);
         telemetry.addData("In Shooting Area (Front)", inTriangle);
         if (canShoot && inTriangle) telemetry.addLine("GO SHOOT!!!");
         else telemetry.addLine("DO NOT SHOOT!!!");
 
-        telemetry.addData("target motor speed", distanceToAprilTag/196);
+
         telemetry.update();
     }
 

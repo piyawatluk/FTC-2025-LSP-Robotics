@@ -3,6 +3,7 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
@@ -21,7 +22,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@Disabled
+//@Disabled
 @Config
 @Autonomous(name = "BLUE_TEST_AUTO_PIXEL", group = "Autonomous")
 
@@ -82,6 +83,10 @@ public class blue_auto extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(12,-30),Math.toRadians(90))
                 .strafeTo(new Vector2d(12,-50))
                 .strafeToLinearHeading(new Vector2d(55,-10),Math.toRadians(200));
+
+        TrajectoryActionBuilder mov1 = drive.actionBuilder(initialPose)
+                .splineToLinearHeading(new Pose2d(36,-30,Math.toRadians(90)), Math.toRadians(-90));
+
         Action trajectoryActionCloseOut = tab1.endTrajectory().fresh()
                 .strafeToLinearHeading(new Vector2d(55, 55),Math.toRadians(180))
                 .build();
@@ -107,12 +112,7 @@ public class blue_auto extends LinearOpMode {
         trajectoryActionChosen = tab1.build();
 
         Actions.runBlocking(
-                new SequentialAction(
-                        trajectoryActionChosen,shooter.spinUp(),
-                        //lift.liftUp(),
-                        //.claw.openClaw(),
-                        //lift.liftDown(),
-                        trajectoryActionCloseOut)
+                new SequentialAction(mov1.build())
         );
     }
 }
