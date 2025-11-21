@@ -11,6 +11,9 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.teamcode.util.Sequencer;
+import org.firstinspires.ftc.teamcode.util.generalUtil;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
@@ -21,135 +24,70 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Disabled
 @Config
 @Autonomous(name = "BLUE_TEST_AUTO_PIXEL", group = "Autonomous")
+
 public class blue_auto extends LinearOpMode {
-    public class Lift {
-        private DcMotorEx lift;
+    private final Robot_Hardware hardware;
+    Robot_Hardware hw = new Robot_Hardware();
 
-        public Lift(HardwareMap hardwareMap) {
-            lift = hardwareMap.get(DcMotorEx.class, "liftMotor");
-            lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            lift.setDirection(DcMotorSimple.Direction.FORWARD);
-        }
+    public blue_auto(Robot_Hardware hw){
+        this.hardware = hw;
+    }
+    generalUtil util = new generalUtil(hw);
 
-        public class LiftUp implements Action {
+    public class Shooter {
+        //private DcMotorEx motor;
+
+        //public Shooter(HardwareMap hardwareMap) {
+            //motor = hardwareMap.get(DcMotorEx.class, "shooterMotor");
+        //}
+
+        public class SpinUp implements Action {
             private boolean initialized = false;
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!initialized) {
-                    lift.setPower(0.8);
+                    util.shooter(true,3000);
                     initialized = true;
                 }
 
-                double pos = lift.getCurrentPosition();
-                packet.put("liftPos", pos);
-                if (pos < 3000.0) {
-                    return true;
-                } else {
-                    lift.setPower(0);
-                    return false;
-                }
-            }
-        }
-        public Action liftUp() {
-            return new LiftUp();
-        }
-
-        public class LiftDown implements Action {
-            private boolean initialized = false;
-
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (!initialized) {
-                    lift.setPower(-0.8);
-                    initialized = true;
-                }
-
-                double pos = lift.getCurrentPosition();
-                packet.put("liftPos", pos);
-                if (pos > 100.0) {
-                    return true;
-                } else {
-                    lift.setPower(0);
-                    return false;
-                }
-            }
-        }
-        public Action liftDown(){
-            return new LiftDown();
-        }
-    }
-
-    public class Claw {
-        private Servo claw;
-
-        public Claw(HardwareMap hardwareMap) {
-            claw = hardwareMap.get(Servo.class, "claw");
-        }
-
-        public class CloseClaw implements Action {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                claw.setPosition(0.55);
+                //double vel = motor.getVelocity();
+                //packet.put("shooterVelocity", vel);
+                //return vel < 10_000.0;
                 return false;
             }
         }
-        public Action closeClaw() {
-            return new CloseClaw();
-        }
 
-        public class OpenClaw implements Action {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                claw.setPosition(1.0);
-                return false;
-            }
-        }
-        public Action openClaw() {
-            return new OpenClaw();
+        public Action spinUp() {
+            return new SpinUp();
         }
     }
+
 
     @Override
     public void runOpMode() {
-        Pose2d initialPose = new Pose2d(11.8, 61.7, Math.toRadians(90));
+        Shooter shooter = new Shooter();
+        Pose2d initialPose = new Pose2d(55, -10, Math.toRadians(200));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
-        Claw claw = new Claw(hardwareMap);
-        Lift lift = new Lift(hardwareMap);
+        //Claw claw = new Claw(hardwareMap);
+        //Lift lift = new Lift();
 
         // vision here that outputs position
         int visionOutputPosition = 1;
 
         TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
-                .lineToYSplineHeading(33, Math.toRadians(0))
-                .waitSeconds(2)
-                .setTangent(Math.toRadians(90))
-                .lineToY(48)
-                .setTangent(Math.toRadians(0))
-                .lineToX(32)
-                .strafeTo(new Vector2d(44.5, 30))
-                .turn(Math.toRadians(180))
-                .lineToX(47.5)
-                .waitSeconds(3);
-        TrajectoryActionBuilder tab2 = drive.actionBuilder(initialPose)
-                .lineToY(37)
-                .setTangent(Math.toRadians(0))
-                .lineToX(18)
-                .waitSeconds(3)
-                .setTangent(Math.toRadians(0))
-                .lineToXSplineHeading(46, Math.toRadians(180))
-                .waitSeconds(3);
-        TrajectoryActionBuilder tab3 = drive.actionBuilder(initialPose)
-                .lineToYSplineHeading(33, Math.toRadians(180))
-                .waitSeconds(2)
-                .strafeTo(new Vector2d(46, 30))
-                .waitSeconds(3);
+                .splineToLinearHeading(new Pose2d(36,-30,Math.toRadians(90)), Math.toRadians(-90))
+                .strafeTo(new Vector2d(36,-50))
+                .strafeToLinearHeading(new Vector2d(55,-10),Math.toRadians(200))
+                .strafeToLinearHeading(new Vector2d(12,-30),Math.toRadians(90))
+                .strafeTo(new Vector2d(12,-50))
+                .strafeToLinearHeading(new Vector2d(55,-10),Math.toRadians(200));
         Action trajectoryActionCloseOut = tab1.endTrajectory().fresh()
-                .strafeTo(new Vector2d(48, 12))
+                .strafeToLinearHeading(new Vector2d(55, 55),Math.toRadians(180))
                 .build();
 
         // actions that need to happen on init; for instance, a claw tightening.
-        Actions.runBlocking(claw.closeClaw());
+        //Actions.runBlocking(claw.closeClaw());
 
 
         while (!isStopRequested() && !opModeIsActive()) {
@@ -158,30 +96,23 @@ public class blue_auto extends LinearOpMode {
             telemetry.update();
         }
 
-        int startPosition = visionOutputPosition;
-        telemetry.addData("Starting Position", startPosition);
-        telemetry.update();
+        //int startPosition = visionOutputPosition;
+        //telemetry.addData("Starting Position", startPosition);
+        //telemetry.update();
         waitForStart();
 
         if (isStopRequested()) return;
 
         Action trajectoryActionChosen;
-        if (startPosition == 1) {
-            trajectoryActionChosen = tab1.build();
-        } else if (startPosition == 2) {
-            trajectoryActionChosen = tab2.build();
-        } else {
-            trajectoryActionChosen = tab3.build();
-        }
+        trajectoryActionChosen = tab1.build();
 
         Actions.runBlocking(
                 new SequentialAction(
-                        trajectoryActionChosen,
-                        lift.liftUp(),
-                        claw.openClaw(),
-                        lift.liftDown(),
-                        trajectoryActionCloseOut
-                )
+                        trajectoryActionChosen,shooter.spinUp(),
+                        //lift.liftUp(),
+                        //.claw.openClaw(),
+                        //lift.liftDown(),
+                        trajectoryActionCloseOut)
         );
     }
 }
