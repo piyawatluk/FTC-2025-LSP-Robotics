@@ -121,7 +121,7 @@ public class Main_Teleop extends OpMode {
 
         //util.servo_test(hardwareMap, startSequence, telemetry);
         if (distanceToAprilTag < INFF){
-            util.shooter(gamepad1.b, (((distanceToAprilTag/235))+0)*(6000));
+            util.shooter(gamepad1.b, (((distanceToAprilTag/240))+0f)*(6000));
         }
         else if (shooter_Overwrite || distanceToAprilTag > INFF) {
             util.shooter(gamepad1.b, 3000);
@@ -134,6 +134,9 @@ public class Main_Teleop extends OpMode {
         //overwrite logic
         if (gamepad1.left_bumper && gamepad1.right_bumper && gamepad1.b){
             shooter_Overwrite = true;
+        }
+        if (gamepad1.right_bumper && gamepad1.b){
+            shooter_Overwrite = false;
         }
 
         prevA = currentA;
