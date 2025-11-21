@@ -98,6 +98,9 @@ public class Sequencer {
     public void add(DcMotor m1, double p1, DcMotor m2, double p2, long durationMs) {
         actionQueue.add(new DualMotorAction(m1, p1, m2, p2, durationMs));
     }
+    public void add(CRServo m1, double p1 ,CRServo m2, double p2, long durationMs){
+        actionQueue.add(new DualCRServoAction(m1,p1,m2,p2, durationMs));
+    }
 
 
     /**

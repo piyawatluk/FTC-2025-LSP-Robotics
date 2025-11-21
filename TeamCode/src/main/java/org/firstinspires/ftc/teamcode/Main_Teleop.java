@@ -108,8 +108,9 @@ public class Main_Teleop extends OpMode {
         boolean startSequence = currentA && !prevA;
         //boolean lift_logic = currentB && !prevB;
 
-        util.servo_test(hardwareMap, startSequence, telemetry);
-        util.shooter(gamepad1.b, 6000);
+        //util.servo_test(hardwareMap, startSequence, telemetry);
+        util.shooter(gamepad1.b, 3000);
+        util.feeder(gamepad1.a);
         util.lift(gamepad1.x, telemetry);
         util.the_gettho(gamepad1.left_trigger,gamepad1.right_trigger);
 
