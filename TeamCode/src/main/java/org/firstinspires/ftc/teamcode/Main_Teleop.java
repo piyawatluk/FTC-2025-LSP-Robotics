@@ -50,6 +50,9 @@ public class Main_Teleop extends OpMode {
     boolean canShoot = false;
     boolean shooter_Overwrite = false;
 
+    boolean slow = false;
+    double slownum = 1;
+
 
     //Area Limiter
     private AreaLimiter areaLimiter;
@@ -90,10 +93,16 @@ public class Main_Teleop extends OpMode {
 
         double x = pose.position.x;
         double y = pose.position.y;
+        if (gamepad1.right_bumper){
+            slownum = 0.2;
+        }
+
 
         double rawLX = gamepad1.left_stick_x;      // strafe (left/right)
         double rawLY = -gamepad1.left_stick_y;     // forward/back (invert so up = +)
-        double turn  = gamepad1.right_stick_x;     // rotation
+        double turn  = (gamepad1.right_stick_x);     // rotation
+        //turn *= slownum;
+
 
         if (gamepad1.y && !prevY) {
             areaLimiter.WantToShoot = !areaLimiter.WantToShoot;
@@ -106,11 +115,13 @@ public class Main_Teleop extends OpMode {
 
         areaLimiter.hardWall(!gamepad1.left_bumper && !gamepad1.right_bumper);
 
+
+
         /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
         right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
 
         //mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
-        mecanumDriveOwn.drive(gamepad1);
+        mecanumDriveOwn.drive(gamepad1,slownum);
 
 
         boolean currentA = gamepad1.a;
@@ -120,7 +131,7 @@ public class Main_Teleop extends OpMode {
         //boolean lift_logic = currentB && !prevB;
 
         //overwrite logic
-        if (gamepad1.left_bumper){
+        if (gamepad1.right_bumper){
             shooter_Overwrite = true;
         }
 

@@ -15,7 +15,8 @@ public class MecanumDrive_own {
         this.hardware = hardware;
     }
 
-    public void drive(Gamepad gamepad) {
+
+    public void drive(Gamepad gamepad,double rspeed) {
         double computedX_l = CoordinateConverter.computeX(gamepad.left_stick_x, gamepad.left_stick_y, 1);
         double computedY_l = CoordinateConverter.computeY(gamepad.left_stick_x, gamepad.left_stick_y, 1);
         double computedX_r = CoordinateConverter.computeX(gamepad.right_stick_x, gamepad.right_stick_y, 1);
@@ -27,10 +28,10 @@ public class MecanumDrive_own {
         backRightPower  = (gamepad.left_stick_y - gamepad.left_stick_x) + gamepad.right_stick_x;
 
         // Normalize so values stay in [-1, 1]
-        double max = Math.max(1.0, Math.abs(frontLeftPower));
-        max = Math.max(max, Math.abs(frontRightPower));
-        max = Math.max(max, Math.abs(backLeftPower));
-        max = Math.max(max, Math.abs(backRightPower));
+        double max = Math.max(1.0, Math.abs(frontLeftPower*rspeed));
+        max = Math.max(max, Math.abs(frontRightPower*rspeed));
+        max = Math.max(max, Math.abs(backLeftPower*rspeed));
+        max = Math.max(max, Math.abs(backRightPower*rspeed));
 
         frontLeftPower  /= max;
         frontRightPower /= max;
