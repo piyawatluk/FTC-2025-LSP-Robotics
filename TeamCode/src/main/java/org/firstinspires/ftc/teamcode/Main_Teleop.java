@@ -119,25 +119,24 @@ public class Main_Teleop extends OpMode {
         boolean startSequence = currentA && !prevA;
         //boolean lift_logic = currentB && !prevB;
 
+        //overwrite logic
+        if (gamepad1.left_bumper){
+            shooter_Overwrite = true;
+        }
+
         //util.servo_test(hardwareMap, startSequence, telemetry);
         if (distanceToAprilTag < INFF){
             util.shooter(gamepad1.b, (((distanceToAprilTag/240))+0f)*(6000));
         }
         else if (shooter_Overwrite || distanceToAprilTag > INFF) {
-            util.shooter(gamepad1.b, 3000);
+            util.shooter(gamepad1.left_bumper, 3000);
         }
 
         util.feeder(gamepad1.a);
         util.lift(gamepad1.x, telemetry);
         util.the_gettho(gamepad1.left_trigger,gamepad1.right_trigger);
 
-        //overwrite logic
-        if (gamepad1.left_bumper && gamepad1.right_bumper && gamepad1.b){
-            shooter_Overwrite = true;
-        }
-        if (gamepad1.right_bumper && gamepad1.b){
-            shooter_Overwrite = false;
-        }
+
 
         prevA = currentA;
         //prevB = currentB;
