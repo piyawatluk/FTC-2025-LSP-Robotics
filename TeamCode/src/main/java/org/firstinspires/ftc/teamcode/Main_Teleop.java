@@ -48,7 +48,10 @@ public class Main_Teleop extends OpMode {
     final double INFF = 999999; //kinda like INF
     double distanceToAprilTag = INFF;
     boolean canShoot = false;
-    boolean shooter_Overwrite = false;
+    boolean shooter_Far = false;
+    boolean shooter_Near = false;
+    boolean shooter_Adapt = false;
+    int adapt = 3000;
 
 
     //Area Limiter
@@ -57,11 +60,18 @@ public class Main_Teleop extends OpMode {
     // AprilTag helper
     private AprilTagEasyHelper aprilTagHelper;
 
+    double spy = 0;
+    double spx = 0;
+    double spr = 0;
+
     @Override
     public void init() {
+
+
         areaLimiter = new AreaLimiter(telemetry);
 
         telemetry.addData("Status", "Initialized");
+
         hw.init(hardwareMap, telemetry);
 
         mecanumDriveOwn = new MecanumDrive_own(hw);
@@ -100,6 +110,58 @@ public class Main_Teleop extends OpMode {
         }
         prevY = gamepad1.y;
 
+
+        if ( gamepad1.left_stick_y>=0 )
+            if (gamepad1.left_stick_y<0.05)
+                spy = 0;
+            else if (gamepad1.left_stick_y< 0.6)
+                spy = 0.2;
+            else
+                spy = Math.pow(gamepad1.left_stick_y,5)+0.2;
+        else
+        if (gamepad1.left_stick_y>-0.05)
+            spy = 0;
+        else if (gamepad1.left_stick_y> -0.6)
+            spy = -0.2;
+        else
+            spy = Math.pow(gamepad1.left_stick_y,5)-0.2;
+
+        if ( gamepad1.left_stick_x>=0 )
+            if (gamepad1.left_stick_x<0.05)
+                spx = 0;
+            else if (gamepad1.left_stick_x< 0.6)
+                spx = 0.2;
+            else
+                spx = Math.pow(gamepad1.left_stick_x,5)+0.2;
+        else
+        if (gamepad1.left_stick_x>-0.05)
+            spx = 0;
+        else if (gamepad1.left_stick_x> -0.6)
+            spx = -0.2;
+        else
+            spx = Math.pow(gamepad1.left_stick_x,5)-0.2;;
+
+        if ( gamepad1.right_stick_x>=0 )
+            if (gamepad1.right_stick_x<0.05)
+                spr = 0;
+            else if (gamepad1.right_stick_x< 0.6)
+                spr = 0.2;
+            else if (gamepad1.right_stick_x< 0.85)
+                spr = 0.25;
+            else
+                spr = 1;
+        else
+        if (gamepad1.right_stick_x>-0.1)
+            spr = 0;
+        else if (gamepad1.right_stick_x> -0.6)
+            spr = -0.2;
+        else if (gamepad1.right_stick_x> -0.85)
+            spr = -0.25;
+        else
+            spr = -1;
+        // End Steering
+
+
         double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
         double limitedLX = limited[0];
         double limitedLY = limited[1];
@@ -110,7 +172,7 @@ public class Main_Teleop extends OpMode {
         right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
 
         //mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
-        mecanumDriveOwn.drive(gamepad1);
+        //mecanumDriveOwn.drive(gamepad1);
 
 
         boolean currentA = gamepad1.a;
@@ -119,25 +181,48 @@ public class Main_Teleop extends OpMode {
         boolean startSequence = currentA && !prevA;
         //boolean lift_logic = currentB && !prevB;
 
+        //Shooting mode
+        if (gamepad1.left_bumper){
+            shooter_Far = true;
+            shooter_Near = false;
+
+        }
+        /*if (gamepad1.right_bumper){
+            shooter_Near = true;
+            shooter_Far = false;
+        }*/
+        if (gamepad1.right_bumper){
+            shooter_Far = false;
+            shooter_Adapt = true;
+        }
+
+
+
         //util.servo_test(hardwareMap, startSequence, telemetry);
         if (distanceToAprilTag < INFF){
             util.shooter(gamepad1.b, (((distanceToAprilTag/240))+0f)*(6000));
         }
-        else if (shooter_Overwrite || distanceToAprilTag > INFF) {
-            util.shooter(gamepad1.b, 3000);
+        else if (shooter_Far || distanceToAprilTag > INFF) {
+            util.shooter(gamepad1.left_bumper, 3000);
+        }
+        else if(shooter_Near){
+            util.shooter(gamepad1.right_bumper, 2500);
+        }
+        else if(shooter_Adapt){
+            if(gamepad1.dpad_left){
+                adapt -= 100;
+            }
+            else if(gamepad1.dpad_right){
+                adapt += 100;
+            }
+        util.shooter(gamepad1.right_bumper, adapt);
+
         }
 
         util.feeder(gamepad1.a);
         util.lift(gamepad1.x, telemetry);
         util.the_gettho(gamepad1.left_trigger,gamepad1.right_trigger);
 
-        //overwrite logic
-        if (gamepad1.left_bumper && gamepad1.right_bumper && gamepad1.b){
-            shooter_Overwrite = true;
-        }
-        if (gamepad1.right_bumper && gamepad1.b){
-            shooter_Overwrite = false;
-        }
 
         prevA = currentA;
         //prevB = currentB;
@@ -182,7 +267,7 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Y",y);
         if (distanceToAprilTag < INFF) {
             telemetry.addData("Distance to April Tag",distanceToAprilTag);
-            telemetry.addData("target motor speed", (distanceToAprilTag/196)*6000);
+            telemetry.addData("target motor speed", (distanceToAprilTag/240)*6000);
         }
 
         else {telemetry.addLine("April Tag not detected");}
@@ -191,8 +276,18 @@ public class Main_Teleop extends OpMode {
         if (canShoot && inTriangle) telemetry.addLine("GO SHOOT!!!");
         else telemetry.addLine("DO NOT SHOOT!!!");
 
+        telemetry.addData("Current adapt is",adapt);
+
 
         telemetry.update();
+
+        rrDrive.setDrivePowers(new PoseVelocity2d(
+                new Vector2d(
+                        -spy,
+                        -spx
+                ),
+                -spr
+        ));
     }
 
     @Override
