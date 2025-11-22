@@ -28,15 +28,21 @@ public class MecanumDrive_own {
         backRightPower  = (gamepad.left_stick_y - gamepad.left_stick_x) + gamepad.right_stick_x;
 
         // Normalize so values stay in [-1, 1]
-        double max = Math.max(1.0, Math.abs(frontLeftPower*rspeed));
-        max = Math.max(max, Math.abs(frontRightPower*rspeed));
-        max = Math.max(max, Math.abs(backLeftPower*rspeed));
-        max = Math.max(max, Math.abs(backRightPower*rspeed));
+        double max = Math.max(1.0, Math.abs(frontLeftPower));
+        max = Math.max(max, Math.abs(frontRightPower));
+        max = Math.max(max, Math.abs(backLeftPower));
+        max = Math.max(max, Math.abs(backRightPower));
 
         frontLeftPower  /= max;
         frontRightPower /= max;
         backLeftPower   /= max;
         backRightPower  /= max;
+
+        frontLeftPower  *= rspeed;
+        frontRightPower *= rspeed;
+        backLeftPower   *= rspeed;
+        backRightPower  *= rspeed;
+
 
         // Apply to hardware
         hardware.frontLeftMotor.setPower(frontLeftPower);

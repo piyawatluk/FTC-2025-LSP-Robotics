@@ -93,8 +93,12 @@ public class Main_Teleop extends OpMode {
 
         double x = pose.position.x;
         double y = pose.position.y;
-        if (gamepad1.right_bumper){
+        if (gamepad1.dpad_down){
             slownum = 0.2;
+        }
+
+        if (gamepad1.dpad_up){
+            slownum = 1;
         }
 
 
@@ -131,7 +135,7 @@ public class Main_Teleop extends OpMode {
         //boolean lift_logic = currentB && !prevB;
 
         //overwrite logic
-        if (gamepad1.right_bumper){
+        if (gamepad1.left_bumper){
             shooter_Overwrite = true;
         }
 
