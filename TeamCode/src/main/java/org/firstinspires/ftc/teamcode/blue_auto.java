@@ -114,11 +114,13 @@ public class blue_auto extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        Action trajectoryActionChosen;
-        trajectoryActionChosen = mov1.build();
+        Action p1;
+        p1 = mov1.build();
 
         Actions.runBlocking(
-                new SequentialAction(mov1.build())
+                new SequentialAction(
+                        p1
+                )
         );
     }
 }
