@@ -49,6 +49,9 @@ public class Main_Teleop extends OpMode {
     double distanceToAprilTag = INFF;
     boolean canShoot = false;
     boolean shooter_Overwrite = false;
+    boolean shootingAdapt = false;
+
+    int adapt = 0;
 
     boolean slow = false;
     double slownum = 1;
@@ -94,7 +97,7 @@ public class Main_Teleop extends OpMode {
         double x = pose.position.x;
         double y = pose.position.y;
         if (gamepad1.dpad_down){
-            slownum = 0.2;
+            slownum = 0.4;
         }
 
         if (gamepad1.dpad_up){
@@ -137,13 +140,30 @@ public class Main_Teleop extends OpMode {
         //overwrite logic
         if (gamepad1.left_bumper){
             shooter_Overwrite = true;
+            shootingAdapt = false;
+        }
+        if (gamepad1.right_bumper){
+            shootingAdapt = true;
+            shooter_Overwrite = false;
+        }
+
+        if (gamepad1.dpad_left){
+            adapt += 10;
+
+        }
+
+        if (gamepad1.dpad_right){
+            adapt -= 10;
         }
 
         //util.servo_test(hardwareMap, startSequence, telemetry);
         if (distanceToAprilTag < INFF){
-            util.shooter(gamepad1.b, (((distanceToAprilTag/240))+0f)*(6000));
+            util.shooter(gamepad1.left_bumper,3000);
         }
-        else if (shooter_Overwrite || distanceToAprilTag > INFF) {
+        else if (shooter_Overwrite && !shootingAdapt || distanceToAprilTag > INFF) {
+            util.shooter(gamepad1.left_bumper, 3000);
+        }
+        else if (shootingAdapt && !shooter_Overwrite){
             util.shooter(gamepad1.left_bumper, 3000);
         }
 
@@ -204,6 +224,8 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("In Shooting Area (Front)", inTriangle);
         if (canShoot && inTriangle) telemetry.addLine("GO SHOOT!!!");
         else telemetry.addLine("DO NOT SHOOT!!!");
+
+        telemetry.addData("Adaptive shooting speed : ",adapt);
 
 
         telemetry.update();
