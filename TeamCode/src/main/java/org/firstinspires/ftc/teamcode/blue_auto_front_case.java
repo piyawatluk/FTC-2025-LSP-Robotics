@@ -6,10 +6,8 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.MecanumDrive;
-
-@Autonomous(name = "Blue Auto", group = "Autonomous")
-public final class blue_auto extends LinearOpMode {
+@Autonomous(name = "blue_auto_front_case", group = "Autonomous")
+public final class blue_auto_front_case extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -36,7 +34,7 @@ public final class blue_auto extends LinearOpMode {
                 drive.actionBuilder(beginPose)
                         .strafeToLinearHeading(new Vector2d(50, -10), Math.toRadians(210))
                         .waitSeconds(2)
-                        .splineToLinearHeading(new Pose2d(36,-30,Math.toRadians(90)), Math.toRadians(-90))
+                        .splineToLinearHeading(new Pose2d(40,-30,Math.toRadians(90)), Math.toRadians(-90))
                         .strafeTo(new Vector2d(36,-50))
                         .strafeToLinearHeading(new Vector2d(55,-10),Math.toRadians(210))
                         .waitSeconds(2)

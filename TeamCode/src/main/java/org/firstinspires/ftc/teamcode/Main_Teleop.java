@@ -35,13 +35,8 @@ public class Main_Teleop extends OpMode {
     private Servo servo1;
     private Servo servo2;
 
-    private Sequencer sequence1 = new Sequencer();
-    private Sequencer sequence2 = new Sequencer();
+
     private boolean prevA = false;
-    private boolean prevB = false;
-    private Sequencer belt = new Sequencer();
-    public static DcMotor leftBeltDriveMotor;
-    public static DcMotor rightBeltDriveMotor;
     Robot_Hardware hw = new Robot_Hardware();
 
     generalUtil util = new generalUtil(hw);
@@ -60,7 +55,7 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Status", "Initialized");
         hw.init(hardwareMap, telemetry);
 
-        MecanumDrive md = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
+        MecanumDrive md = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(180)));
 
         mecanumDriveOwn = new MecanumDrive_own(md);
 
@@ -74,15 +69,28 @@ public class Main_Teleop extends OpMode {
 
     @Override
     public void loop() {
+        final double INFF = 999999; //kinda like INF
+        double distanceToAprilTag = INFF;
+        boolean canShoot = false;
+
+        List < AprilTagDetection > detections = aprilTagHelper.getDetections();
+        if (!detections.isEmpty()) {
+            AprilTagDetection detection = detections.get(0);
+            distanceToAprilTag = sqrt(detection.ftcPose.x * detection.ftcPose.x + detection.ftcPose.y * detection.ftcPose.y);
+            if (distanceToAprilTag >= 67) canShoot = true; //1.7m according to the most handsome guy whose name starts with W and ends in Y
+        }
+
+
         //Start counting Displacement For limiter
         //rrDrive.update();
         Pose2d pose = md.localizer.getPose();
         double x = pose.position.x;
         double y = pose.position.y;
+        boolean inTriangle = areaLimiter.inShootingZone(x, y);
 
-        double rawLX = gamepad1.left_stick_x;      // strafe (left/right)
-        double rawLY = -gamepad1.left_stick_y;     // forward/back (invert so up = +)
-        double turn  = gamepad1.right_stick_x;     // rotation
+        double rawLX = gamepad1.left_stick_x; // strafe (left/right)
+        double rawLY = -gamepad1.left_stick_y; // forward/back (invert so up = +)
+        double turn = gamepad1.right_stick_x; // rotation
 
         double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
         double limitedLX = limited[1];
@@ -105,7 +113,8 @@ public class Main_Teleop extends OpMode {
         //boolean lift_logic = currentB && !prevB;
 
         //util.servo_test(hardwareMap, startSequence, telemetry);
-        util.shooter(gamepad1.b, 6000);
+        util.shooter(gamepad1.b, (distanceToAprilTag / 150) * 6000);
+        util.feeder(gamepad1.b);
         util.lift(gamepad1.x, telemetry);
 
         prevA = currentA;
@@ -136,32 +145,27 @@ public class Main_Teleop extends OpMode {
         //}
         //}
         //}
-        final double INFF = 999999; //kinda like INF
-        double distanceToAprilTag = INFF;
-        boolean canShoot = false;
 
-        List<AprilTagDetection> detections = aprilTagHelper.getDetections();
-        if(!detections.isEmpty()) {
-            AprilTagDetection detection = detections.get(0);
-            distanceToAprilTag = sqrt(detection.ftcPose.x * detection.ftcPose.x + detection.ftcPose.y * detection.ftcPose.y);
-            if (distanceToAprilTag >= 67) canShoot = true; //1.7m according to the most handsome guy whose name starts with W and ends in Y
-        }
-
-        //boolean inTriangle = areaLimiter.inShootingZone(x,y);
 
         telemetry.addLine("LSP Robotic Senior - Teleop");
         telemetry.addData("Left front motor speed", mecanumDriveOwn.getMotorPower("LFM"));
         telemetry.addData("Right front motor speed", mecanumDriveOwn.getMotorPower("RFM"));
         telemetry.addData("Left rear motor speed", mecanumDriveOwn.getMotorPower("LBM"));
         telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
-        //telemetry.addData("X",x);
-        //telemetry.addData("Y",y);
-        if (distanceToAprilTag < INFF) telemetry.addData("Distance to April Tag",distanceToAprilTag);
-        else telemetry.addLine("April Tag not detected");
+        telemetry.addData("X", x);
+        telemetry.addData("Y", y);
+        if (distanceToAprilTag < INFF && aprilTagHelper != null) {
+            telemetry.addData("Distance to April Tag", distanceToAprilTag);
+        } else {
+            telemetry.addLine("April Tag not detected");
+        }
         telemetry.addData("In shooting range", canShoot);
-        //telemetry.addData("In Shooting Area (Front)", inTriangle);
-        //if (canShoot && inTriangle) telemetry.addLine("GO SHOOT!!!");
-        //else telemetry.addLine("DO NOT SHOOT!!!");
+        telemetry.addData("In Shooting Area (Front)", inTriangle);
+        if (canShoot && inTriangle) {
+            telemetry.addLine("GO SHOOT!!!");
+        } else {
+            telemetry.addLine("DO NOT SHOOT!!!");
+        }
         telemetry.update();
     }
 

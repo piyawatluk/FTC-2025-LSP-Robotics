@@ -96,10 +96,13 @@ public class generalUtil {
     public void shooter(boolean bool, double target_RPM){
         double power = target_RPM/6000;
         if (bool){
-            shooter = new Sequencer();
-            shooter.add(hardware.leftShooterMotor, power,hardware.rightShooterMotor,power,5000);
+            hardware.leftShooterMotor.setPower(power);
+            hardware.rightShooterMotor.setPower(power);
         }
-        shooter.step();
+        else {
+            hardware.leftShooterMotor.setPower(0);
+            hardware.rightShooterMotor.setPower(0);
+        }
     }
     public void feeder(boolean bool){
         if (bool){
