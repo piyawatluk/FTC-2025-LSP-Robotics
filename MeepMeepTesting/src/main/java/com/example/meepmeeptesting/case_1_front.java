@@ -15,16 +15,21 @@ public class case_1_front {
                 .setConstraints(98.26, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(55, -10, Math.toRadians(200)))
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(55, -10, Math.toRadians(180)))
+                .strafeToLinearHeading(new Vector2d(50, -10), Math.toRadians(200))
+                        .waitSeconds(2)
                 .splineToLinearHeading(new Pose2d(36,-30,Math.toRadians(90)), Math.toRadians(-90))
                 .strafeTo(new Vector2d(36,-50))
                 .strafeToLinearHeading(new Vector2d(55,-10),Math.toRadians(200))
+                .waitSeconds(2)
                 .strafeToLinearHeading(new Vector2d(12,-30),Math.toRadians(90))
                 .strafeTo(new Vector2d(12,-50))
+
                 .strafeToLinearHeading(new Vector2d(55,-10),Math.toRadians(200))
                 //.strafeToLinearHeading(new Vector2d(-12,-30),Math.toRadians(90))
                 //.strafeTo(new Vector2d(-12,-55))
                 //.strafeToLinearHeading(new Vector2d(55,10),Math.toRadians(210))
+                .waitSeconds(2)
                 .strafeToLinearHeading(new Vector2d(55,55),Math.toRadians(180))
                 .build());
 

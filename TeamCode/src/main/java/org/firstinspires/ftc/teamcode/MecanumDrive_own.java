@@ -15,16 +15,17 @@ public class MecanumDrive_own {
         this.hardware = hardware;
     }
 
-    public void drive(Gamepad gamepad) {
+
+    public void drive(Gamepad gamepad,double rspeed) {
         double computedX_l = CoordinateConverter.computeX(gamepad.left_stick_x, gamepad.left_stick_y, 1);
         double computedY_l = CoordinateConverter.computeY(gamepad.left_stick_x, gamepad.left_stick_y, 1);
         double computedX_r = CoordinateConverter.computeX(gamepad.right_stick_x, gamepad.right_stick_y, 1);
 
         // Calculate motor powers
-        frontLeftPower  = (computedY_l - computedX_l) - computedX_r;
-        frontRightPower = (computedY_l + computedX_l) + computedX_r;
-        backLeftPower   = (computedY_l + computedX_l) - computedX_r;
-        backRightPower  = (computedY_l - computedX_l) + computedX_r;
+        frontLeftPower  = (gamepad.left_stick_y - gamepad.left_stick_x) - gamepad.right_stick_x;
+        frontRightPower = (gamepad.left_stick_y + gamepad.left_stick_x) + gamepad.right_stick_x;
+        backLeftPower   = (gamepad.left_stick_y + gamepad.left_stick_x) - gamepad.right_stick_x;
+        backRightPower  = (gamepad.left_stick_y - gamepad.left_stick_x) + gamepad.right_stick_x;
 
         // Normalize so values stay in [-1, 1]
         double max = Math.max(1.0, Math.abs(frontLeftPower));
@@ -36,6 +37,12 @@ public class MecanumDrive_own {
         frontRightPower /= max;
         backLeftPower   /= max;
         backRightPower  /= max;
+
+        frontLeftPower  *= rspeed;
+        frontRightPower *= rspeed;
+        backLeftPower   *= rspeed;
+        backRightPower  *= rspeed;
+
 
         // Apply to hardware
         hardware.frontLeftMotor.setPower(frontLeftPower);

@@ -38,11 +38,23 @@ public class Main_Teleop extends OpMode {
     private Sequencer sequence2 = new Sequencer();
     private boolean prevA = false;
     private boolean prevB = false;
+
+    private boolean prevY = false;
     private Sequencer belt = new Sequencer();
     public static DcMotor leftBeltDriveMotor;
     public static DcMotor rightBeltDriveMotor;
     Robot_Hardware hw = new Robot_Hardware();
     generalUtil util = new generalUtil(hw);
+    final double INFF = 999999; //kinda like INF
+    double distanceToAprilTag = INFF;
+    boolean canShoot = false;
+    boolean shooter_Overwrite = false;
+    boolean shootingAdapt = false;
+
+    int adapt = 0;
+
+    boolean slow = false;
+    double slownum = 1;
 
 
     //Area Limiter
@@ -74,36 +86,92 @@ public class Main_Teleop extends OpMode {
         //Start counting Displacement For limiter
         //rrDrive.update();
         Pose2d pose = rrDrive.localizer.getPose();
+
+        List<AprilTagDetection> detections = aprilTagHelper.getDetections();
+        if(!detections.isEmpty()) {
+            AprilTagDetection detection = detections.get(0);
+            distanceToAprilTag = sqrt(detection.ftcPose.x * detection.ftcPose.x + detection.ftcPose.y * detection.ftcPose.y);
+            if (distanceToAprilTag >= 67) canShoot = true; //1.7m according to the most handsome guy whose name starts with W and ends in Y
+        }
+
         double x = pose.position.x;
         double y = pose.position.y;
+        if (gamepad1.dpad_down){
+            slownum = 0.4;
+        }
+
+        if (gamepad1.dpad_up){
+            slownum = 1;
+        }
+
 
         double rawLX = gamepad1.left_stick_x;      // strafe (left/right)
         double rawLY = -gamepad1.left_stick_y;     // forward/back (invert so up = +)
-        double turn  = gamepad1.right_stick_x;     // rotation
+        double turn  = (gamepad1.right_stick_x);     // rotation
+        //turn *= slownum;
+
+
+        if (gamepad1.y && !prevY) {
+            areaLimiter.WantToShoot = !areaLimiter.WantToShoot;
+        }
+        prevY = gamepad1.y;
 
         double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
-        double limitedLX = limited[1];
-        double limitedLY = limited[0];
+        double limitedLX = limited[0];
+        double limitedLY = limited[1];
 
         areaLimiter.hardWall(!gamepad1.left_bumper && !gamepad1.right_bumper);
+
+
 
         /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
         right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
 
-        mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
-        //mecanumDrive.drive(gamepad1);
+        //mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
+        mecanumDriveOwn.drive(gamepad1,slownum);
 
 
         boolean currentA = gamepad1.a;
         //boolean currentB = gamepad1.b;
-
         // Start the sequence once per press
         boolean startSequence = currentA && !prevA;
         //boolean lift_logic = currentB && !prevB;
 
-        util.servo_test(hardwareMap, startSequence, telemetry);
-        util.shooter(gamepad1.b, 6000);
+        //overwrite logic
+        if (gamepad1.left_bumper){
+            shooter_Overwrite = true;
+            shootingAdapt = false;
+        }
+        if (gamepad1.right_bumper){
+            shootingAdapt = true;
+            shooter_Overwrite = false;
+        }
+
+        if (gamepad1.dpad_left){
+            adapt += 10;
+
+        }
+
+        if (gamepad1.dpad_right){
+            adapt -= 10;
+        }
+
+        //util.servo_test(hardwareMap, startSequence, telemetry);
+        if (distanceToAprilTag < INFF){
+            util.shooter(gamepad1.left_bumper,3000);
+        }
+        else if (shooter_Overwrite && !shootingAdapt || distanceToAprilTag > INFF) {
+            util.shooter(gamepad1.left_bumper, 3000);
+        }
+        else if (shootingAdapt && !shooter_Overwrite){
+            util.shooter(gamepad1.left_bumper, 3000);
+        }
+
+        util.feeder(gamepad1.a);
         util.lift(gamepad1.x, telemetry);
+        util.the_gettho(gamepad1.left_trigger,gamepad1.right_trigger);
+
+
 
         prevA = currentA;
         //prevB = currentB;
@@ -133,16 +201,9 @@ public class Main_Teleop extends OpMode {
         //}
         //}
         //}
-        final double INFF = 999999; //kinda like INF
-        double distanceToAprilTag = INFF;
-        boolean canShoot = false;
 
-        List<AprilTagDetection> detections = aprilTagHelper.getDetections();
-        if(!detections.isEmpty()) {
-            AprilTagDetection detection = detections.get(0);
-            distanceToAprilTag = sqrt(detection.ftcPose.x * detection.ftcPose.x + detection.ftcPose.y * detection.ftcPose.y);
-            if (distanceToAprilTag >= 67) canShoot = true; //1.7m according to the most handsome guy whose name starts with W and ends in Y
-        }
+
+
 
         boolean inTriangle = areaLimiter.inShootingZone(x,y);
 
@@ -153,12 +214,20 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
         telemetry.addData("X",x);
         telemetry.addData("Y",y);
-        if (distanceToAprilTag < INFF) telemetry.addData("Distance to April Tag",distanceToAprilTag);
-        else telemetry.addLine("April Tag not detected");
+        if (distanceToAprilTag < INFF) {
+            telemetry.addData("Distance to April Tag",distanceToAprilTag);
+            telemetry.addData("target motor speed", (distanceToAprilTag/196)*6000);
+        }
+
+        else {telemetry.addLine("April Tag not detected");}
         telemetry.addData("In shooting range", canShoot);
         telemetry.addData("In Shooting Area (Front)", inTriangle);
         if (canShoot && inTriangle) telemetry.addLine("GO SHOOT!!!");
         else telemetry.addLine("DO NOT SHOOT!!!");
+
+        telemetry.addData("Adaptive shooting speed : ",adapt);
+
+
         telemetry.update();
     }
 
