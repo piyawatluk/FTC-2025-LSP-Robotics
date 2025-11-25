@@ -93,9 +93,9 @@ public class Main_Teleop extends OpMode {
         double rawLY = -gamepad1.left_stick_y; // forward/back (invert so up = +)
         double turn = gamepad1.right_stick_x; // rotation
 
-        double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
-        double limitedLX = limited[1];
-        double limitedLY = limited[0];
+        double[] limited = areaLimiter.limit(x, y, rawLY, rawLX);
+        double limitedLX = limited[0];
+        double limitedLY = limited[1];
 
         areaLimiter.hardWall(!gamepad1.left_bumper && !gamepad1.right_bumper);
 
@@ -167,6 +167,8 @@ public class Main_Teleop extends OpMode {
         } else {
             telemetry.addLine("DO NOT SHOOT!!!");
         }
+        telemetry.addData("limited X", limitedLX);
+        telemetry.addData("limited Y", limitedLY);
         telemetry.update();
     }
 
