@@ -70,7 +70,7 @@ public class Robot_Hardware {
         rightShooterMotorName = prop.getProperty("Robot.RIGHT_SHOOTER_MOTOR_NAME", "rsm");
         leftShooterMotorName = prop.getProperty("Robot.LEFT_SHOOTER_MOTOR_NAME", "lsm");
 
-        //rightBeltDriveMotorName = prop.getProperty("Robot.RIGHT_BELT_DRIVE_MOTOR_NAME","rbdm");
+        rightBeltDriveMotorName = prop.getProperty("Robot.RIGHT_BELT_DRIVE_MOTOR_NAME","rbdm");
         //leftBeltDriveMotorName = prop.getProperty("Robot.LEFT_BELT_DRIVE_MOTOR_NAME","lbdm");
 
         liftMotorName = prop.getProperty("Robot.LIFT_MOTOR_NAME","lft");
@@ -91,7 +91,7 @@ public class Robot_Hardware {
         rightShooterMotor = hardwareMap.get(DcMotor.class, rightShooterMotorName);
         leftShooterMotor = hardwareMap.get(DcMotor.class, leftShooterMotorName);
 
-        //rightBeltDriveMotor = hardwareMap.get(DcMotor.class, rightBeltDriveMotorName);
+        rightBeltDriveMotor = hardwareMap.get(DcMotor.class, rightBeltDriveMotorName);
         //leftBeltDriveMotor = hardwareMap.get(DcMotor.class, leftBeltDriveMotorName);
 
         liftMotor = hardwareMap.get(DcMotor.class, liftMotorName);
@@ -104,7 +104,7 @@ public class Robot_Hardware {
         rightShooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         leftShooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        //rightBeltDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBeltDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //leftBeltDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -120,10 +120,10 @@ public class Robot_Hardware {
         leftShooterMotor.setDirection(DcMotorSimple.Direction.REVERSE); //tbd
         leftShooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        //rightBeltDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);//tbd
+        rightBeltDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);//tbd
         //leftBeltDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        liftMotor.setDirection(DcMotorSimple.Direction.FORWARD); //tbd
+        liftMotor.setDirection(DcMotorSimple.Direction.REVERSE); //tbd
 
 
         placeholderServo1 = hardwareMap.get(CRServo.class, placeholderServoName1);

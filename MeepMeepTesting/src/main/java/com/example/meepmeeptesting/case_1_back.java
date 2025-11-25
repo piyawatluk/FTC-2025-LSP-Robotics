@@ -12,7 +12,7 @@ public class case_1_back {
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(98.26, 60, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(98.26, 60, Math.toRadians(180), Math.toRadians(180), 17.75)
                 .build();
 
         myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-55, -10, Math.toRadians(0)))

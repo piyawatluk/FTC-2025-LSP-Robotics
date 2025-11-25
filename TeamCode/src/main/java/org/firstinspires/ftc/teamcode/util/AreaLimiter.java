@@ -16,9 +16,9 @@ public class AreaLimiter {
     public double Y_MAX =  72;
     public boolean softWall = false;
     public boolean hardWall = true;
+    public boolean WantToShoot = false;
     public double DisplaceX;
     public double DisplaceY;
-    public double Buff_range = 10; //Buffer
 
     public double[] limit(double x, double y, double driveX, double driveY) {
         //telemetry.addData("Current X", x);
@@ -42,43 +42,13 @@ public class AreaLimiter {
         // Top wall
         if (y >= Y_MAX && driveY > 0 && hardWall) {
             driveY = 0;
-            telemetry.addData("Softwall reached (Y axis)", driveY);
+            telemetry.addData("Limit reached (Y axis)", driveY);
         }
 
-        //Soft wall (Buffer zone)
-
-
-        if (x <= X_MIN+Buff_range && driveX > 0 && softWall) {
-            while (x >= X_MIN){
-                DisplaceX = x-X_MIN;
-                driveX = DisplaceX/10;
-            }
-            telemetry.addData("Softwall reached (X axis)", driveX);
-        }
-        // Right wall
-        if (x >= X_MAX-Buff_range && driveX < 0 && softWall) {
-            while (x <= X_MAX){
-                DisplaceX = X_MAX-x;
-                driveX = DisplaceX/10;
-            }
-            telemetry.addData("Softwall reached (X axis)", driveX);
-        }
-
-        // Bottom wall
-        if (y <= Y_MIN+Buff_range && driveY < 0 && softWall) {
-            while (y >= Y_MIN){
-                DisplaceY = y-Y_MIN;
-                driveY = DisplaceY/10;
-            }
-            telemetry.addData("Softwall reached (Y axis)", driveY);
-        }
-        // Top wall
-        if (y >= Y_MAX-Buff_range && driveY > 0 && softWall) {
-            while (y <= Y_MAX){
-                DisplaceY = Y_MAX-y;
-                driveY = DisplaceY/10;
-            }
-            telemetry.addData("Softwall reached (Y axis)", driveY);
+        //Shooting zone
+        if (inShootingZone(x,y) && WantToShoot || inFarShootZone(x,y) && WantToShoot){
+            driveX = 0;
+            driveY = 0;
         }
 
         return new double[]{driveX, driveY};
@@ -92,5 +62,12 @@ public class AreaLimiter {
         //note this assumes that the center is (0,0) and the obelisk is at x-positive just tell me if i'm wrong
         // this also only applies to the top shooting zone since the bottom seems unlikely
         return y <= x && y >= -x && x >= 0;
+    }
+
+    public boolean inFarShootZone(double x, double y) {
+        double relX = x - 47;  // apex shift
+
+        return relX >= 0 && relX <= 23 &&
+                y >= -relX && y <= relX;
     }
 }
