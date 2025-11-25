@@ -32,37 +32,19 @@ public class Main_Teleop extends OpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     private MecanumDrive_own mecanumDriveOwn;
     private MecanumDrive md;
-    private Servo servo1;
-    private Servo servo2;
-
-
     private boolean prevA = false;
     Robot_Hardware hw = new Robot_Hardware();
-
     generalUtil util = new generalUtil(hw);
-
-
-    //Area Limiter
     private AreaLimiter areaLimiter;
-
-    // AprilTag helper
     private AprilTagEasyHelper aprilTagHelper;
 
     @Override
     public void init() {
         areaLimiter = new AreaLimiter(telemetry);
-
         telemetry.addData("Status", "Initialized");
         hw.init(hardwareMap, telemetry);
-
         md = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(180)));
-
         mecanumDriveOwn = new MecanumDrive_own(md);
-
-        // Road Runner drive for pose
-        //rrDrive.setPoseEstimate(new Pose2d(0, 0, 0)); // starting pose
-
-        // Initialize AprilTag helper: change useWebcam/name if you want phone camera instead
         aprilTagHelper = new AprilTagEasyHelper(true, "Webcam 1");
         aprilTagHelper.initialize(hardwareMap);
     }
@@ -73,11 +55,13 @@ public class Main_Teleop extends OpMode {
         double distanceToAprilTag = INFF;
         boolean canShoot = false;
 
-        List < AprilTagDetection > detections = aprilTagHelper.getDetections();
-        if (!detections.isEmpty()) {
-            AprilTagDetection detection = detections.get(0);
-            distanceToAprilTag = sqrt(detection.ftcPose.x * detection.ftcPose.x + detection.ftcPose.y * detection.ftcPose.y);
-            if (distanceToAprilTag >= 67) canShoot = true; //1.7m according to the most handsome guy whose name starts with W and ends in Y
+        if (aprilTagHelper != null){
+            List < AprilTagDetection > detections = aprilTagHelper.getDetections();
+            if (!detections.isEmpty()) {
+                AprilTagDetection detection = detections.get(0);
+                distanceToAprilTag = sqrt(detection.ftcPose.x * detection.ftcPose.x + detection.ftcPose.y * detection.ftcPose.y);
+                if (distanceToAprilTag >= 67) canShoot = true; //1.7m according to the most handsome guy whose name starts with W and ends in Y
+            }
         }
 
 
@@ -105,22 +89,14 @@ public class Main_Teleop extends OpMode {
         mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
         //mecanumDriveOwn.drive(gamepad1);
 
-
-        boolean currentA = gamepad1.a;
-        //boolean currentB = gamepad1.b;
-
-        // Start the sequence once per press
-        boolean startSequence = currentA && !prevA;
-        //boolean lift_logic = currentB && !prevB;
-
         //util.servo_test(hardwareMap, startSequence, telemetry);
-        util.shooter(gamepad1.b, (distanceToAprilTag / 150) * 6000);
+        if (aprilTagHelper != null){
+            util.shooter(gamepad1.b, (distanceToAprilTag / 150) * 6000); //dummy value: subject to change
+        }
+        else util.shooter(gamepad1.b, 3000); //dummy value: subject to change
+
         util.feeder(gamepad1.b);
         util.lift(gamepad1.x, telemetry);
-
-        prevA = currentA;
-        //prevB = currentB;
-
 
 
         //// Allow toggling camera streaming to save CPU if needed
@@ -155,18 +131,22 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
         telemetry.addData("X", x);
         telemetry.addData("Y", y);
-        if (distanceToAprilTag < INFF && aprilTagHelper != null) {
-            telemetry.addData("Distance to April Tag", distanceToAprilTag);
-        } else {
-            telemetry.addLine("April Tag not detected");
+        if (aprilTagHelper != null){
+            if (distanceToAprilTag < INFF) {
+                telemetry.addData("Distance to April Tag", distanceToAprilTag);
+            } else {
+                telemetry.addLine("April Tag not detected");
+            }
+            telemetry.addData("In shooting range", canShoot);
+            telemetry.addData("In Shooting Area (Front)", inTriangle);
+            if (canShoot && inTriangle) {
+                telemetry.addLine("GO SHOOT!!!");
+            } else {
+                telemetry.addLine("DO NOT SHOOT!!!");
+            }
         }
-        telemetry.addData("In shooting range", canShoot);
-        telemetry.addData("In Shooting Area (Front)", inTriangle);
-        if (canShoot && inTriangle) {
-            telemetry.addLine("GO SHOOT!!!");
-        } else {
-            telemetry.addLine("DO NOT SHOOT!!!");
-        }
+        else telemetry.addLine("camera assist not available");
+
         telemetry.addData("limited X", limitedLX);
         telemetry.addData("limited Y", limitedLY);
         telemetry.update();
