@@ -63,10 +63,7 @@ public class Main_Teleop extends OpMode {
                 if (distanceToAprilTag >= 67) canShoot = true; //1.7m according to the most handsome guy whose name starts with W and ends in Y
             }
         }
-
-
-        //Start counting Displacement For limiter
-        //rrDrive.update();
+        
         md.updatePoseEstimate();
         Pose2d pose = md.localizer.getPose();
         double x = pose.position.x;
