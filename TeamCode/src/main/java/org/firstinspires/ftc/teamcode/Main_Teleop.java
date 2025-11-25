@@ -76,25 +76,25 @@ public class Main_Teleop extends OpMode {
     public void loop() {
         //Start counting Displacement For limiter
         //rrDrive.update();
-        //Pose2d pose = md.localizer.getPose();
-        //double x = pose.position.x;
-        //double y = pose.position.y;
+        Pose2d pose = md.localizer.getPose();
+        double x = pose.position.x;
+        double y = pose.position.y;
 
         double rawLX = gamepad1.left_stick_x;      // strafe (left/right)
         double rawLY = -gamepad1.left_stick_y;     // forward/back (invert so up = +)
         double turn  = gamepad1.right_stick_x;     // rotation
 
-        //double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
-        //double limitedLX = limited[1];
-        //double limitedLY = limited[0];
+        double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
+        double limitedLX = limited[1];
+        double limitedLY = limited[0];
 
         areaLimiter.hardWall(!gamepad1.left_bumper && !gamepad1.right_bumper);
 
         /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
         right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
 
-        //mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
-        mecanumDriveOwn.drive(gamepad1);
+        mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
+        //mecanumDriveOwn.drive(gamepad1);
 
 
         boolean currentA = gamepad1.a;

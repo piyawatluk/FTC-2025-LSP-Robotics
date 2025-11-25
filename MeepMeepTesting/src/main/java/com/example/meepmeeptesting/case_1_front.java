@@ -15,7 +15,7 @@ public class case_1_front {
                 .setConstraints(98.26, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(55, -10, Math.toRadians(180)))
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(60, -10, Math.toRadians(180)))
                 .strafeToLinearHeading(new Vector2d(50, -10), Math.toRadians(200))
                         .waitSeconds(2)
                 .splineToLinearHeading(new Pose2d(36,-30,Math.toRadians(90)), Math.toRadians(-90))
