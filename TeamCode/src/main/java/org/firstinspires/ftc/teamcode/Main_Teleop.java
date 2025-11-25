@@ -55,7 +55,7 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Status", "Initialized");
         hw.init(hardwareMap, telemetry);
 
-        MecanumDrive md = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(180)));
+        md = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(180)));
 
         mecanumDriveOwn = new MecanumDrive_own(md);
 
@@ -83,6 +83,7 @@ public class Main_Teleop extends OpMode {
 
         //Start counting Displacement For limiter
         //rrDrive.update();
+        md.updatePoseEstimate();
         Pose2d pose = md.localizer.getPose();
         double x = pose.position.x;
         double y = pose.position.y;
