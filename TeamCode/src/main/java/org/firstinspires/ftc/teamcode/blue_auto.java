@@ -69,6 +69,7 @@ public class blue_auto extends LinearOpMode {
     public void runOpMode() {
         Shooter shooter = new Shooter();
         Pose2d initialPose = new Pose2d(55, -10, Math.toRadians(200));
+        Pose2d leaving = new Pose2d(0,0,0);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         //Claw claw = new Claw(hardwareMap);
         //Lift lift = new Lift();
@@ -86,6 +87,11 @@ public class blue_auto extends LinearOpMode {
 
         TrajectoryActionBuilder mov1 = drive.actionBuilder(initialPose)
                 .splineToLinearHeading(new Pose2d(36,-30,Math.toRadians(90)), Math.toRadians(-90));
+
+
+        TrajectoryActionBuilder mov2 = drive.actionBuilder(leaving)
+                .splineToLinearHeading(new Pose2d(10,0,0),0);
+
 
         Action trajectoryActionCloseOut = tab1.endTrajectory().fresh()
                 .strafeToLinearHeading(new Vector2d(55, 55),Math.toRadians(180))
@@ -108,11 +114,13 @@ public class blue_auto extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        Action trajectoryActionChosen;
-        trajectoryActionChosen = tab1.build();
+        Action p1;
+        p1 = mov1.build();
 
         Actions.runBlocking(
-                new SequentialAction(mov1.build())
+                new SequentialAction(
+                        p1
+                )
         );
     }
 }

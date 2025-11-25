@@ -63,11 +63,18 @@ public class Main_Teleop extends OpMode {
     // AprilTag helper
     private AprilTagEasyHelper aprilTagHelper;
 
+    double spy = 0;
+    double spx = 0;
+    double spr = 0;
+
     @Override
     public void init() {
+
+
         areaLimiter = new AreaLimiter(telemetry);
 
         telemetry.addData("Status", "Initialized");
+
         hw.init(hardwareMap, telemetry);
 
         mecanumDriveOwn = new MecanumDrive_own(hw);
@@ -115,6 +122,58 @@ public class Main_Teleop extends OpMode {
             areaLimiter.WantToShoot = !areaLimiter.WantToShoot;
         }
         prevY = gamepad1.y;
+
+
+        if ( gamepad1.left_stick_y>=0 )
+            if (gamepad1.left_stick_y<0.05)
+                spy = 0;
+            else if (gamepad1.left_stick_y< 0.6)
+                spy = 0.2;
+            else
+                spy = Math.pow(gamepad1.left_stick_y,5)+0.2;
+        else
+        if (gamepad1.left_stick_y>-0.05)
+            spy = 0;
+        else if (gamepad1.left_stick_y> -0.6)
+            spy = -0.2;
+        else
+            spy = Math.pow(gamepad1.left_stick_y,5)-0.2;
+
+        if ( gamepad1.left_stick_x>=0 )
+            if (gamepad1.left_stick_x<0.05)
+                spx = 0;
+            else if (gamepad1.left_stick_x< 0.6)
+                spx = 0.2;
+            else
+                spx = Math.pow(gamepad1.left_stick_x,5)+0.2;
+        else
+        if (gamepad1.left_stick_x>-0.05)
+            spx = 0;
+        else if (gamepad1.left_stick_x> -0.6)
+            spx = -0.2;
+        else
+            spx = Math.pow(gamepad1.left_stick_x,5)-0.2;;
+
+        if ( gamepad1.right_stick_x>=0 )
+            if (gamepad1.right_stick_x<0.05)
+                spr = 0;
+            else if (gamepad1.right_stick_x< 0.6)
+                spr = 0.2;
+            else if (gamepad1.right_stick_x< 0.85)
+                spr = 0.25;
+            else
+                spr = 1;
+        else
+        if (gamepad1.right_stick_x>-0.1)
+            spr = 0;
+        else if (gamepad1.right_stick_x> -0.6)
+            spr = -0.2;
+        else if (gamepad1.right_stick_x> -0.85)
+            spr = -0.25;
+        else
+            spr = -1;
+        // End Steering
+
 
         double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
         double limitedLX = limited[0];
@@ -216,7 +275,7 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Y",y);
         if (distanceToAprilTag < INFF) {
             telemetry.addData("Distance to April Tag",distanceToAprilTag);
-            telemetry.addData("target motor speed", (distanceToAprilTag/196)*6000);
+            telemetry.addData("target motor speed", (distanceToAprilTag/240)*6000);
         }
 
         else {telemetry.addLine("April Tag not detected");}
@@ -229,6 +288,14 @@ public class Main_Teleop extends OpMode {
 
 
         telemetry.update();
+
+        rrDrive.setDrivePowers(new PoseVelocity2d(
+                new Vector2d(
+                        -spy,
+                        -spx
+                ),
+                -spr
+        ));
     }
 
     @Override
