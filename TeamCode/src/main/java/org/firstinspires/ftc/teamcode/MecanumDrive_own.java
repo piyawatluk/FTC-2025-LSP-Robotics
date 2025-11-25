@@ -15,7 +15,8 @@ public class MecanumDrive_own {
         this.hardware = hardware;
     }
 
-    public void drive(Gamepad gamepad) {
+
+    public void drive(Gamepad gamepad,double rspeed) {
         double computedX_l = CoordinateConverter.computeX(gamepad.left_stick_x, gamepad.left_stick_y, 1);
         double computedY_l = CoordinateConverter.computeY(gamepad.left_stick_x, gamepad.left_stick_y, 1);
         double computedX_r = CoordinateConverter.computeX(gamepad.right_stick_x, gamepad.right_stick_y, 1);
@@ -36,6 +37,12 @@ public class MecanumDrive_own {
         frontRightPower /= max;
         backLeftPower   /= max;
         backRightPower  /= max;
+
+        frontLeftPower  *= rspeed;
+        frontRightPower *= rspeed;
+        backLeftPower   *= rspeed;
+        backRightPower  *= rspeed;
+
 
         // Apply to hardware
         hardware.frontLeftMotor.setPower(frontLeftPower);

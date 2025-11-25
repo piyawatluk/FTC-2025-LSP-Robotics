@@ -48,10 +48,13 @@ public class Main_Teleop extends OpMode {
     final double INFF = 999999; //kinda like INF
     double distanceToAprilTag = INFF;
     boolean canShoot = false;
-    boolean shooter_Far = false;
-    boolean shooter_Near = false;
-    boolean shooter_Adapt = false;
-    int adapt = 3000;
+    boolean shooter_Overwrite = false;
+    boolean shootingAdapt = false;
+
+    int adapt = 0;
+
+    boolean slow = false;
+    double slownum = 1;
 
 
     //Area Limiter
@@ -100,10 +103,20 @@ public class Main_Teleop extends OpMode {
 
         double x = pose.position.x;
         double y = pose.position.y;
+        if (gamepad1.dpad_down){
+            slownum = 0.4;
+        }
+
+        if (gamepad1.dpad_up){
+            slownum = 1;
+        }
+
 
         double rawLX = gamepad1.left_stick_x;      // strafe (left/right)
         double rawLY = -gamepad1.left_stick_y;     // forward/back (invert so up = +)
-        double turn  = gamepad1.right_stick_x;     // rotation
+        double turn  = (gamepad1.right_stick_x);     // rotation
+        //turn *= slownum;
+
 
         if (gamepad1.y && !prevY) {
             areaLimiter.WantToShoot = !areaLimiter.WantToShoot;
@@ -168,11 +181,13 @@ public class Main_Teleop extends OpMode {
 
         areaLimiter.hardWall(!gamepad1.left_bumper && !gamepad1.right_bumper);
 
+
+
         /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
         right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
 
         //mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
-        //mecanumDriveOwn.drive(gamepad1);
+        mecanumDriveOwn.drive(gamepad1,slownum);
 
 
         boolean currentA = gamepad1.a;
@@ -181,47 +196,40 @@ public class Main_Teleop extends OpMode {
         boolean startSequence = currentA && !prevA;
         //boolean lift_logic = currentB && !prevB;
 
-        //Shooting mode
+        //overwrite logic
         if (gamepad1.left_bumper){
-            shooter_Far = true;
-            shooter_Near = false;
-
+            shooter_Overwrite = true;
+            shootingAdapt = false;
         }
-        /*if (gamepad1.right_bumper){
-            shooter_Near = true;
-            shooter_Far = false;
-        }*/
         if (gamepad1.right_bumper){
-            shooter_Far = false;
-            shooter_Adapt = true;
+            shootingAdapt = true;
+            shooter_Overwrite = false;
         }
 
+        if (gamepad1.dpad_left){
+            adapt += 10;
 
+        }
+
+        if (gamepad1.dpad_right){
+            adapt -= 10;
+        }
 
         //util.servo_test(hardwareMap, startSequence, telemetry);
         if (distanceToAprilTag < INFF){
-            util.shooter(gamepad1.b, (((distanceToAprilTag/240))+0f)*(6000));
+            util.shooter(gamepad1.left_bumper,3000);
         }
-        else if (shooter_Far || distanceToAprilTag > INFF) {
+        else if (shooter_Overwrite && !shootingAdapt || distanceToAprilTag > INFF) {
             util.shooter(gamepad1.left_bumper, 3000);
         }
-        else if(shooter_Near){
-            util.shooter(gamepad1.right_bumper, 2500);
-        }
-        else if(shooter_Adapt){
-            if(gamepad1.dpad_left){
-                adapt -= 100;
-            }
-            else if(gamepad1.dpad_right){
-                adapt += 100;
-            }
-        util.shooter(gamepad1.right_bumper, adapt);
-
+        else if (shootingAdapt && !shooter_Overwrite){
+            util.shooter(gamepad1.left_bumper, 3000);
         }
 
         util.feeder(gamepad1.a);
         util.lift(gamepad1.x, telemetry);
         util.the_gettho(gamepad1.left_trigger,gamepad1.right_trigger);
+
 
 
         prevA = currentA;
@@ -276,7 +284,7 @@ public class Main_Teleop extends OpMode {
         if (canShoot && inTriangle) telemetry.addLine("GO SHOOT!!!");
         else telemetry.addLine("DO NOT SHOOT!!!");
 
-        telemetry.addData("Current adapt is",adapt);
+        telemetry.addData("Adaptive shooting speed : ",adapt);
 
 
         telemetry.update();
