@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -40,8 +41,8 @@ public class Robot_Hardware {
     public String placeholderServoName3;
     public String placeholderServoName4;
 
-    public Servo placeholderServo1 = null;
-    public Servo placeholderServo2 = null;
+    public CRServo placeholderServo1 = null;
+    public CRServo placeholderServo2 = null;
     public Servo placeholderServo3 = null;
     public Servo placeholderServo4 = null;
 
@@ -125,13 +126,13 @@ public class Robot_Hardware {
         liftMotor.setDirection(DcMotorSimple.Direction.FORWARD); //tbd
 
 
-        placeholderServo1 = hardwareMap.get(Servo.class, placeholderServoName1);
-        placeholderServo2 = hardwareMap.get(Servo.class, placeholderServoName2);
+        placeholderServo1 = hardwareMap.get(CRServo.class, placeholderServoName1);
+        placeholderServo2 = hardwareMap.get(CRServo.class, placeholderServoName2);
         placeholderServo3 = hardwareMap.get(Servo.class, placeholderServoName3);
         placeholderServo4 = hardwareMap.get(Servo.class, placeholderServoName4);
 
-        placeholderServo1.setDirection(Servo.Direction.FORWARD);
-        placeholderServo2.setDirection(Servo.Direction.FORWARD);
+        placeholderServo1.setDirection(CRServo.Direction.FORWARD);
+        placeholderServo2.setDirection(CRServo.Direction.FORWARD);
         placeholderServo3.setDirection(Servo.Direction.FORWARD);
         placeholderServo4.setDirection(Servo.Direction.FORWARD);
 

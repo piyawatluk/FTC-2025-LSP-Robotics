@@ -9,9 +9,9 @@ public class MecanumDrive_own {
     private double backLeftPower;
     private double backRightPower;
 
-    private final Robot_Hardware hardware;
+    private final MecanumDrive hardware;
 
-    public MecanumDrive_own(Robot_Hardware hardware) {
+    public MecanumDrive_own(MecanumDrive hardware) {
         this.hardware = hardware;
     }
 
@@ -21,10 +21,10 @@ public class MecanumDrive_own {
         double computedX_r = CoordinateConverter.computeX(gamepad.right_stick_x, gamepad.right_stick_y, 1);
 
         // Calculate motor powers
-        frontLeftPower  = (computedY_l - computedX_l) - computedX_r;
-        frontRightPower = (computedY_l + computedX_l) + computedX_r;
-        backLeftPower   = (computedY_l + computedX_l) - computedX_r;
-        backRightPower  = (computedY_l - computedX_l) + computedX_r;
+        frontLeftPower  = (-computedY_l + computedX_l) + (0.5*computedX_r);
+        frontRightPower = (computedY_l + computedX_l) + (0.5*computedX_r);
+        backLeftPower   = (-computedY_l - computedX_l) + (0.5*computedX_r);
+        backRightPower  = (computedY_l - computedX_l) + (0.5*computedX_r);
 
         // Normalize so values stay in [-1, 1]
         double max = Math.max(1.0, Math.abs(frontLeftPower));
@@ -38,10 +38,10 @@ public class MecanumDrive_own {
         backRightPower  /= max;
 
         // Apply to hardware
-        hardware.frontLeftMotor.setPower(frontLeftPower);
-        hardware.frontRightMotor.setPower(frontRightPower);
-        hardware.rearLeftMotor.setPower(backLeftPower);
-        hardware.rearRightMotor.setPower(backRightPower);
+        hardware.leftFront.setPower(frontLeftPower);
+        hardware.rightFront.setPower(frontRightPower);
+        hardware.leftBack.setPower(backLeftPower);
+        hardware.rightBack.setPower(backRightPower);
     }
 
     public double getMotorPower(String atr) {
@@ -87,10 +87,10 @@ public class MecanumDrive_own {
         backRightPower  = br;
 
         // Send to motors
-        hardware.frontLeftMotor.setPower(fl);
-        hardware.frontRightMotor.setPower(fr);
-        hardware.rearLeftMotor.setPower(bl);
-        hardware.rearRightMotor.setPower(br);
+        hardware.leftFront.setPower(fl);
+        hardware.rightFront.setPower(fr);
+        hardware.leftBack.setPower(bl);
+        hardware.rightBack.setPower(br);
 
     }
 }

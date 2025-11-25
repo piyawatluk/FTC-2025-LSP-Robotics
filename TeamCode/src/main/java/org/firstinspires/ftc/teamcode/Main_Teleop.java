@@ -5,6 +5,7 @@ import static java.lang.Math.sqrt;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -30,7 +31,7 @@ public class Main_Teleop extends OpMode {
 
     private final ElapsedTime runtime = new ElapsedTime();
     private MecanumDrive_own mecanumDriveOwn;
-    private MecanumDrive rrDrive;
+    private MecanumDrive md;
     private Servo servo1;
     private Servo servo2;
 
@@ -42,6 +43,7 @@ public class Main_Teleop extends OpMode {
     public static DcMotor leftBeltDriveMotor;
     public static DcMotor rightBeltDriveMotor;
     Robot_Hardware hw = new Robot_Hardware();
+
     generalUtil util = new generalUtil(hw);
 
 
@@ -58,10 +60,11 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Status", "Initialized");
         hw.init(hardwareMap, telemetry);
 
-        mecanumDriveOwn = new MecanumDrive_own(hw);
+        MecanumDrive md = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
+
+        mecanumDriveOwn = new MecanumDrive_own(md);
 
         // Road Runner drive for pose
-        rrDrive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
         //rrDrive.setPoseEstimate(new Pose2d(0, 0, 0)); // starting pose
 
         // Initialize AprilTag helper: change useWebcam/name if you want phone camera instead
@@ -73,25 +76,25 @@ public class Main_Teleop extends OpMode {
     public void loop() {
         //Start counting Displacement For limiter
         //rrDrive.update();
-        Pose2d pose = rrDrive.localizer.getPose();
-        double x = pose.position.x;
-        double y = pose.position.y;
+        //Pose2d pose = md.localizer.getPose();
+        //double x = pose.position.x;
+        //double y = pose.position.y;
 
         double rawLX = gamepad1.left_stick_x;      // strafe (left/right)
         double rawLY = -gamepad1.left_stick_y;     // forward/back (invert so up = +)
         double turn  = gamepad1.right_stick_x;     // rotation
 
-        double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
-        double limitedLX = limited[1];
-        double limitedLY = limited[0];
+        //double[] limited = areaLimiter.limit(x, y, rawLX, rawLY);
+        //double limitedLX = limited[1];
+        //double limitedLY = limited[0];
 
         areaLimiter.hardWall(!gamepad1.left_bumper && !gamepad1.right_bumper);
 
         /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
         right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
 
-        mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
-        //mecanumDrive.drive(gamepad1);
+        //mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
+        mecanumDriveOwn.drive(gamepad1);
 
 
         boolean currentA = gamepad1.a;
@@ -101,7 +104,7 @@ public class Main_Teleop extends OpMode {
         boolean startSequence = currentA && !prevA;
         //boolean lift_logic = currentB && !prevB;
 
-        util.servo_test(hardwareMap, startSequence, telemetry);
+        //util.servo_test(hardwareMap, startSequence, telemetry);
         util.shooter(gamepad1.b, 6000);
         util.lift(gamepad1.x, telemetry);
 
@@ -144,21 +147,21 @@ public class Main_Teleop extends OpMode {
             if (distanceToAprilTag >= 67) canShoot = true; //1.7m according to the most handsome guy whose name starts with W and ends in Y
         }
 
-        boolean inTriangle = areaLimiter.inShootingZone(x,y);
+        //boolean inTriangle = areaLimiter.inShootingZone(x,y);
 
         telemetry.addLine("LSP Robotic Senior - Teleop");
         telemetry.addData("Left front motor speed", mecanumDriveOwn.getMotorPower("LFM"));
         telemetry.addData("Right front motor speed", mecanumDriveOwn.getMotorPower("RFM"));
         telemetry.addData("Left rear motor speed", mecanumDriveOwn.getMotorPower("LBM"));
         telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
-        telemetry.addData("X",x);
-        telemetry.addData("Y",y);
+        //telemetry.addData("X",x);
+        //telemetry.addData("Y",y);
         if (distanceToAprilTag < INFF) telemetry.addData("Distance to April Tag",distanceToAprilTag);
         else telemetry.addLine("April Tag not detected");
         telemetry.addData("In shooting range", canShoot);
-        telemetry.addData("In Shooting Area (Front)", inTriangle);
-        if (canShoot && inTriangle) telemetry.addLine("GO SHOOT!!!");
-        else telemetry.addLine("DO NOT SHOOT!!!");
+        //telemetry.addData("In Shooting Area (Front)", inTriangle);
+        //if (canShoot && inTriangle) telemetry.addLine("GO SHOOT!!!");
+        //else telemetry.addLine("DO NOT SHOOT!!!");
         telemetry.update();
     }
 
