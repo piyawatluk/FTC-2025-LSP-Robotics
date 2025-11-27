@@ -55,15 +55,22 @@ public class Main_Teleop extends OpMode {
         double distanceToAprilTag = INFF;
         boolean canShoot = false;
 
-        if (aprilTagHelper != null){
-            List < AprilTagDetection > detections = aprilTagHelper.getDetections();
-            if (!detections.isEmpty()) {
-                AprilTagDetection detection = detections.get(0);
-                distanceToAprilTag = sqrt(detection.ftcPose.x * detection.ftcPose.x + detection.ftcPose.y * detection.ftcPose.y);
-                if (distanceToAprilTag >= 67) canShoot = true; //1.7m according to the most handsome guy whose name starts with W and ends in Y
+        List<AprilTagDetection> detections = aprilTagHelper.getDetections();
+        if (!detections.isEmpty()) {
+            AprilTagDetection detection = detections.get(0);
+            if (detection != null && detection.ftcPose != null) {
+                distanceToAprilTag = Math.sqrt(
+                        detection.ftcPose.x * detection.ftcPose.x +
+                                detection.ftcPose.y * detection.ftcPose.y
+                );
+                if (distanceToAprilTag >= 67) canShoot = true;
+            } else {
+                telemetry.addLine("AprilTag detected but pose unavailable.");
             }
+        } else {
+            telemetry.addLine("April Tag not detected");
         }
-        
+
         md.updatePoseEstimate();
         Pose2d pose = md.localizer.getPose();
         double x = pose.position.x;
