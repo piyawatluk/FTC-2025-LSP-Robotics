@@ -55,6 +55,9 @@ public class Main_Teleop extends OpMode {
         double distanceToAprilTag = INFF;
         boolean canShoot = false;
 
+        double bearing = 0;
+
+
         List<AprilTagDetection> detections = aprilTagHelper.getDetections();
         if (!detections.isEmpty()) {
             AprilTagDetection detection = detections.get(0);
@@ -63,6 +66,11 @@ public class Main_Teleop extends OpMode {
                         detection.ftcPose.x * detection.ftcPose.x +
                                 detection.ftcPose.y * detection.ftcPose.y
                 );
+                //telemetry.addLine(String.format("ID %d: %s", detection.id, detection.metadata.name));
+                //telemetry.addLine(String.format(" XYZ (in)  %6.1f %6.1f %6.1f", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
+                //telemetry.addLine(String.format(" PRY (deg) %6.1f %6.1f %6.1f", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
+                telemetry.addData("test baring", detection.ftcPose.bearing);
+                bearing = detection.ftcPose.bearing;
                 if (distanceToAprilTag >= 67) canShoot = true;
             } else {
                 telemetry.addLine("AprilTag detected but pose unavailable.");
@@ -73,13 +81,15 @@ public class Main_Teleop extends OpMode {
 
         md.updatePoseEstimate();
         Pose2d pose = md.localizer.getPose();
+        double factor = 0;
         double x = pose.position.x;
         double y = pose.position.y;
+        double heading = pose.heading.toDouble();
         boolean inTriangle = areaLimiter.inShootingZone(x, y);
 
         double rawLX = gamepad1.left_stick_x; // strafe (left/right)
         double rawLY = -gamepad1.left_stick_y; // forward/back (invert so up = +)
-        double turn = gamepad1.right_stick_x; // rotation
+        double turn = gamepad1.right_stick_x + factor; // rotation
 
         double[] limited = areaLimiter.limit(x, y, rawLY, rawLX);
         double limitedLX = limited[0];
@@ -103,31 +113,6 @@ public class Main_Teleop extends OpMode {
         util.lift(gamepad1.x, telemetry);
 
 
-        //// Allow toggling camera streaming to save CPU if needed
-        //if (gamepad1.dpad_down) {
-        //if (aprilTagHelper != null) aprilTagHelper.stopStreaming();
-        //} else if (gamepad1.dpad_up) {
-        //if (aprilTagHelper != null) aprilTagHelper.resumeStreaming();
-        //}
-
-        //// Display AprilTag detections on telemetry
-        //if (aprilTagHelper != null) {
-        //List<AprilTagDetection> detections = aprilTagHelper.getDetections();
-        //telemetry.addData("# AprilTags Detected", detections.size());
-        //for (AprilTagDetection detection : detections) {
-        //if (detection.metadata != null && detection.ftcPose != null) {
-        //telemetry.addLine(String.format("ID %d: %s", detection.id, detection.metadata.name));
-        //telemetry.addLine(String.format(" XYZ (in)  %6.1f %6.1f %6.1f", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-        //telemetry.addLine(String.format(" PRY (deg) %6.1f %6.1f %6.1f", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-        //} else {
-        //telemetry.addLine(String.format("ID %d: Unknown  Center (px) %6.0f %6.0f", detection.id, detection.center.x, detection.center.y));
-        //telemetry.addData("Metadata", detection.metadata);
-        //telemetry.addData("ftcPose" , detection.ftcPose);
-        //}
-        //}
-        //}
-
-
         telemetry.addLine("LSP Robotic Senior - Teleop");
         telemetry.addData("Left front motor speed", mecanumDriveOwn.getMotorPower("LFM"));
         telemetry.addData("Right front motor speed", mecanumDriveOwn.getMotorPower("RFM"));
@@ -143,6 +128,7 @@ public class Main_Teleop extends OpMode {
             }
             telemetry.addData("In shooting range", canShoot);
             telemetry.addData("In Shooting Area (Front)", inTriangle);
+            telemetry.addData("returnval", (util.aimmer(gamepad1.a,bearing,heading,telemetry)));
             if (canShoot && inTriangle) {
                 telemetry.addLine("GO SHOOT!!!");
             } else {

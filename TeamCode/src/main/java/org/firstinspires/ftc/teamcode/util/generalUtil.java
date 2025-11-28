@@ -130,6 +130,24 @@ public class generalUtil {
         hardware.rightBeltDriveMotor.setPower(-l2+l1);
     }
 
+    public double aimmer(boolean atr, double bearing, double current_heading, Telemetry telemetry){
+        double Kp = 1;
+        double error = bearing - current_heading;
+        double respond_val = error*Kp;
+        if (atr){
+            if (respond_val < -1){
+                telemetry.addLine("turn right bitch!!");
+                return respond_val;
+            }
+            if (respond_val > 1){
+                telemetry.addLine("turn left bitch!!");
+                return respond_val;
+            }
+            else return(0);
+        }
+        return (0);
+    }
+
     // ----------------------------------------
     // BELT MOTOR SEQUENCE
     // ----------------------------------------

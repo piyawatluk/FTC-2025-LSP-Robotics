@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import org.firstinspires.ftc.teamcode.util.generalUtil;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous(name = "blue_auto_front_case", group = "Autonomous")
@@ -31,19 +33,25 @@ public final class blue_auto_front_case extends LinearOpMode {
 
         // Main autonomous path
         Actions.runBlocking(
-                drive.actionBuilder(beginPose)
-                        .strafeToLinearHeading(new Vector2d(50, -10), Math.toRadians(210))
-                        .waitSeconds(2)
-                        .splineToLinearHeading(new Pose2d(40,-30,Math.toRadians(90)), Math.toRadians(-90))
-                        .strafeTo(new Vector2d(36,-50))
-                        .strafeToLinearHeading(new Vector2d(55,-10),Math.toRadians(210))
-                        .waitSeconds(2)
-                        .strafeToLinearHeading(new Vector2d(12,-30),Math.toRadians(90))
-                        .strafeTo(new Vector2d(12,-50))
-                        .strafeToLinearHeading(new Vector2d(55,-10),Math.toRadians(210))
-                        .waitSeconds(2)
-                        .strafeToLinearHeading(new Vector2d(60,65),Math.toRadians(180))
-                        .build()
+                new SequentialAction(
+                        drive.actionBuilder(beginPose)
+                                .strafeToLinearHeading(new Vector2d(50, -10), Math.toRadians(210))
+                                .waitSeconds(2)
+                                .splineToLinearHeading(
+                                        new Pose2d(40, -30, Math.toRadians(90)),
+                                        Math.toRadians(-90)
+                                )
+                                .strafeTo(new Vector2d(36, -50))
+                                .strafeToLinearHeading(new Vector2d(55, -10), Math.toRadians(210))
+                                .waitSeconds(2)
+                                .strafeToLinearHeading(new Vector2d(12, -30), Math.toRadians(90))
+                                .strafeTo(new Vector2d(12, -50))
+                                .strafeToLinearHeading(new Vector2d(55, -10), Math.toRadians(210))
+                                .waitSeconds(2)
+                                .strafeToLinearHeading(new Vector2d(60, 65), Math.toRadians(180))
+                                .build()
+                )
         );
+
     }
 }
