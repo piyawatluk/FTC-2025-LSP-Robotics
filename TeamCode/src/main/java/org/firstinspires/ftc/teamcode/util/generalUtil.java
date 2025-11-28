@@ -131,21 +131,31 @@ public class generalUtil {
     }
 
     public double aimmer(boolean atr, double bearing, double current_heading, Telemetry telemetry){
-        double Kp = 1;
-        double error = bearing - current_heading;
-        double respond_val = error*Kp;
-        if (atr){
-            if (respond_val < -1){
-                telemetry.addLine("turn right bitch!!");
-                return respond_val;
-            }
-            if (respond_val > 1){
-                telemetry.addLine("turn left bitch!!");
-                return respond_val;
-            }
-            else return(0);
+        double Kp = 0.25;
+        double error = bearing;
+        double respond_val = -(error * Kp);
+
+        // Guard against NaN/Infinity
+        if (!Double.isFinite(respond_val)) {
+            respond_val = 0.0;
         }
-        return (0);
+
+        // Clamp to [-1, 1]
+        double clamped = Math.max(-1.0, Math.min(1.0, respond_val));
+
+        if (atr) {
+            if (clamped < 0) {
+                telemetry.addLine("Turn right");
+                return clamped;
+            } else if (clamped > 0) {
+                telemetry.addLine("Turn left");
+                return clamped;
+            } else {
+                telemetry.addLine("Aligned");
+                return 0.0;
+            }
+        }
+        return 0.0;
     }
 
     // ----------------------------------------

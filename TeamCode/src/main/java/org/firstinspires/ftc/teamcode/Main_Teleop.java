@@ -42,85 +42,174 @@ public class Main_Teleop extends OpMode {
     public void init() {
         areaLimiter = new AreaLimiter(telemetry);
         telemetry.addData("Status", "Initialized");
-        hw.init(hardwareMap, telemetry);
-        md = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(180)));
-        mecanumDriveOwn = new MecanumDrive_own(md);
-        aprilTagHelper = new AprilTagEasyHelper(true, "Webcam 1");
-        aprilTagHelper.initialize(hardwareMap);
+        try {
+            hw.init(hardwareMap, telemetry);
+        } catch (Exception e) {
+            telemetry.addData("Warning", "hw.init threw: " + e.getMessage());
+        }
+
+        try {
+            md = new MecanumDrive(hardwareMap, new Pose2d(0, 0, Math.toRadians(180)));
+        } catch (Exception e) {
+            telemetry.addData("Warning", "MecanumDrive init threw: " + e.getMessage());
+            md = null;
+        }
+
+        try {
+            if (md != null) {
+                mecanumDriveOwn = new MecanumDrive_own(md);
+            } else {
+                mecanumDriveOwn = null;
+            }
+        } catch (Exception e) {
+            telemetry.addData("Warning", "MecanumDrive_own init threw: " + e.getMessage());
+            mecanumDriveOwn = null;
+        }
+
+        try {
+            aprilTagHelper = new AprilTagEasyHelper(true, "Webcam 1");
+            aprilTagHelper.initialize(hardwareMap);
+        } catch (Exception e) {
+            telemetry.addData("Warning", "AprilTagHelper init failed: " + e.getMessage());
+            aprilTagHelper = null;
+        }
     }
 
     @Override
     public void loop() {
+        telemetry.addLine("LSP Robotic Senior - Teleop");
         final double INFF = 999999; //kinda like INF
         double distanceToAprilTag = INFF;
         boolean canShoot = false;
+        boolean overwrite = false;
 
-        double bearing = 0;
+        double bearing = 0; // initial value for bearing
+        double manual_RPM = 3000; //TBD
 
+        if (gamepad2.left_bumper && gamepad2.right_bumper){
+            overwrite = true;
+        }
 
-        List<AprilTagDetection> detections = aprilTagHelper.getDetections();
-        if (!detections.isEmpty()) {
+        // Safely get detections only if helper is available
+        List<AprilTagDetection> detections = null;
+        if (aprilTagHelper != null) {
+            try {
+                detections = aprilTagHelper.getDetections();
+            } catch (Exception e) {
+                telemetry.addData("AprilTagHelper.getDetections error", e.getMessage());
+                detections = null;
+            }
+        } else {
+            telemetry.addLine("aprilTagHelper is null; skipping vision");
+        }
+
+        if (detections != null && !detections.isEmpty()) {
             AprilTagDetection detection = detections.get(0);
             if (detection != null && detection.ftcPose != null) {
-                distanceToAprilTag = Math.sqrt(
-                        detection.ftcPose.x * detection.ftcPose.x +
-                                detection.ftcPose.y * detection.ftcPose.y
-                );
-                //telemetry.addLine(String.format("ID %d: %s", detection.id, detection.metadata.name));
-                //telemetry.addLine(String.format(" XYZ (in)  %6.1f %6.1f %6.1f", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                //telemetry.addLine(String.format(" PRY (deg) %6.1f %6.1f %6.1f", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                telemetry.addData("test baring", detection.ftcPose.bearing);
-                bearing = detection.ftcPose.bearing;
-                if (distanceToAprilTag >= 67) canShoot = true;
+                try {
+                    distanceToAprilTag = Math.sqrt(
+                            detection.ftcPose.x * detection.ftcPose.x +
+                                    detection.ftcPose.y * detection.ftcPose.y
+                    );
+                    telemetry.addData("test baring", detection.ftcPose.bearing);
+
+                    bearing = detection.ftcPose.bearing;
+                    if (distanceToAprilTag >= 67) canShoot = true;
+                } catch (Exception e) {
+                    telemetry.addData("Error reading detection pose", e.getMessage());
+                }
             } else {
                 telemetry.addLine("AprilTag detected but pose unavailable.");
             }
         } else {
-            telemetry.addLine("April Tag not detected");
+            // If aprilTagHelper existed but no detections, keep INFF
+            if (aprilTagHelper != null) {
+                telemetry.addLine("No AprilTag detections");
+            } else {
+                telemetry.addLine("April Tag not available (helper null)");
+            }
         }
 
-        md.updatePoseEstimate();
-        Pose2d pose = md.localizer.getPose();
+        // Safely update pose estimate only if md is available
+        if (md != null) {
+            try {
+                md.updatePoseEstimate();
+            } catch (Exception e) {
+                telemetry.addData("md.updatePoseEstimate error", e.getMessage());
+            }
+        } else {
+            telemetry.addLine("md (MecanumDrive) is null");
+        }
+
+        Pose2d pose = null;
+        if (md != null && md.localizer != null) {
+            try {
+                pose = md.localizer.getPose();
+            } catch (Exception e) {
+                telemetry.addData("md.localizer.getPose error", e.getMessage());
+                pose = null;
+            }
+        } else {
+            telemetry.addLine("md.localizer is null or md is null");
+        }
+
+        // Provide safe default values if pose or areaLimiter are not available
         double factor = 0;
-        double x = pose.position.x;
-        double y = pose.position.y;
-        double heading = pose.heading.toDouble();
-        boolean inTriangle = areaLimiter.inShootingZone(x, y);
+        double x = 0;
+        double y = 0;
+        double heading = 0;
+        boolean inTriangle = false;
 
-        double rawLX = gamepad1.left_stick_x; // strafe (left/right)
-        double rawLY = -gamepad1.left_stick_y; // forward/back (invert so up = +)
-        double turn = gamepad1.right_stick_x + factor; // rotation
-
-        double[] limited = areaLimiter.limit(x, y, rawLY, rawLX);
-        double limitedLX = limited[0];
-        double limitedLY = limited[1];
-
-        areaLimiter.hardWall(!gamepad1.left_bumper && !gamepad1.right_bumper);
-
-        /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
-        right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
-
-        mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
-        //mecanumDriveOwn.drive(gamepad1);
-
-        //util.servo_test(hardwareMap, startSequence, telemetry);
-        if (aprilTagHelper != null){
-            util.shooter(gamepad1.b, (distanceToAprilTag / 150) * 6000); //dummy value: subject to change
+        if (pose != null) {
+            try {
+                // original code uses pose.position.x and pose.heading.toDouble()
+                // guard for possible nulls inside pose
+                if (pose.position != null) {
+                    x = pose.position.x;
+                    y = pose.position.y;
+                } else {
+                    telemetry.addLine("pose.position is null; using defaults 0,0");
+                }
+                try {
+                    heading = Math.toDegrees(pose.heading.toDouble());
+                    telemetry.addData("heading",heading);
+                } catch (Exception e) {
+                    // fallback if heading access fails
+                    telemetry.addData("Warning", "pose.heading access failed: " + e.getMessage());
+                    heading = 0;
+                }
+            } catch (Exception e) {
+                telemetry.addData("Error reading pose fields", e.getMessage());
+                x = 0; y = 0; heading = 0;
+            }
+        } else {
+            telemetry.addLine("Pose unavailable; using x=0,y=0,heading=0");
         }
-        else util.shooter(gamepad1.b, 3000); //dummy value: subject to change
 
-        util.feeder(gamepad1.b);
-        util.lift(gamepad1.x, telemetry);
+        if (areaLimiter != null) {
+            try {
+                inTriangle = areaLimiter.inShootingZone(x, y);
+            } catch (Exception e) {
+                telemetry.addData("areaLimiter.inShootingZone error", e.getMessage());
+                inTriangle = false;
+            }
+        } else {
+            telemetry.addLine("areaLimiter is null; cannot check shooting zone");
+        }
 
+        double return_val = 0;
+        if (util != null) {
+            try {
+                return_val = util.aimmer(gamepad1.a, bearing, heading, telemetry);
+            } catch (Exception e) {
+                telemetry.addData("util.aimmer error", e.getMessage());
+                return_val = 0;
+            }
+        } else {
+            telemetry.addLine("util is null; aimmer skipped");
+        }
 
-        telemetry.addLine("LSP Robotic Senior - Teleop");
-        telemetry.addData("Left front motor speed", mecanumDriveOwn.getMotorPower("LFM"));
-        telemetry.addData("Right front motor speed", mecanumDriveOwn.getMotorPower("RFM"));
-        telemetry.addData("Left rear motor speed", mecanumDriveOwn.getMotorPower("LBM"));
-        telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
-        telemetry.addData("X", x);
-        telemetry.addData("Y", y);
-        if (aprilTagHelper != null){
+        if (aprilTagHelper != null) {
             if (distanceToAprilTag < INFF) {
                 telemetry.addData("Distance to April Tag", distanceToAprilTag);
             } else {
@@ -128,14 +217,107 @@ public class Main_Teleop extends OpMode {
             }
             telemetry.addData("In shooting range", canShoot);
             telemetry.addData("In Shooting Area (Front)", inTriangle);
-            telemetry.addData("returnval", (util.aimmer(gamepad1.a,bearing,heading,telemetry)));
-            if (canShoot && inTriangle) {
+            if (gamepad1.a && !overwrite) {
+                if (util != null) {
+                    try {
+                        util.shooter(gamepad1.b, (distanceToAprilTag / 300) * 6000);
+                    } catch (Exception e) {
+                        telemetry.addData("util.shooter error", e.getMessage());
+                    }
+                }
+                telemetry.addData("return val", return_val);
+                factor = return_val;
                 telemetry.addLine("GO SHOOT!!!");
             } else {
                 telemetry.addLine("DO NOT SHOOT!!!");
+                factor = 0;
+                if (util != null) {
+                    try {
+                        util.shooter(gamepad1.b, 3000);
+
+                    } catch (Exception e) {
+                        telemetry.addData("util.shooter error", e.getMessage());
+                    }
+                }
+            }
+        } else {
+            telemetry.addLine("camera assist not available, shooter are set to 3000 RPM");
+            factor = 0;
+            if (util != null) {
+                try {
+                    util.shooter(gamepad1.b, manual_RPM);
+                } catch (Exception e) {
+                    telemetry.addData("util.shooter error", e.getMessage());
+                }
             }
         }
-        else telemetry.addLine("camera assist not available");
+
+        double rawLX = gamepad1.left_stick_x; // strafe (left/right)
+        double rawLY = -gamepad1.left_stick_y; // forward/back (invert so up = +)
+        double turn = gamepad1.right_stick_x + factor; // rotation
+
+        double limitedLX = rawLX;
+        double limitedLY = rawLY;
+        if (areaLimiter != null) {
+            try {
+                double[] limited = areaLimiter.limit(x, y, rawLY, rawLX);
+                if (limited != null && limited.length >= 2) {
+                    limitedLX = limited[0];
+                    limitedLY = limited[1];
+                } else {
+                    telemetry.addLine("areaLimiter.limit returned null/invalid; using raw sticks");
+                }
+            } catch (Exception e) {
+                telemetry.addData("areaLimiter.limit error", e.getMessage());
+            }
+            try {
+                areaLimiter.hardWall(!gamepad1.left_bumper && !gamepad1.right_bumper);
+            } catch (Exception e) {
+                telemetry.addData("areaLimiter.hardWall error", e.getMessage());
+            }
+        } else {
+            telemetry.addLine("areaLimiter null; not limiting movement");
+        }
+
+        /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
+        right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
+
+        if (mecanumDriveOwn != null) {
+            try {
+                mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
+            } catch (Exception e) {
+                telemetry.addData("mecanumDriveOwn.driveLimited error", e.getMessage());
+            }
+        } else {
+            telemetry.addLine("mecanumDriveOwn is null; cannot drive");
+        }
+        //mecanumDriveOwn.drive(gamepad1);
+
+        //util.servo_test(hardwareMap, startSequence, telemetry);
+        //dummy value: subject to change
+
+        if (util != null) {
+            try {
+                util.feeder(gamepad1.b);
+            } catch (Exception e) {
+                telemetry.addData("util.feeder error", e.getMessage());
+            }
+            try {
+                util.lift(gamepad1.x, telemetry);
+            } catch (Exception e) {
+                telemetry.addData("util.lift error", e.getMessage());
+            }
+        } else {
+            telemetry.addLine("util is null; feeder/lift skipped");
+        }
+
+        //telemetry.addData("Left front motor speed", mecanumDriveOwn.getMotorPower("LFM"));
+        //telemetry.addData("Right front motor speed", mecanumDriveOwn.getMotorPower("RFM"));
+        //telemetry.addData("Left rear motor speed", mecanumDriveOwn.getMotorPower("LBM"));
+        //telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
+
+        telemetry.addData("X", x);
+        telemetry.addData("Y", y);
 
         telemetry.addData("limited X", limitedLX);
         telemetry.addData("limited Y", limitedLY);
@@ -145,7 +327,11 @@ public class Main_Teleop extends OpMode {
     @Override
     public void stop() {
         if (aprilTagHelper != null) {
-            aprilTagHelper.shutdown();
+            try {
+                aprilTagHelper.shutdown();
+            } catch (Exception e) {
+                telemetry.addData("aprilTagHelper.shutdown error", e.getMessage());
+            }
         }
     }
 

@@ -8,6 +8,8 @@ public class MecanumDrive_own {
     private double frontRightPower;
     private double backLeftPower;
     private double backRightPower;
+    private final double straff_dampening_factor = 0.7;
+    private double yaw_dampening_factor = 0.5;
 
     private final MecanumDrive hardware;
 
@@ -66,10 +68,10 @@ public class MecanumDrive_own {
         double computedX_r = CoordinateConverter.computeX(stickRX, 0f, 1);
 
         // Same motor mixing as in drive()
-        double fl = (-computedY_l + computedX_l) + (0.5*computedX_r);
-        double fr = (computedY_l + computedX_l) + (0.5*computedX_r);
-        double bl = (-computedY_l - computedX_l) + (0.5*computedX_r);
-        double br = (computedY_l - computedX_l) + (0.5*computedX_r);
+        double fl = (-computedY_l + computedX_l*straff_dampening_factor) + (yaw_dampening_factor*computedX_r);
+        double fr = (computedY_l + computedX_l*straff_dampening_factor) + (yaw_dampening_factor*computedX_r);
+        double bl = (-computedY_l - computedX_l*straff_dampening_factor) + (yaw_dampening_factor*computedX_r);
+        double br = (computedY_l - computedX_l*straff_dampening_factor) + (yaw_dampening_factor*computedX_r);
 
         // Normalize so no wheel |power| > 1
         double max = Math.max(1.0,
