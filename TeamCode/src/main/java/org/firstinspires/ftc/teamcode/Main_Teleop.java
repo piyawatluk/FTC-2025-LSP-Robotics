@@ -33,6 +33,8 @@ public class Main_Teleop extends OpMode {
     private MecanumDrive_own mecanumDriveOwn;
     private MecanumDrive md;
     private boolean prevA = false;
+    boolean overwrite = false;
+    boolean hardwall = true;
     Robot_Hardware hw = new Robot_Hardware();
     generalUtil util = new generalUtil(hw);
     private AreaLimiter areaLimiter;
@@ -81,13 +83,16 @@ public class Main_Teleop extends OpMode {
         final double INFF = 999999; //kinda like INF
         double distanceToAprilTag = INFF;
         boolean canShoot = false;
-        boolean overwrite = false;
+
 
         double bearing = 0; // initial value for bearing
         double manual_RPM = 3000; //TBD
 
         if (gamepad2.left_bumper && gamepad2.right_bumper){
             overwrite = true;
+        }
+        if (gamepad1.left_bumper && gamepad1.right_bumper){
+            hardwall = false;
         }
 
         // Safely get detections only if helper is available
@@ -220,7 +225,8 @@ public class Main_Teleop extends OpMode {
             if (gamepad1.a && !overwrite) {
                 if (util != null) {
                     try {
-                        util.shooter(gamepad1.b, (distanceToAprilTag / 300) * 6000);
+                        //
+                        //telemetry.addLine("auto shooter power engage");
                     } catch (Exception e) {
                         telemetry.addData("util.shooter error", e.getMessage());
                     }
@@ -233,7 +239,7 @@ public class Main_Teleop extends OpMode {
                 factor = 0;
                 if (util != null) {
                     try {
-                        util.shooter(gamepad1.b, 3000);
+                        //util.shooter(gamepad1.b, 3000);
 
                     } catch (Exception e) {
                         telemetry.addData("util.shooter error", e.getMessage());
@@ -243,13 +249,6 @@ public class Main_Teleop extends OpMode {
         } else {
             telemetry.addLine("camera assist not available, shooter are set to 3000 RPM");
             factor = 0;
-            if (util != null) {
-                try {
-                    util.shooter(gamepad1.b, manual_RPM);
-                } catch (Exception e) {
-                    telemetry.addData("util.shooter error", e.getMessage());
-                }
-            }
         }
 
         double rawLX = gamepad1.left_stick_x; // strafe (left/right)
@@ -271,7 +270,7 @@ public class Main_Teleop extends OpMode {
                 telemetry.addData("areaLimiter.limit error", e.getMessage());
             }
             try {
-                areaLimiter.hardWall(!gamepad1.left_bumper && !gamepad1.right_bumper);
+                areaLimiter.hardWall(hardwall);
             } catch (Exception e) {
                 telemetry.addData("areaLimiter.hardWall error", e.getMessage());
             }
@@ -311,16 +310,26 @@ public class Main_Teleop extends OpMode {
             telemetry.addLine("util is null; feeder/lift skipped");
         }
 
-        //telemetry.addData("Left front motor speed", mecanumDriveOwn.getMotorPower("LFM"));
-        //telemetry.addData("Right front motor speed", mecanumDriveOwn.getMotorPower("RFM"));
-        //telemetry.addData("Left rear motor speed", mecanumDriveOwn.getMotorPower("LBM"));
-        //telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
+        util.shooter(gamepad1.b, Math.max(2700 , (distanceToAprilTag / 120) * 3000));
+
+        telemetry.addData("Left front motor speed", mecanumDriveOwn.getMotorPower("LFM"));
+        telemetry.addData("Right front motor speed", mecanumDriveOwn.getMotorPower("RFM"));
+        telemetry.addData("Left rear motor speed", mecanumDriveOwn.getMotorPower("LBM"));
+        telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
 
         telemetry.addData("X", x);
         telemetry.addData("Y", y);
 
         telemetry.addData("limited X", limitedLX);
         telemetry.addData("limited Y", limitedLY);
+
+        telemetry.addData("shooter power", Math.max(2700 , (distanceToAprilTag / 120) * 3000));
+        if (overwrite){
+            telemetry.addLine("overwrite engage");
+        }
+        if (!hardwall){
+            telemetry.addLine("hardwall overwrite");
+        }
         telemetry.update();
     }
 
