@@ -31,7 +31,6 @@ public class generalUtil {
     // Sequencers (NOT STATIC — resets every OpMode run)
     // ----------------------------------------
     private Sequencer sequence1 = new Sequencer();
-    private  Sequencer jsequence1 = new Sequencer();
     private Sequencer lift_seq = new Sequencer();
     private Sequencer belt = new Sequencer();
     private Sequencer shooter = new Sequencer();
@@ -126,15 +125,6 @@ public class generalUtil {
         hardware.liftMotor.setPower(0.5);
         hardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         telemetry.addData("lift position", hardware.liftMotor.getCurrentPosition());
-    }
-
-    public void servoSnap90 (boolean snap, Servo servo) {
-        if (snap){
-            jsequence1.add(servo,0.5,300);
-            jsequence1.add(1000);
-            jsequence1.add(servo, 0.0, 300);
-        }
-
     }
     public void the_gettho(double l2, double l1){
         hardware.rightBeltDriveMotor.setPower(-l2+l1);

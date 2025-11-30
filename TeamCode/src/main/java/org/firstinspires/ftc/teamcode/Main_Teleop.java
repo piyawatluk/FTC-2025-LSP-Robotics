@@ -33,6 +33,8 @@ public class Main_Teleop extends OpMode {
     private MecanumDrive_own mecanumDriveOwn;
     private MecanumDrive md;
     private boolean prevA = false;
+
+    public boolean prevY = false;
     Robot_Hardware hw = new Robot_Hardware();
     generalUtil util = new generalUtil(hw);
     private AreaLimiter areaLimiter;
@@ -64,9 +66,15 @@ public class Main_Teleop extends OpMode {
             }
         }
 
-        if (gamepad1.a) {
-            hw.placeholderServo3.setPosition(0.5);
+        if (gamepad1.y && !prevY) {
+            if (hw.placeholderServo3.getPosition() < 0.25) {
+                hw.placeholderServo3.setPosition(0.5);
+            } else {
+                hw.placeholderServo3.setPosition(0.0);
+            }
         }
+
+        prevY = gamepad1.y;
         
         md.updatePoseEstimate();
         Pose2d pose = md.localizer.getPose();
