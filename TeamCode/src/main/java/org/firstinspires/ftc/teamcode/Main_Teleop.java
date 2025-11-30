@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 //import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.util.AreaLimiter;
+import org.firstinspires.ftc.teamcode.util.DistanceSensorHelp;
 import org.firstinspires.ftc.teamcode.util.generalUtil;
 import org.firstinspires.ftc.teamcode.util.Sequencer;
 import org.firstinspires.ftc.teamcode.util.AprilTagEasyHelper;
@@ -42,6 +43,10 @@ public class Main_Teleop extends OpMode {
     private AreaLimiter areaLimiter;
     private AprilTagEasyHelper aprilTagHelper;
 
+    DistanceSensorHelp distance = new DistanceSensorHelp();
+
+    private boolean stopCollision = false;
+
     @Override
     public void init() {
         areaLimiter = new AreaLimiter(telemetry);
@@ -51,6 +56,7 @@ public class Main_Teleop extends OpMode {
         mecanumDriveOwn = new MecanumDrive_own(md);
         aprilTagHelper = new AprilTagEasyHelper(true, "Webcam 1");
         aprilTagHelper.initialize(hardwareMap);
+        distance.init(hardwareMap);
     }
 
     @Override
@@ -68,6 +74,16 @@ public class Main_Teleop extends OpMode {
             }
         }
 
+        telemetry.addData("distance from object : ",distance.getDistance());
+        if (distance.getDistance() <= 10){
+            stopCollision = true;
+
+        }
+
+        if (gamepad1.cross){
+            stopCollision = false;
+        }
+
         /*if (gamepad1.y && !prevY) {
             if (hw.placeholderServo3.getPosition() < 0.25) {
                 hw.placeholderServo3.setPosition(0.5);
@@ -78,6 +94,7 @@ public class Main_Teleop extends OpMode {
 
         if (gamepad1.y && !prevY && Deg < 1){
             hw.placeholderServo3.setPosition(Deg);
+            telemetry.addData("Current servo position is : ",Deg);
             Deg += 0.1;
         }
 
@@ -96,6 +113,11 @@ public class Main_Teleop extends OpMode {
         double[] limited = areaLimiter.limit(x, y, rawLY, rawLX);
         double limitedLX = limited[0];
         double limitedLY = limited[1];
+
+        if (stopCollision){
+            limitedLX = 0;
+            limitedLY = 0;
+        }
 
         areaLimiter.hardWall(!gamepad1.left_bumper && !gamepad1.right_bumper);
 
@@ -165,7 +187,6 @@ public class Main_Teleop extends OpMode {
 
         telemetry.addData("limited X", limitedLX);
         telemetry.addData("limited Y", limitedLY);
-        telemetry.addData("Cureent servo position is : ",Deg);
         telemetry.update();
     }
 
