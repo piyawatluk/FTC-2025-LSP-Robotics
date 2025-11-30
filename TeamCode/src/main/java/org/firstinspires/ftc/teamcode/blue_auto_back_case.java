@@ -55,11 +55,11 @@ public final class blue_auto_back_case extends LinearOpMode {
         // Main autonomous path
         Actions.runBlocking(new SequentialAction(
                 segment1.build(),
-                util.fireAction(2800, 0.5, 1.0),
+                //util.fireAction(2800, 0.5, 1.0),
                 segment2.build(),
-                new ParallelAction(segment3.build(), util.motorAction(hw.rightBeltDriveMotor, 1,3)),
+                new ParallelAction(segment3.build()),//.motorAction(hw.rightBeltDriveMotor, 1,3)),
                 segment4.build(),
-                util.fireAction(2800, 0.5, 1.0),
+                //util.fireAction(2800, 0.5, 1.0),
                 EndTrajectory.build()
         ));
     }

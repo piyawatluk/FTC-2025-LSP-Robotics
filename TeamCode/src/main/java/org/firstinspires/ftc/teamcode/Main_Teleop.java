@@ -146,7 +146,7 @@ public class Main_Teleop extends OpMode {
                                     detection.ftcPose.y * detection.ftcPose.y
                     );
 
-                    shooter_power = Math.max(2700, (distanceToAprilTag / 120) * 3000);
+                    shooter_power = Math.max(2700, (distanceToAprilTag / 118) * 3000);
                     telemetry.addData("test baring", detection.ftcPose.bearing);
 
                     bearing = detection.ftcPose.bearing;
