@@ -56,7 +56,7 @@ public class MecanumDrive_own {
         }
     }
 
-    public void driveLimited(double driveX, double driveY, double turn) {
+    public void driveLimited(double driveX, double driveY, double turn, double factor) {
         // Standard mecanum math
         float stickLX = (float) driveY;
         float stickLY = (float) -driveX;
@@ -65,7 +65,7 @@ public class MecanumDrive_own {
         double computedY_l = CoordinateConverter.computeY(stickLX, stickLY, 1);
 
         float stickRX = (float) turn;
-        double computedX_r = yaw_dampening_factor*CoordinateConverter.computeX(stickRX, 0f, 1);
+        double computedX_r = (yaw_dampening_factor*CoordinateConverter.computeX(stickRX, 0f, 1) + factor);
 
         // Same motor mixing as in drive()
         double fl = (-computedY_l + computedX_l*straff_dampening_factor) + (computedX_r);

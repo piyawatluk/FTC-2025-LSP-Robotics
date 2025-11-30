@@ -1,11 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import androidx.annotation.NonNull;
-
 import org.firstinspires.ftc.teamcode.Robot_Hardware;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -41,6 +37,10 @@ public class generalUtil {
     private DcMotor leftBeltDriveMotor;
     private DcMotor rightBeltDriveMotor;
 
+    private double aimIntegral = 0.0;
+    private double prevError = 0.0;
+    private long lastTime = 0;
+
     // ----------------------------------------
     // Constructor
     // ----------------------------------------
@@ -53,7 +53,7 @@ public class generalUtil {
     // ----------------------------------------
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
 
-        // Load configs from assets (optional)
+        // Load configs from assets
         Properties prop = new Properties();
         try (InputStream input = hardwareMap.appContext.getAssets().open("Robot.config")) {
             prop.load(input);
@@ -62,36 +62,7 @@ public class generalUtil {
             if (telemetry != null)
                 telemetry.addData("ERROR", "Cannot read assets/Robot.config");
         }
-
-        // Assign hardware AFTER config
-        this.leftBeltDriveMotor = hardware.leftBeltDriveMotor;
-        this.rightBeltDriveMotor = hardware.rightBeltDriveMotor;
-
-        //this.servo1 = hardware.servo1; // optional if needed
     }
-
-    // ----------------------------------------
-    // SERVO TEST SEQUENCE
-    // ----------------------------------------
-    //public void servo_test(HardwareMap hardwareMap, boolean start, Telemetry telemetry) {
-
-        //Servo s = hardwareMap.get(Servo.class, "tbd_0");
-
-        //if (s == null) {
-            //telemetry.addData("ERROR", "The servo is NULL");
-            //return;
-        //}
-
-        //if (start) {
-            //sequence1 = new Sequencer();  // reset sequence
-            //sequence1.add(s, 0.5, 500);           // move to 0.5
-            //sequence1.add(s, 0.2, 500, true);     // interpolate to 0.2
-            //sequence1.add(830);                   // delay
-        //}
-
-        //// Step every loop
-        //sequence1.step();
-    //}
 
     public void shooter(boolean bool, double target_RPM){
         double power = target_RPM/6000;
@@ -122,69 +93,70 @@ public class generalUtil {
         else {
             hardware.liftMotor.setTargetPosition(0);
         }
-        hardware.liftMotor.setPower(0.5);
+        hardware.liftMotor.setPower(0.2); //subject to change
         hardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         telemetry.addData("lift position", hardware.liftMotor.getCurrentPosition());
     }
-    public void the_gettho(double l2, double l1){
+    public void Exterior_Feeder(double l2, double l1){
         hardware.rightBeltDriveMotor.setPower(-l2+l1);
     }
 
-    public double aimmer(boolean atr, double bearing, double current_heading, Telemetry telemetry){
-        double Kp = 0.25;
+    public double Auto_aim(boolean atr, double bearing, double current_heading, Telemetry telemetry) {
+
+        // PID gains — tune these on the robot
+        final double Kp = 0.25;
+        final double Ki = 0.001;     // start at 0, raise slowly
+        final double Kd = 0.0;
+
+        long now = System.nanoTime();
+        double dt = 0.0;
+
+        if (lastTime != 0) {
+            dt = (now - lastTime) / 1e9;   // seconds
+        }
+        lastTime = now;
+
         double error = bearing;
-        double respond_val = -(error * Kp);
 
-        // Guard against NaN/Infinity
-        if (!Double.isFinite(respond_val)) {
-            respond_val = 0.0;
+        // --- Integral term ---
+        if (Double.isFinite(dt) && dt > 0) {
+            aimIntegral += error * dt;
+
+            // prevent runaway
+            double maxIntegral = 2.0;
+            if (aimIntegral > maxIntegral) aimIntegral = maxIntegral;
+            if (aimIntegral < -maxIntegral) aimIntegral = -maxIntegral;
         }
 
-        // Clamp to [-1, 1]
-        double clamped = Math.max(-1.0, Math.min(1.0, respond_val));
-
-        if (atr) {
-            if (clamped < 0) {
-                telemetry.addLine("Turn right");
-                return clamped;
-            } else if (clamped > 0) {
-                telemetry.addLine("Turn left");
-                return clamped;
-            } else {
-                telemetry.addLine("Aligned");
-                return 0.0;
-            }
+        // --- Derivative term ---
+        double derivative = 0.0;
+        if (Double.isFinite(dt) && dt > 0) {
+            derivative = (error - prevError) / dt;
         }
-        return 0.0;
+        prevError = error;
+
+        // --- PID output ---
+        double respond_val = -(Kp * error + Ki * aimIntegral + Kd * derivative);
+
+        if (!Double.isFinite(respond_val)) respond_val = 0.0;
+
+        // clamp drive command
+        double output = Math.max(-1.0, Math.min(1.0, respond_val));
+
+        if (!atr) return 0.0;
+
+        // small deadband for “aligned”
+        if (Math.abs(error) < 1.0) {
+            telemetry.addLine("Aligned");
+            return 0.0;
+        }
+
+        if (output < 0) {
+            telemetry.addLine("Turn right");
+        } else if (output > 0) {
+            telemetry.addLine("Turn left");
+        }
+
+        return output;
     }
-
-    // ----------------------------------------
-    // BELT MOTOR SEQUENCE
-    // ----------------------------------------
-    //public void Belt(boolean start, Telemetry telemetry) {
-
-        //if (leftBeltDriveMotor == null || rightBeltDriveMotor == null)
-            //telemetry.addLine("kuy");
-            //return;
-
-        //if (start) {
-            //leftBeltDriveMotor.setPower(1);
-            //rightBeltDriveMotor.setPower(1);
-
-        //}
-
-        //// Step every loop
-        //belt.step();
-    //}
-
-    // ----------------------------------------
-    // Utility: check if sequence finished
-    // ----------------------------------------
-    //public boolean beltFinished() {
-        //return belt.sequenceFinished();
-    //}
-
-    //public boolean servoSeqFinished() {
-        //return sequence1.sequenceFinished();
-    //}
 }

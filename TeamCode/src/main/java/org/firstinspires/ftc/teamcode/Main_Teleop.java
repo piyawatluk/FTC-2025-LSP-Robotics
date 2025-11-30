@@ -1,49 +1,58 @@
+//@ LSP_ROBOTICS_SOFTWARE_DEPARTMENT
+
+/*อิติปิโส ภะคะวา อะระหัง สัมมา สัมพุทโธ วิชชาจะระณะสัมปันโน สุคะโต โลกะวิทู อะนุตตะโร ปุริสะทัมมะสาระถิ สัตถา เทวะมะนุสสานัง พุทโธ ภะคะวาติ
+
+สะวากขาโต ภะคะวะตา ธัมโม สันทิฏฐิโก อะกาลิโก เอหิปัสสิโก โอปะนะยิโก ปัจจัตตัง เวทิตัพโพ วิญญูหิติ
+
+สุปะฏิปันโน ภะคะวะโต สาวะกะสังโฆ อุชุปะฏิปันโน ภะคะวะโต สาวะกะสังโฆ ญายะปะฏิปันโน ภะคะวะโต สาวะกะสังโฆ สามีจิปะฏิปันโน ภะคะวะโต สาวะกะสังโฆ
+ยะทิทัง จัตตาริ ปุริสะยุคานิ อัฏฐะ ปุริสะปุคคะลา เอสะ ภะคะวะโต สาวะกะสังโฆ อาหุเนยโย ปาหุเนยโย ทักขิเณยโย อัญชะลีกะระณีโย อะนุตตะรัง ปุญญักเขตตัง โลกัสสาติ
+
+may god be with us
+*/
+
 package org.firstinspires.ftc.teamcode;
 
-import static java.lang.Math.sqrt;
+//essential module import
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.hardware.Servo;
 
-//import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.util.AreaLimiter;
 import org.firstinspires.ftc.teamcode.util.generalUtil;
-import org.firstinspires.ftc.teamcode.util.Sequencer;
-import org.firstinspires.ftc.teamcode.util.AprilTagEasyHelper;
-
+import org.firstinspires.ftc.teamcode.util.AprilTag;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.Vector2d;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
-import org.firstinspires.ftc.teamcode.Drawing;
-import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-
 import java.util.List;
 
 @TeleOp(name = "Teleop", group = "Iterative OpMode")
 public class Main_Teleop extends OpMode {
 
-    private final ElapsedTime runtime = new ElapsedTime();
-    private MecanumDrive_own mecanumDriveOwn;
-    private MecanumDrive md;
-    private boolean prevA = false;
-    boolean overwrite = false;
-    boolean hardwall = true;
+    //Hardware declare
     Robot_Hardware hw = new Robot_Hardware();
     generalUtil util = new generalUtil(hw);
+
+    //Drive mode essentials declare
+    private MecanumDrive_own mecanumDriveOwn;
+    private MecanumDrive md;
     private AreaLimiter areaLimiter;
-    private AprilTagEasyHelper aprilTagHelper;
+    private Pose2d pose = null;
+
+    //overwrite logic declare
+    private boolean prevBothBumpersG1 = false;
+    private boolean prevBothBumpersG2 = false;
+    boolean overwrite = false;
+    boolean hardwall = true;
+
+    //apriltag declare
+    private AprilTag aprilTag;
 
     @Override
     public void init() {
+        //initial startup checkup
+
+        //areaLimiter declare
         areaLimiter = new AreaLimiter(telemetry);
-        telemetry.addData("Status", "Initialized");
+
         try {
             hw.init(hardwareMap, telemetry);
         } catch (Exception e) {
@@ -69,40 +78,60 @@ public class Main_Teleop extends OpMode {
         }
 
         try {
-            aprilTagHelper = new AprilTagEasyHelper(true, "Webcam 1");
-            aprilTagHelper.initialize(hardwareMap);
+            aprilTag = new AprilTag(true, "Webcam 1");
+            aprilTag.initialize(hardwareMap);
         } catch (Exception e) {
             telemetry.addData("Warning", "AprilTagHelper init failed: " + e.getMessage());
-            aprilTagHelper = null;
+            aprilTag = null;
         }
+
+        telemetry.addData("Status", "Initialized");
     }
 
     @Override
     public void loop() {
         telemetry.addLine("LSP Robotic Senior - Teleop");
-        final double INFF = 999999; //kinda like INF
-        double distanceToAprilTag = INFF;
+        final double infinite_distance = 300;
+        double distanceToAprilTag = infinite_distance;
+
         boolean canShoot = false;
 
+        double shooter_power = 0;
+
+        double rawLX = gamepad1.left_stick_x; // strafe (left/right)
+        double rawLY = -gamepad1.left_stick_y; // forward/back (invert so up = +)
+        double turn = gamepad1.right_stick_x; // rotation
+
+        double limitedLX = rawLX;
+        double limitedLY = rawLY;
+
+        // Provide safe default values if pose or areaLimiter are not available
+        double factor;
+        double x = 0;
+        double y = 0;
+        double heading = 0;
+        boolean inTriangle = false;
 
         double bearing = 0; // initial value for bearing
-        double manual_RPM = 3000; //TBD
+        double manual_RPM = 2800;
+        double return_val = 0;
 
-        if (gamepad2.left_bumper && gamepad2.right_bumper){
-            overwrite = true;
-        }
-        if (gamepad1.left_bumper && gamepad1.right_bumper){
-            hardwall = false;
-        }
+        boolean bothBumpersG2 = gamepad2.left_bumper && gamepad2.right_bumper;
+        boolean bothBumpersG1 = gamepad1.left_bumper && gamepad1.right_bumper;
 
-        // Safely get detections only if helper is available
-        List<AprilTagDetection> detections = null;
-        if (aprilTagHelper != null) {
+        if (bothBumpersG2 && !prevBothBumpersG2) overwrite = !overwrite;
+        if (bothBumpersG1 && !prevBothBumpersG1) hardwall = !hardwall;
+
+        prevBothBumpersG2 = bothBumpersG2;
+        prevBothBumpersG1 = bothBumpersG1;
+
+        // Apriltag NPE checking
+        List < AprilTagDetection > detections = null;
+        if (aprilTag != null) {
             try {
-                detections = aprilTagHelper.getDetections();
+                detections = aprilTag.getDetections();
             } catch (Exception e) {
                 telemetry.addData("AprilTagHelper.getDetections error", e.getMessage());
-                detections = null;
             }
         } else {
             telemetry.addLine("aprilTagHelper is null; skipping vision");
@@ -116,6 +145,8 @@ public class Main_Teleop extends OpMode {
                             detection.ftcPose.x * detection.ftcPose.x +
                                     detection.ftcPose.y * detection.ftcPose.y
                     );
+
+                    shooter_power = Math.max(2700, (distanceToAprilTag / 120) * 3000);
                     telemetry.addData("test baring", detection.ftcPose.bearing);
 
                     bearing = detection.ftcPose.bearing;
@@ -128,14 +159,14 @@ public class Main_Teleop extends OpMode {
             }
         } else {
             // If aprilTagHelper existed but no detections, keep INFF
-            if (aprilTagHelper != null) {
+            if (aprilTag != null) {
                 telemetry.addLine("No AprilTag detections");
             } else {
                 telemetry.addLine("April Tag not available (helper null)");
             }
         }
 
-        // Safely update pose estimate only if md is available
+        // md NPE checking
         if (md != null) {
             try {
                 md.updatePoseEstimate();
@@ -146,38 +177,27 @@ public class Main_Teleop extends OpMode {
             telemetry.addLine("md (MecanumDrive) is null");
         }
 
-        Pose2d pose = null;
+        // md and localizer NPE checking : subject to change
         if (md != null && md.localizer != null) {
             try {
                 pose = md.localizer.getPose();
             } catch (Exception e) {
                 telemetry.addData("md.localizer.getPose error", e.getMessage());
-                pose = null;
             }
         } else {
             telemetry.addLine("md.localizer is null or md is null");
         }
 
-        // Provide safe default values if pose or areaLimiter are not available
-        double factor = 0;
-        double x = 0;
-        double y = 0;
-        double heading = 0;
-        boolean inTriangle = false;
-
+        //pose NPE checking
         if (pose != null) {
             try {
                 // original code uses pose.position.x and pose.heading.toDouble()
                 // guard for possible nulls inside pose
-                if (pose.position != null) {
-                    x = pose.position.x;
-                    y = pose.position.y;
-                } else {
-                    telemetry.addLine("pose.position is null; using defaults 0,0");
-                }
+                x = pose.position.x;
+                y = pose.position.y;
                 try {
                     heading = Math.toDegrees(pose.heading.toDouble());
-                    telemetry.addData("heading",heading);
+                    telemetry.addData("heading", heading);
                 } catch (Exception e) {
                     // fallback if heading access fails
                     telemetry.addData("Warning", "pose.heading access failed: " + e.getMessage());
@@ -185,37 +205,40 @@ public class Main_Teleop extends OpMode {
                 }
             } catch (Exception e) {
                 telemetry.addData("Error reading pose fields", e.getMessage());
-                x = 0; y = 0; heading = 0;
+                x = 0;
+                y = 0;
+                heading = 0;
             }
         } else {
             telemetry.addLine("Pose unavailable; using x=0,y=0,heading=0");
         }
 
+        //AreaLimiter NPE checking
         if (areaLimiter != null) {
             try {
                 inTriangle = areaLimiter.inShootingZone(x, y);
             } catch (Exception e) {
                 telemetry.addData("areaLimiter.inShootingZone error", e.getMessage());
-                inTriangle = false;
             }
         } else {
             telemetry.addLine("areaLimiter is null; cannot check shooting zone");
         }
 
-        double return_val = 0;
+        // utility function NPE checking
         if (util != null) {
             try {
-                return_val = util.aimmer(gamepad1.a, bearing, heading, telemetry);
+                return_val = util.Auto_aim(gamepad1.a, bearing, heading, telemetry);
             } catch (Exception e) {
-                telemetry.addData("util.aimmer error", e.getMessage());
+                telemetry.addData("util.Auto_aim", e.getMessage());
                 return_val = 0;
             }
         } else {
             telemetry.addLine("util is null; aimmer skipped");
         }
 
-        if (aprilTagHelper != null) {
-            if (distanceToAprilTag < INFF) {
+        //AprilTag NPE checking? : subject to change
+        if (aprilTag != null) {
+            if (distanceToAprilTag < infinite_distance) {
                 telemetry.addData("Distance to April Tag", distanceToAprilTag);
             } else {
                 telemetry.addLine("April Tag not detected");
@@ -225,8 +248,8 @@ public class Main_Teleop extends OpMode {
             if (gamepad1.a && !overwrite) {
                 if (util != null) {
                     try {
-                        //
-                        //telemetry.addLine("auto shooter power engage");
+                        util.shooter(gamepad1.b, shooter_power);
+                        telemetry.addLine("auto shooter power engage");
                     } catch (Exception e) {
                         telemetry.addData("util.shooter error", e.getMessage());
                     }
@@ -237,26 +260,15 @@ public class Main_Teleop extends OpMode {
             } else {
                 telemetry.addLine("DO NOT SHOOT!!!");
                 factor = 0;
-                if (util != null) {
-                    try {
-                        //util.shooter(gamepad1.b, 3000);
-
-                    } catch (Exception e) {
-                        telemetry.addData("util.shooter error", e.getMessage());
-                    }
-                }
             }
+
         } else {
-            telemetry.addLine("camera assist not available, shooter are set to 3000 RPM");
+            telemetry.addLine("camera assist not available, shooter are set to 2800 RPM");
             factor = 0;
+            util.shooter(gamepad2.b, manual_RPM);
         }
 
-        double rawLX = gamepad1.left_stick_x; // strafe (left/right)
-        double rawLY = -gamepad1.left_stick_y; // forward/back (invert so up = +)
-        double turn = gamepad1.right_stick_x + factor; // rotation
-
-        double limitedLX = rawLX;
-        double limitedLY = rawLY;
+        //AreaLimiter NPE checking? : subject to change
         if (areaLimiter != null) {
             try {
                 double[] limited = areaLimiter.limit(x, y, rawLY, rawLX);
@@ -278,23 +290,18 @@ public class Main_Teleop extends OpMode {
             telemetry.addLine("areaLimiter null; not limiting movement");
         }
 
-        /* remove the comments and put the comments on driveLimited if you want to run a normal teleop(NotLimited)
-        right now the mecanum drive got 2 drive system na you can actually delete the other one 'drive()' but it can stay there just for testing and stuff*/
-
+        // mecanumDriveOwn NPE checking
         if (mecanumDriveOwn != null) {
             try {
-                mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
+                mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn, factor);
             } catch (Exception e) {
                 telemetry.addData("mecanumDriveOwn.driveLimited error", e.getMessage());
             }
         } else {
             telemetry.addLine("mecanumDriveOwn is null; cannot drive");
         }
-        //mecanumDriveOwn.drive(gamepad1);
 
-        //util.servo_test(hardwareMap, startSequence, telemetry);
-        //dummy value: subject to change
-
+        // utility function NPE checking? : subject to change
         if (util != null) {
             try {
                 util.feeder(gamepad1.b);
@@ -310,34 +317,42 @@ public class Main_Teleop extends OpMode {
             telemetry.addLine("util is null; feeder/lift skipped");
         }
 
-        util.shooter(gamepad1.b, Math.max(2700 , (distanceToAprilTag / 120) * 3000));
 
+        // motor speed
         telemetry.addData("Left front motor speed", mecanumDriveOwn.getMotorPower("LFM"));
         telemetry.addData("Right front motor speed", mecanumDriveOwn.getMotorPower("RFM"));
         telemetry.addData("Left rear motor speed", mecanumDriveOwn.getMotorPower("LBM"));
         telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
 
+        // estimate pose
         telemetry.addData("X", x);
         telemetry.addData("Y", y);
 
+        //value return from area limiter
         telemetry.addData("limited X", limitedLX);
         telemetry.addData("limited Y", limitedLY);
 
-        telemetry.addData("shooter power", Math.max(2700 , (distanceToAprilTag / 120) * 3000));
-        if (overwrite){
-            telemetry.addLine("overwrite engage");
+        //shooter power
+        telemetry.addData("shooter power", shooter_power);
+
+
+        // telemetry for logic overwrite
+        if (overwrite) {
+            telemetry.addLine("shooter overwrite engage");
         }
-        if (!hardwall){
-            telemetry.addLine("hardwall overwrite");
+
+        if (!hardwall) {
+            telemetry.addLine("hardwall overwrite engage");
         }
+
         telemetry.update();
     }
 
     @Override
     public void stop() {
-        if (aprilTagHelper != null) {
+        if (aprilTag != null) {
             try {
-                aprilTagHelper.shutdown();
+                aprilTag.shutdown();
             } catch (Exception e) {
                 telemetry.addData("aprilTagHelper.shutdown error", e.getMessage());
             }

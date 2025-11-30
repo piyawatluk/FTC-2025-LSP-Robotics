@@ -10,7 +10,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.Collections;
 import java.util.List;
 
-public class AprilTagEasyHelper {
+public class AprilTag {
 
     private final boolean useWebcam;
     private final String webcamName;
@@ -19,7 +19,7 @@ public class AprilTagEasyHelper {
     private VisionPortal visionPortal;
     private boolean initialized = false;
 
-    public AprilTagEasyHelper(boolean useWebcam, String webcamName) {
+    public AprilTag(boolean useWebcam, String webcamName) {
         this.useWebcam = useWebcam;
         this.webcamName = webcamName;
     }
