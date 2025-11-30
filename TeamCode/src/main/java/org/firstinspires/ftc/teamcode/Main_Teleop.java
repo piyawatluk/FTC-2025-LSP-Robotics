@@ -34,6 +34,8 @@ public class Main_Teleop extends OpMode {
     private MecanumDrive md;
     private boolean prevA = false;
 
+    private double Deg = 0;
+
     public boolean prevY = false;
     Robot_Hardware hw = new Robot_Hardware();
     generalUtil util = new generalUtil(hw);
@@ -66,12 +68,17 @@ public class Main_Teleop extends OpMode {
             }
         }
 
-        if (gamepad1.y && !prevY) {
+        /*if (gamepad1.y && !prevY) {
             if (hw.placeholderServo3.getPosition() < 0.25) {
                 hw.placeholderServo3.setPosition(0.5);
             } else {
                 hw.placeholderServo3.setPosition(0.0);
             }
+        }*/
+
+        if (gamepad1.y && !prevY && Deg < 1){
+            hw.placeholderServo3.setPosition(Deg);
+            Deg += 0.1;
         }
 
         prevY = gamepad1.y;
@@ -158,6 +165,7 @@ public class Main_Teleop extends OpMode {
 
         telemetry.addData("limited X", limitedLX);
         telemetry.addData("limited Y", limitedLY);
+        telemetry.addData("Cureent servo position is : ",Deg);
         telemetry.update();
     }
 
