@@ -64,7 +64,9 @@ public class Main_Teleop extends OpMode {
             }
         }
 
-        util.servoSnap90(gamepad1.a, hw.placeholderServo3);
+        if (gamepad1.a) {
+            hw.placeholderServo3.setPosition(0.5);
+        }
         
         md.updatePoseEstimate();
         Pose2d pose = md.localizer.getPose();
@@ -88,11 +90,11 @@ public class Main_Teleop extends OpMode {
         mecanumDriveOwn.driveLimited(limitedLX, limitedLY, turn);
         //mecanumDriveOwn.drive(gamepad1);
 
-        //util.servo_test(hardwareMap, startSequence, telemetry);
+        //util.shooter(hardwareMap, startSequence, telemetry);
         if (aprilTagHelper != null){
-            util.shooter(gamepad1.b, (distanceToAprilTag / 150) * 6000); //dummy value: subject to change
+            util.shooter(gamepad1.b, 3200); //dummy value: subject to change
         }
-        else util.shooter(gamepad1.b, 3000); //dummy value: subject to change
+        else util.shooter(gamepad1.b, 3200); //dummy value: subject to change
 
         util.feeder(gamepad1.b);
         util.lift(gamepad1.x, telemetry);
