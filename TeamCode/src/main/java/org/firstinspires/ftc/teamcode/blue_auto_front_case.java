@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Util;
 
 import org.firstinspires.ftc.teamcode.util.Sequencer;
@@ -50,21 +51,27 @@ public final class blue_auto_front_case extends LinearOpMode {
 
             public Action spinUp() {
                 return new Action() {
-                    private boolean initialized = false;
+                    private ElapsedTime timer = new ElapsedTime();
+                    private boolean started = false;
 
                     @Override
                     public boolean run(@NonNull TelemetryPacket packet) {
-                        if (!initialized) {
+                        if (!started) {
                             motor.setPower(1);
-                            sleep(2000);
-                            motor.setPower(0);
-                            initialized = true;
-                            return true;
+                            timer.reset();
+                            started = true;
                         }
-                        return false;
+
+                        if (timer.milliseconds() >= 2000) {
+                            motor.setPower(0);
+                            return false;
+                        }
+
+                        return true;
                     }
                 };
             }
+
         }
 
         feeder feeder = new feeder(hardwareMap);
@@ -85,11 +92,10 @@ public final class blue_auto_front_case extends LinearOpMode {
                 .splineToLinearHeading(
                         new Pose2d(40, -30, Math.toRadians(90)),
                         Math.toRadians(-90)
-                )
-                .waitSeconds(2);
+                );
 
-        TrajectoryActionBuilder segment_2_5 = drive.actionBuilder(new Pose2d(40,-30,Math.toRadians(-90)))
-                .strafeTo(new Vector2d(36, -50))
+        TrajectoryActionBuilder segment_2_5 = drive.actionBuilder(new Pose2d(40,-30,Math.toRadians(90)))
+                .strafeTo(new Vector2d(36, -60))
                 .waitSeconds(2);
 
         TrajectoryActionBuilder segment_2_7 = drive.actionBuilder(new Pose2d(36,-50,Math.toRadians(90)))
@@ -131,7 +137,7 @@ public final class blue_auto_front_case extends LinearOpMode {
         Actions.runBlocking(new SequentialAction(
                 segment_1.build(),
                 segment_2.build(),
-                new ParallelAction(segment_2_5.build(), feeder.spinUp()),
+                new ParallelAction(segment_2_5.build(),feeder.spinUp()),
                 segment_2_7.build(),
                 segment_3.build(),
                 segment_3_7.build(),

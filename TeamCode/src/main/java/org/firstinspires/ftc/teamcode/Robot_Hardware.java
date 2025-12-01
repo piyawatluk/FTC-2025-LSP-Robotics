@@ -120,7 +120,7 @@ public class Robot_Hardware {
         placeholderServo2 = hardwareMap.get(CRServo.class, placeholderServoName2);
 
         placeholderServo1.setDirection(CRServo.Direction.FORWARD);
-        placeholderServo2.setDirection(CRServo.Direction.FORWARD);
+        placeholderServo2.setDirection(CRServo.Direction.REVERSE);
 
     }
 }

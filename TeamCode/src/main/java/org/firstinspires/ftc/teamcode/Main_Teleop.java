@@ -146,7 +146,7 @@ public class Main_Teleop extends OpMode {
                                     detection.ftcPose.y * detection.ftcPose.y
                     );
 
-                    shooter_power = Math.max(2700, (distanceToAprilTag / 118) * 3000);
+                    shooter_power = Math.max(2600, (distanceToAprilTag / 118) * 3000);
                     telemetry.addData("test baring", detection.ftcPose.bearing);
 
                     bearing = detection.ftcPose.bearing;
@@ -265,7 +265,7 @@ public class Main_Teleop extends OpMode {
         } else {
             telemetry.addLine("camera assist not available, shooter are set to 2800 RPM");
             factor = 0;
-            util.shooter(gamepad2.b, manual_RPM);
+            //util.shooter(gamepad1.b, manual_RPM);
         }
 
         //AreaLimiter NPE checking? : subject to change
@@ -318,19 +318,21 @@ public class Main_Teleop extends OpMode {
         }
 
 
+
+
         // motor speed
-        telemetry.addData("Left front motor speed", mecanumDriveOwn.getMotorPower("LFM"));
-        telemetry.addData("Right front motor speed", mecanumDriveOwn.getMotorPower("RFM"));
-        telemetry.addData("Left rear motor speed", mecanumDriveOwn.getMotorPower("LBM"));
-        telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
+        //telemetry.addData("Left front motor speed", mecanumDriveOwn.getMotorPower("LFM"));
+        //telemetry.addData("Right front motor speed", mecanumDriveOwn.getMotorPower("RFM"));
+        //telemetry.addData("Left rear motor speed", mecanumDriveOwn.getMotorPower("LBM"));
+        //telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
 
         // estimate pose
-        telemetry.addData("X", x);
-        telemetry.addData("Y", y);
+        //telemetry.addData("X", x);
+        //telemetry.addData("Y", y);
 
         //value return from area limiter
-        telemetry.addData("limited X", limitedLX);
-        telemetry.addData("limited Y", limitedLY);
+        //telemetry.addData("limited X", limitedLX);
+        //telemetry.addData("limited Y", limitedLY);
 
         //shooter power
         telemetry.addData("shooter power", shooter_power);
@@ -339,6 +341,7 @@ public class Main_Teleop extends OpMode {
         // telemetry for logic overwrite
         if (overwrite) {
             telemetry.addLine("shooter overwrite engage");
+            util.shooter(gamepad1.b, manual_RPM);
         }
 
         if (!hardwall) {
