@@ -3,24 +3,36 @@ package org.firstinspires.ftc.teamcode;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.AccelConstraint;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.AngularVelConstraint;
+import com.acmerobotics.roadrunner.CompositeVelConstraint;
+import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Util;
 
 import org.firstinspires.ftc.teamcode.util.Sequencer;
 import org.firstinspires.ftc.teamcode.util.generalUtil;
+
+import java.security.CryptoPrimitive;
+import java.util.Arrays;
 
 @Autonomous(name = "blue_auto_front_case", group = "Autonomous")
 public final class blue_auto_front_case extends LinearOpMode {
@@ -44,9 +56,14 @@ public final class blue_auto_front_case extends LinearOpMode {
 
         class feeder {
             private DcMotorEx motor;
-
+            private CRServo servo1;
+            private CRServo servo2;
             public feeder(HardwareMap hardwareMap) {
             motor = hardwareMap.get(DcMotorEx.class, "rbdm");
+            servo1 = hardwareMap.get(CRServo.class, "tbd_0");
+            servo2 = hardwareMap.get(CRServo.class,"tbd_1");
+            servo1.setDirection(DcMotorSimple.Direction.REVERSE);
+            servo2.setDirection(DcMotorSimple.Direction.REVERSE);
             }
 
             public Action spinUp() {
@@ -58,12 +75,96 @@ public final class blue_auto_front_case extends LinearOpMode {
                     public boolean run(@NonNull TelemetryPacket packet) {
                         if (!started) {
                             motor.setPower(1);
+                            servo1.setPower(1);
+                            servo2.setPower(1);
                             timer.reset();
                             started = true;
                         }
 
-                        if (timer.milliseconds() >= 2000) {
+                        if (timer.milliseconds() >= 3000) {
                             motor.setPower(0);
+                            servo1.setPower(0);
+                            servo2.setPower(0);
+                            return false;
+                        }
+
+                        return true;
+                    }
+                };
+            }
+
+        }
+
+        class shooter {
+            private DcMotorEx motor;
+            private DcMotorEx left_shooter;
+            private DcMotorEx right_shooter;
+            private CRServo servo1;
+            private CRServo servo2;
+            public shooter(HardwareMap hardwareMap) {
+                motor = hardwareMap.get(DcMotorEx.class, "rbdm");
+                left_shooter = hardwareMap.get(DcMotorEx.class, "lsm");
+                right_shooter = hardwareMap.get(DcMotorEx.class, "rsm");
+                left_shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+                left_shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                right_shooter.setDirection(DcMotorSimple.Direction.FORWARD);
+                right_shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                servo1 = hardwareMap.get(CRServo.class, "tbd_0");
+                servo2 = hardwareMap.get(CRServo.class,"tbd_1");
+                servo1.setDirection(DcMotorSimple.Direction.REVERSE);
+            }
+
+            public Action shoot() {
+                return new Action() {
+                    private ElapsedTime timer = new ElapsedTime();
+                    private boolean started = false;
+                    @Override
+
+                    public boolean run(@NonNull TelemetryPacket packet) {
+                        if (!started) {
+                            motor.setPower(1);
+                            servo1.setPower(1);
+                            servo2.setPower(1);
+                            left_shooter.setPower(0.45);
+                            right_shooter.setPower(0.45);
+                            timer.reset();
+                            started = true;
+                        }
+
+                        if (timer.milliseconds() >= 5000) {
+                            motor.setPower(0);
+                            left_shooter.setPower(0);
+                            right_shooter.setPower(0);
+                            servo1.setPower(0);
+                            servo2.setPower(0);
+                            return false;
+                        }
+
+                        return true;
+                    }
+                };
+            }
+            public Action spinup(){
+                return new Action() {
+                    private ElapsedTime timer = new ElapsedTime();
+                    private boolean started = false;
+                    @Override
+
+                    public boolean run(@NonNull TelemetryPacket packet) {
+                        if (!started) {
+                            //motor.setPower(1);
+                            //servo1.setPower(1);
+                            //servo2.setPower(1);
+                            left_shooter.setPower(0.5);
+                            right_shooter.setPower(0.5);
+                            timer.reset();
+                            started = true;
+                        }
+
+                        if (timer.milliseconds() >= 1000) {
+                            //motor.setPower(0);
+                            //servo1.setPower(0);
+                            //servo2.setPower(0);
                             return false;
                         }
 
@@ -75,70 +176,72 @@ public final class blue_auto_front_case extends LinearOpMode {
         }
 
         feeder feeder = new feeder(hardwareMap);
+        shooter shooter = new shooter(hardwareMap);
 
         waitForStart();
         if (isStopRequested()) return;
 
         TrajectoryActionBuilder segment_1 = drive.actionBuilder(beginPose)
                 .strafeToLinearHeading(
-                        new Vector2d(50, -10),
-                        Math.toRadians(200)
-                )
-                .waitSeconds(2);
+                        new Vector2d(55, -10),
+                        Math.toRadians(198)
+                );
 
         TrajectoryActionBuilder segment_2 = drive.actionBuilder(
-                        new Pose2d(50, -10, Math.toRadians(200))
+                        new Pose2d(55, -10, Math.toRadians(198))
                 )
                 .splineToLinearHeading(
-                        new Pose2d(36, -30, Math.toRadians(90)),
+                        new Pose2d(38, -30, Math.toRadians(90)),
                         Math.toRadians(-90)
                 );
 
-        TrajectoryActionBuilder segment_2_5 = drive.actionBuilder(new Pose2d(36,-30,Math.toRadians(90)))
-                .strafeTo(new Vector2d(36, -50))
-                .waitSeconds(2);
+        TrajectoryActionBuilder segment_2_5 = drive.actionBuilder(new Pose2d(38,-30,Math.toRadians(90)))
+                .strafeTo(new Vector2d(38, -69),new TranslationalVelConstraint(20));
 
-        TrajectoryActionBuilder segment_2_7 = drive.actionBuilder(new Pose2d(36,-50,Math.toRadians(90)))
+
+        TrajectoryActionBuilder segment_2_7 = drive.actionBuilder(new Pose2d(40,-69,Math.toRadians(90)))
                 .strafeToLinearHeading(
                         new Vector2d(55, -10),
-                        Math.toRadians(200)
-                )
-                .waitSeconds(2);
+                        Math.toRadians(198)
+                );
 
         TrajectoryActionBuilder segment_3 = drive.actionBuilder(
-                        new Pose2d(55, -10, Math.toRadians(200))
+                        new Pose2d(55, -10, Math.toRadians(198))
                 )
                 .strafeToLinearHeading(
-                        new Vector2d(12, -30),
+                        new Vector2d(16, -30),
                         Math.toRadians(90)
-                )
-                .waitSeconds(2);
+                );
+                //.waitSeconds(2);
 
-        TrajectoryActionBuilder segment_3_5 = drive.actionBuilder(new Pose2d(12,-30,Math.toRadians(90)))
-                .strafeTo(new Vector2d(12, -50))
-                .waitSeconds(2);
+        TrajectoryActionBuilder segment_3_5 = drive.actionBuilder(new Pose2d(16,-30,Math.toRadians(90)))
+                .strafeTo(new Vector2d(16, -69));
+                //.waitSeconds(2);
 
-        TrajectoryActionBuilder segment_3_7 = drive.actionBuilder(new Pose2d(12,-50,Math.toRadians(90)))
+        TrajectoryActionBuilder segment_3_7 = drive.actionBuilder(new Pose2d(16,-69,Math.toRadians(90)))
                 .strafeToLinearHeading(
                         new Vector2d(55, -10),
-                        Math.toRadians(200)
-                )
-                .waitSeconds(2);
+                        Math.toRadians(198)
+                );
 
         TrajectoryActionBuilder end_trajectory = drive.actionBuilder(
-                        new Pose2d(55, -10, Math.toRadians(200))
+                        new Pose2d(55, -10, Math.toRadians(198))
                 )
                 .strafeToLinearHeading(
-                        new Vector2d(55, 55),
+                        new Vector2d(55, 70),
                         Math.toRadians(180)
-                )
-                .waitSeconds(2);
+                );
+                //.waitSeconds(2);
 
         Actions.runBlocking(new SequentialAction(
+                shooter.spinup(),
                 segment_1.build(),
+                //shooter.spinup(),
+                shooter.shoot(),
                 segment_2.build(),
                 new ParallelAction(segment_2_5.build(),feeder.spinUp()),
-                segment_2_7.build(),
+                new ParallelAction(segment_2_7.build(),shooter.spinup()),
+                shooter.shoot(),
                 segment_3.build(),
                 segment_3_5.build(),
                 segment_3_7.build(),
