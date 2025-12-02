@@ -53,8 +53,8 @@ public final class blue_auto_front_case extends LinearOpMode {
                 return new Action() {
                     private ElapsedTime timer = new ElapsedTime();
                     private boolean started = false;
-
                     @Override
+
                     public boolean run(@NonNull TelemetryPacket packet) {
                         if (!started) {
                             motor.setPower(1);
@@ -82,31 +82,31 @@ public final class blue_auto_front_case extends LinearOpMode {
         TrajectoryActionBuilder segment_1 = drive.actionBuilder(beginPose)
                 .strafeToLinearHeading(
                         new Vector2d(50, -10),
-                        Math.toRadians(210)
+                        Math.toRadians(200)
                 )
                 .waitSeconds(2);
 
         TrajectoryActionBuilder segment_2 = drive.actionBuilder(
-                        new Pose2d(50, -10, Math.toRadians(210))
+                        new Pose2d(50, -10, Math.toRadians(200))
                 )
                 .splineToLinearHeading(
-                        new Pose2d(40, -30, Math.toRadians(90)),
+                        new Pose2d(36, -30, Math.toRadians(90)),
                         Math.toRadians(-90)
                 );
 
-        TrajectoryActionBuilder segment_2_5 = drive.actionBuilder(new Pose2d(40,-30,Math.toRadians(90)))
-                .strafeTo(new Vector2d(36, -60))
+        TrajectoryActionBuilder segment_2_5 = drive.actionBuilder(new Pose2d(36,-30,Math.toRadians(90)))
+                .strafeTo(new Vector2d(36, -50))
                 .waitSeconds(2);
 
         TrajectoryActionBuilder segment_2_7 = drive.actionBuilder(new Pose2d(36,-50,Math.toRadians(90)))
                 .strafeToLinearHeading(
                         new Vector2d(55, -10),
-                        Math.toRadians(210)
+                        Math.toRadians(200)
                 )
                 .waitSeconds(2);
 
         TrajectoryActionBuilder segment_3 = drive.actionBuilder(
-                        new Pose2d(55, -10, Math.toRadians(210))
+                        new Pose2d(55, -10, Math.toRadians(200))
                 )
                 .strafeToLinearHeading(
                         new Vector2d(12, -30),
@@ -121,15 +121,15 @@ public final class blue_auto_front_case extends LinearOpMode {
         TrajectoryActionBuilder segment_3_7 = drive.actionBuilder(new Pose2d(12,-50,Math.toRadians(90)))
                 .strafeToLinearHeading(
                         new Vector2d(55, -10),
-                        Math.toRadians(210)
+                        Math.toRadians(200)
                 )
                 .waitSeconds(2);
 
         TrajectoryActionBuilder end_trajectory = drive.actionBuilder(
-                        new Pose2d(55, -10, Math.toRadians(210))
+                        new Pose2d(55, -10, Math.toRadians(200))
                 )
                 .strafeToLinearHeading(
-                        new Vector2d(60, 65),
+                        new Vector2d(55, 55),
                         Math.toRadians(180)
                 )
                 .waitSeconds(2);
@@ -140,6 +140,7 @@ public final class blue_auto_front_case extends LinearOpMode {
                 new ParallelAction(segment_2_5.build(),feeder.spinUp()),
                 segment_2_7.build(),
                 segment_3.build(),
+                segment_3_5.build(),
                 segment_3_7.build(),
                 end_trajectory.build()
 
