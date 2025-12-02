@@ -117,17 +117,34 @@ public class generalUtil {
         safeSetMotorPower(hardware.rightBeltDriveMotor, p2, "rightBeltDriveMotor");
     }
 
-    public void lift(boolean up, Telemetry telemetry) {
+    public void lift(Telemetry telemetry, int dPadCount) {
         if (hardware.liftMotor == null) {
             RobotLog.w("generalUtil", "liftMotor is null, cannot move lift");
             if (telemetry != null) telemetry.addData("lift", "MISSING liftMotor");
             return;
         }
         try {
-            hardware.liftMotor.setTargetPosition(up ? 555 : 0);
+
+            if (dPadCount == 0){
+                hardware.liftMotor.setTargetPosition(0);
+                telemetry.addLine("lift are at closing position");
+            }
+            if (dPadCount == 1){
+                hardware.liftMotor.setTargetPosition(555);
+                telemetry.addLine("lift are at position 1");
+            }
+            if (dPadCount == 2){
+                hardware.liftMotor.setTargetPosition(1000);
+                telemetry.addLine("lift are at position 2");
+            }
+
             hardware.liftMotor.setPower(0.2);
             hardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            if (telemetry != null) telemetry.addData("lift position", hardware.liftMotor.getCurrentPosition());
+
+            if (telemetry != null) {
+                telemetry.addData("lift position", hardware.liftMotor.getCurrentPosition());
+
+            }
         } catch (Exception e) {
             RobotLog.ee("generalUtil", e, "Error operating liftMotor");
             if (telemetry != null) telemetry.addData("lift", "exception");
@@ -139,7 +156,7 @@ public class generalUtil {
         safeSetMotorPower(hardware.rightBeltDriveMotor, -l2 + l1, "rightBeltDriveMotor");
     }
 
-    public double Auto_aim(boolean atr, double bearing, double current_heading, Telemetry telemetry) {
+    public double Auto_aim(boolean atr, double bearing, Telemetry telemetry) {
         final double Kp = 0.03;
         final double Ki = 0.0001;
         final double Kd = 0.0001;

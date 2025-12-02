@@ -43,6 +43,15 @@ public class Main_Teleop extends OpMode {
     boolean overwrite = false;
     boolean hardwall = true;
 
+    int dPadCount = 0;
+    boolean wasDpadUpPressed = false;
+    boolean wasDpadDownPressed = false;
+
+    private boolean prevA = false;
+    boolean autoaim = false;
+
+
+
     //apriltag declare
     private AprilTag aprilTag;
 
@@ -125,6 +134,22 @@ public class Main_Teleop extends OpMode {
         prevBothBumpersG2 = bothBumpersG2;
         prevBothBumpersG1 = bothBumpersG1;
 
+
+        if (gamepad1.dpad_up && !wasDpadUpPressed){
+            dPadCount = Math.min(dPadCount + 1,2);
+        } else if (gamepad1.dpad_down && !wasDpadDownPressed) {
+            dPadCount = Math.max(dPadCount -1,0);
+        }
+
+        wasDpadUpPressed = gamepad1.dpad_up;
+        wasDpadDownPressed = gamepad1.dpad_down;
+
+        if (gamepad1.a && !prevA){
+            autoaim = !autoaim;
+        }
+
+        prevA = gamepad1.a;
+
         // Apriltag NPE checking
         List < AprilTagDetection > detections = null;
         if (aprilTag != null) {
@@ -197,7 +222,7 @@ public class Main_Teleop extends OpMode {
                 y = pose.position.y;
                 try {
                     heading = Math.toDegrees(pose.heading.toDouble());
-                    telemetry.addData("heading", heading);
+                    //telemetry.addData("heading", heading);
                 } catch (Exception e) {
                     // fallback if heading access fails
                     telemetry.addData("Warning", "pose.heading access failed: " + e.getMessage());
@@ -227,7 +252,7 @@ public class Main_Teleop extends OpMode {
         // utility function NPE checking
         if (util != null) {
             try {
-                return_val = util.Auto_aim(gamepad1.a, bearing, heading, telemetry);
+                return_val = util.Auto_aim(autoaim, bearing, telemetry);
             } catch (Exception e) {
                 telemetry.addData("util.Auto_aim", e.getMessage());
                 return_val = 0;
@@ -245,7 +270,7 @@ public class Main_Teleop extends OpMode {
             }
             telemetry.addData("In shooting range", canShoot);
             telemetry.addData("In Shooting Area (Front)", inTriangle);
-            if (gamepad1.a && !overwrite) {
+            if (autoaim && !overwrite) {
                 if (util != null) {
                     try {
                         util.shooter(gamepad1.b, shooter_power);
@@ -254,7 +279,7 @@ public class Main_Teleop extends OpMode {
                         telemetry.addData("util.shooter error", e.getMessage());
                     }
                 }
-                telemetry.addData("return val", return_val);
+                //telemetry.addData("return val", return_val);
                 factor = return_val;
                 telemetry.addLine("GO SHOOT!!!");
             } else {
@@ -309,7 +334,7 @@ public class Main_Teleop extends OpMode {
                 telemetry.addData("util.feeder error", e.getMessage());
             }
             try {
-                util.lift(gamepad1.x, telemetry);
+                util.lift(telemetry, dPadCount);
             } catch (Exception e) {
                 telemetry.addData("util.lift error", e.getMessage());
             }
