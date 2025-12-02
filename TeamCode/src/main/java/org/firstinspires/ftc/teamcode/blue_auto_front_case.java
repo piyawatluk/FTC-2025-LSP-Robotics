@@ -144,6 +144,6 @@ public final class blue_auto_front_case extends LinearOpMode {
                 segment_3_7.build(),
                 end_trajectory.build()
 
-        ));
+        )); //hope it works
     }
 }
