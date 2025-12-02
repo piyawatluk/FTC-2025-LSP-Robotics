@@ -8,6 +8,8 @@ public class MecanumDrive_own {
     private double frontRightPower;
     private double backLeftPower;
     private double backRightPower;
+    private final double straff_dampening_factor = 0.7;
+    private double yaw_dampening_factor = 0.5;
 
     private final MecanumDrive hardware;
 
@@ -54,22 +56,22 @@ public class MecanumDrive_own {
         }
     }
 
-    public void driveLimited(double driveX, double driveY, double turn) {
+    public void driveLimited(double driveX, double driveY, double turn, double factor) {
         // Standard mecanum math
-        float stickLX = (float) driveX;
-        float stickLY = (float) -driveY;
+        float stickLX = (float) driveY;
+        float stickLY = (float) -driveX;
 
         double computedX_l = CoordinateConverter.computeX(stickLX, stickLY, 1);
         double computedY_l = CoordinateConverter.computeY(stickLX, stickLY, 1);
 
         float stickRX = (float) turn;
-        double computedX_r = CoordinateConverter.computeX(stickRX, 0f, 1);
+        double computedX_r = (yaw_dampening_factor*CoordinateConverter.computeX(stickRX, 0f, 1) + factor);
 
         // Same motor mixing as in drive()
-        double fl = (computedY_l - computedX_l) - computedX_r;
-        double fr = (computedY_l + computedX_l) + computedX_r;
-        double bl = (computedY_l + computedX_l) - computedX_r;
-        double br = (computedY_l - computedX_l) + computedX_r;
+        double fl = (-computedY_l + computedX_l*straff_dampening_factor) + (computedX_r);
+        double fr = (computedY_l + computedX_l*straff_dampening_factor) + (computedX_r);
+        double bl = (-computedY_l - computedX_l*straff_dampening_factor) + (computedX_r);
+        double br = (computedY_l - computedX_l*straff_dampening_factor) + (computedX_r);
 
         // Normalize so no wheel |power| > 1
         double max = Math.max(1.0,

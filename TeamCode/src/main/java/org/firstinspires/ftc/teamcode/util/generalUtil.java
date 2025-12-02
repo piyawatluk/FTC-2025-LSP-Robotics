@@ -2,158 +2,179 @@ package org.firstinspires.ftc.teamcode.util;
 
 import androidx.annotation.NonNull;
 
-import org.firstinspires.ftc.teamcode.Robot_Hardware;
-
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.SequentialAction;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Robot_Hardware;
 
 import java.io.InputStream;
 import java.util.Properties;
 
-/**
- * Utility class for Sequencer-based actions.
- *
- * HOW TO USE:
- * 1) Create new generalUtil(hw)
- * 2) Call util.init(hardwareMap, telemetry)
- * 3) In loop(): call util.Belt(startButton) or util.servo_test(...)
- */
 public class generalUtil {
 
     private final Robot_Hardware hardware;
 
-    // ----------------------------------------
-    // Sequencers (NOT STATIC — resets every OpMode run)
-    // ----------------------------------------
+    // (Sequencers kept if you use them elsewhere)
     private Sequencer sequence1 = new Sequencer();
     private Sequencer lift_seq = new Sequencer();
     private Sequencer belt = new Sequencer();
     private Sequencer shooter = new Sequencer();
     private Sequencer feeder = new Sequencer();
 
-    // Hardware references
-    private Servo servo1;
-    private DcMotor leftBeltDriveMotor;
-    private DcMotor rightBeltDriveMotor;
+    // PID state
+    private double aimIntegral = 0.0;
+    private double prevError = 0.0;
+    private long lastTime = 0;
 
-    // ----------------------------------------
-    // Constructor
-    // ----------------------------------------
     public generalUtil(Robot_Hardware hw) {
         this.hardware = hw;
     }
 
-    // ----------------------------------------
-    // Initialization
-    // ----------------------------------------
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
-
-        // Load configs from assets (optional)
         Properties prop = new Properties();
         try (InputStream input = hardwareMap.appContext.getAssets().open("Robot.config")) {
             prop.load(input);
         } catch (Exception e) {
             RobotLog.ee("Robot_Hardware", e, "Failed to load Robot.config");
-            if (telemetry != null)
-                telemetry.addData("ERROR", "Cannot read assets/Robot.config");
+            if (telemetry != null) telemetry.addData("ERROR", "Cannot read assets/Robot.config");
         }
 
-        // Assign hardware AFTER config
-        this.leftBeltDriveMotor = hardware.leftBeltDriveMotor;
-        this.rightBeltDriveMotor = hardware.rightBeltDriveMotor;
-
-        //this.servo1 = hardware.servo1; // optional if needed
+        // Optional: early validation (uncomment if you prefer fail-fast)
+        // validateHardware(telemetry);
     }
 
-    // ----------------------------------------
-    // SERVO TEST SEQUENCE
-    // ----------------------------------------
-    //public void servo_test(HardwareMap hardwareMap, boolean start, Telemetry telemetry) {
-
-        //Servo s = hardwareMap.get(Servo.class, "tbd_0");
-
-        //if (s == null) {
-            //telemetry.addData("ERROR", "The servo is NULL");
-            //return;
-        //}
-
-        //if (start) {
-            //sequence1 = new Sequencer();  // reset sequence
-            //sequence1.add(s, 0.5, 500);           // move to 0.5
-            //sequence1.add(s, 0.2, 500, true);     // interpolate to 0.2
-            //sequence1.add(830);                   // delay
-        //}
-
-        //// Step every loop
-        //sequence1.step();
-    //}
-
-    public void shooter(boolean bool, double target_RPM){
-        double power = target_RPM/6000;
-        if (bool){
-            shooter = new Sequencer();
-            shooter.add(hardware.leftShooterMotor, power,hardware.rightShooterMotor,power,5000);
+    // -- Helper safe setters to avoid NPEs --
+    private void safeSetMotorPower(DcMotor motor, double power, String nameIfKnown) {
+        if (motor == null) {
+            RobotLog.w("generalUtil", "Attempt to set power on null motor: %s", nameIfKnown == null ? "<unknown>" : nameIfKnown);
+            return;
         }
-        shooter.step();
-    }
-    public void feeder(boolean bool){
-        if (bool){
-            hardware.placeholderServo1.setPower(-1);
-            hardware.placeholderServo2.setPower(1);
-        }
-        else {
-            hardware.placeholderServo1.setPower(0);
-            hardware.placeholderServo2.setPower(0);
+        try {
+            motor.setPower(power);
+        } catch (Exception e) {
+            RobotLog.ee("generalUtil", e, "Failed to set power on motor: %s", nameIfKnown == null ? "<unknown>" : nameIfKnown);
         }
     }
 
-    public void lift(boolean bool, Telemetry telemetry){
-        if (bool){
-             hardware.liftMotor.setTargetPosition(555);
+    private void safeSetServoPower(CRServo servo, double power, String nameIfKnown) {
+        if (servo == null) {
+            RobotLog.w("generalUtil", "Attempt to set power on null servo: %s", nameIfKnown == null ? "<unknown>" : nameIfKnown);
+            return;
         }
-        else {
-            hardware.liftMotor.setTargetPosition(0);
+        try {
+            servo.setPower(power);
+        } catch (Exception e) {
+            RobotLog.ee("generalUtil", e, "Failed to set power on servo: %s", nameIfKnown == null ? "<unknown>" : nameIfKnown);
         }
-        hardware.liftMotor.setPower(0.5);
-        hardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        telemetry.addData("lift position", hardware.liftMotor.getCurrentPosition());
-    }
-    public void the_gettho(double l2, double l1){
-        hardware.rightBeltDriveMotor.setPower(-l2+l1);
     }
 
-    // ----------------------------------------
-    // BELT MOTOR SEQUENCE
-    // ----------------------------------------
-    //public void Belt(boolean start, Telemetry telemetry) {
+    // Optional helper to validate critical hardware and report via telemetry
+    public void validateHardware(Telemetry telemetry) {
+        if (hardware == null) {
+            RobotLog.e("generalUtil", "Robot_Hardware is null");
+            if (telemetry != null) telemetry.addData("HW_ERROR", "Robot_Hardware is null");
+            return;
+        }
 
-        //if (leftBeltDriveMotor == null || rightBeltDriveMotor == null)
-            //telemetry.addLine("kuy");
-            //return;
+        if (telemetry != null) {
+            telemetry.addData("HW leftShooter", hardware.leftShooterMotor == null ? "MISSING" : "OK");
+            telemetry.addData("HW rightShooter", hardware.rightShooterMotor == null ? "MISSING" : "OK");
+            telemetry.addData("HW liftMotor", hardware.liftMotor == null ? "MISSING" : "OK");
+            telemetry.addData("HW placeholderServo1", hardware.placeholderServo1 == null ? "MISSING" : "OK");
+            telemetry.addData("HW placeholderServo2", hardware.placeholderServo2 == null ? "MISSING" : "OK");
+            telemetry.addData("HW rightBeltDriveMotor", hardware.rightBeltDriveMotor == null ? "MISSING" : "OK");
+        }
+    }
 
-        //if (start) {
-            //leftBeltDriveMotor.setPower(1);
-            //rightBeltDriveMotor.setPower(1);
+    // Simple teleop shooter helper
+    public void shooter(boolean enabled, double targetRPM) {
+        double power = Math.max(0, Math.min(1, targetRPM / 6000.0));
+        if (enabled) {
+            safeSetMotorPower(hardware.leftShooterMotor, power, "leftShooterMotor");
+            safeSetMotorPower(hardware.rightShooterMotor, power, "rightShooterMotor");
+        } else {
+            safeSetMotorPower(hardware.leftShooterMotor, 0.0, "leftShooterMotor");
+            safeSetMotorPower(hardware.rightShooterMotor, 0.0, "rightShooterMotor");
+        }
+    }
 
-        //}
 
-        //// Step every loop
-        //belt.step();
-    //}
 
-    // ----------------------------------------
-    // Utility: check if sequence finished
-    // ----------------------------------------
-    //public boolean beltFinished() {
-        //return belt.sequenceFinished();
-    //}
+    // Teleop feeder helper
+    public void feeder(boolean enabled) {
+        double p1 = enabled ? -1 : 0;
+        double p2 = enabled ? 1 : 0;
+        safeSetServoPower(hardware.placeholderServo1, p1, "placeholderServo1");
+        safeSetServoPower(hardware.placeholderServo2, p2, "placeholderServo2");
+        safeSetMotorPower(hardware.rightBeltDriveMotor, p2, "rightBeltDriveMotor");
+    }
 
-    //public boolean servoSeqFinished() {
-        //return sequence1.sequenceFinished();
-    //}
+    public void lift(boolean up, Telemetry telemetry) {
+        if (hardware.liftMotor == null) {
+            RobotLog.w("generalUtil", "liftMotor is null, cannot move lift");
+            if (telemetry != null) telemetry.addData("lift", "MISSING liftMotor");
+            return;
+        }
+        try {
+            hardware.liftMotor.setTargetPosition(up ? 555 : 0);
+            hardware.liftMotor.setPower(0.2);
+            hardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            if (telemetry != null) telemetry.addData("lift position", hardware.liftMotor.getCurrentPosition());
+        } catch (Exception e) {
+            RobotLog.ee("generalUtil", e, "Error operating liftMotor");
+            if (telemetry != null) telemetry.addData("lift", "exception");
+        }
+    }
+
+    public void Exterior_Feeder(double l2, double l1) {
+        // Combine feed values into a belt motor; check for null
+        safeSetMotorPower(hardware.rightBeltDriveMotor, -l2 + l1, "rightBeltDriveMotor");
+    }
+
+    public double Auto_aim(boolean atr, double bearing, double current_heading, Telemetry telemetry) {
+        final double Kp = 0.03;
+        final double Ki = 0.0001;
+        final double Kd = 0.0001;
+
+        long now = System.nanoTime();
+        double dt = (lastTime != 0) ? (now - lastTime) / 1e9 : 0.0;
+        lastTime = now;
+
+        double error = bearing;
+
+        if (dt > 0 && Double.isFinite(dt)) {
+            aimIntegral += error * dt;
+            double maxI = 2.0;
+            if (aimIntegral > maxI) aimIntegral = maxI;
+            if (aimIntegral < -maxI) aimIntegral = -maxI;
+        }
+
+        double derivative = (dt > 0 && Double.isFinite(dt)) ? (error - prevError) / dt : 0.0;
+        prevError = error;
+
+        double respond = -(Kp * error + Ki * aimIntegral + Kd * derivative);
+        if (!Double.isFinite(respond)) respond = 0.0;
+
+        double output = Math.max(-1.0, Math.min(1.0, respond));
+
+        if (!atr) return 0.0;
+
+        if (Math.abs(error) < 1.0) {
+            if (telemetry != null) telemetry.addLine("Aligned");
+            return 0.0;
+        }
+
+        if (telemetry != null) {
+            telemetry.addLine(output < 0 ? "Turn right" : "Turn left");
+        }
+        return output;
+    }
 }

@@ -21,7 +21,6 @@ public class Robot_Hardware {
     public String rearRightMotorName;
     public String rightShooterMotorName;
     public String leftShooterMotorName;
-    public String leftBeltDriveMotorName;
     public String rightBeltDriveMotorName;
     public String liftMotorName;
 
@@ -31,20 +30,15 @@ public class Robot_Hardware {
     public DcMotor rearRightMotor = null;
     public DcMotor rightShooterMotor = null;
     public DcMotor leftShooterMotor = null;
-    public DcMotor leftBeltDriveMotor = null;
     public DcMotor rightBeltDriveMotor = null;
     public DcMotor liftMotor = null;
 
     // Rename the servos
     public String placeholderServoName1;
     public String placeholderServoName2;
-    public String placeholderServoName3;
-    public String placeholderServoName4;
 
     public CRServo placeholderServo1 = null;
     public CRServo placeholderServo2 = null;
-    public Servo placeholderServo3 = null;
-    public Servo placeholderServo4 = null;
 
     public Robot_Hardware() { }
 
@@ -71,7 +65,6 @@ public class Robot_Hardware {
         leftShooterMotorName = prop.getProperty("Robot.LEFT_SHOOTER_MOTOR_NAME", "lsm");
 
         rightBeltDriveMotorName = prop.getProperty("Robot.RIGHT_BELT_DRIVE_MOTOR_NAME","rbdm");
-        //leftBeltDriveMotorName = prop.getProperty("Robot.LEFT_BELT_DRIVE_MOTOR_NAME","lbdm");
 
         liftMotorName = prop.getProperty("Robot.LIFT_MOTOR_NAME","lft");
 
@@ -79,8 +72,6 @@ public class Robot_Hardware {
 
         placeholderServoName1 = prop.getProperty("Robot.PLACEHOLDER_SERVO1_NAME", "null");
         placeholderServoName2 = prop.getProperty("Robot.PLACEHOLDER_SERVO2_NAME", "null");
-        placeholderServoName3 = prop.getProperty("Robot.PLACEHOLDER_SERVO3_NAME", "null");
-        placeholderServoName4 = prop.getProperty("Robot.PLACEHOLDER_SERVO4_NAME", "null");
 
         // map hardware
         frontLeftMotor = hardwareMap.get(DcMotor.class, frontLeftMotorName);
@@ -105,7 +96,6 @@ public class Robot_Hardware {
         leftShooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         rightBeltDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //leftBeltDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -121,20 +111,16 @@ public class Robot_Hardware {
         leftShooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         rightBeltDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);//tbd
-        //leftBeltDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        liftMotor.setDirection(DcMotorSimple.Direction.REVERSE); //tbd
+        liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         placeholderServo1 = hardwareMap.get(CRServo.class, placeholderServoName1);
         placeholderServo2 = hardwareMap.get(CRServo.class, placeholderServoName2);
-        placeholderServo3 = hardwareMap.get(Servo.class, placeholderServoName3);
-        placeholderServo4 = hardwareMap.get(Servo.class, placeholderServoName4);
 
         placeholderServo1.setDirection(CRServo.Direction.FORWARD);
-        placeholderServo2.setDirection(CRServo.Direction.FORWARD);
-        placeholderServo3.setDirection(Servo.Direction.FORWARD);
-        placeholderServo4.setDirection(Servo.Direction.FORWARD);
+        placeholderServo2.setDirection(CRServo.Direction.REVERSE);
 
     }
 }

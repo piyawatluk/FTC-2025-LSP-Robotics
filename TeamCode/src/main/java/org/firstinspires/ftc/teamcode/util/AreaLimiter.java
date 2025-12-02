@@ -10,43 +10,44 @@ public class AreaLimiter {
     public AreaLimiter(Telemetry telemetry) {
         this.telemetry = telemetry;
     }
-    public double X_MIN = -60;
-    public double X_MAX =  60;
-    public double Y_MIN =  -72;
-    public double Y_MAX =  72;
+    public double X_MIN = -10;
+    public double X_MAX =  10;
+    public double Y_MIN =  -10;
+    public double Y_MAX =  10;
     public boolean softWall = false;
-    public boolean hardWall = true;
+    public boolean hardWall;
     public boolean WantToShoot = false;
     public double DisplaceX;
     public double DisplaceY;
 
     public double[] limit(double x, double y, double driveX, double driveY) {
-        //telemetry.addData("Current X", x);
-        //telemetry.addData("Current Y", y); //for debug purposes
-        // Left wall
+
+        // Left wall – only block movement INTO the wall
         if (x <= X_MIN && driveX > 0 && hardWall) {
             driveX = 0;
-            telemetry.addData("Limit reached (X axis)", driveX);
+            telemetry.addData("Bottom wall limit", x);
         }
+
         // Right wall
         if (x >= X_MAX && driveX < 0 && hardWall) {
             driveX = 0;
-            telemetry.addData("Limit reached (X axis)", driveX);
+            telemetry.addData("Top wall limit", x);
         }
 
         // Bottom wall
         if (y <= Y_MIN && driveY < 0 && hardWall) {
             driveY = 0;
-            telemetry.addData("Limit reached (Y axis)", driveY);
+            telemetry.addData("Left wall limit", y);
         }
+
         // Top wall
         if (y >= Y_MAX && driveY > 0 && hardWall) {
             driveY = 0;
-            telemetry.addData("Limit reached (Y axis)", driveY);
+            telemetry.addData("Right wall limit", y);
         }
 
-        //Shooting zone
-        if (inShootingZone(x,y) && WantToShoot || inFarShootZone(x,y) && WantToShoot){
+        // Shooting zone lock
+        if (WantToShoot && (inShootingZone(x, y) || inFarShootZone(x, y))) {
             driveX = 0;
             driveY = 0;
         }
@@ -54,8 +55,9 @@ public class AreaLimiter {
         return new double[]{driveX, driveY};
     }
 
+
     public void hardWall(boolean b) {
-        hardWall = true;
+        hardWall = b;
     }
     public Boolean inShootingZone (double x, double y)
     {
