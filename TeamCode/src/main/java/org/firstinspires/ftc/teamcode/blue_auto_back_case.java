@@ -41,10 +41,10 @@ public final class blue_auto_back_case extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(0,0), Math.toRadians(230));
 
         TrajectoryActionBuilder segment2 = drive.actionBuilder(new Pose2d(0,0,230))
-                .splineToLinearHeading(new Pose2d(-5,-25,Math.toRadians(90)), Math.toRadians(-90));
+                .splineToLinearHeading(new Pose2d(-15,-25,Math.toRadians(90)), Math.toRadians(-90));
 
-        TrajectoryActionBuilder segment3 = drive.actionBuilder(new Pose2d(-5,-25, Math.toRadians(-90)))
-                .strafeTo(new Vector2d(-5,-50));
+        TrajectoryActionBuilder segment3 = drive.actionBuilder(new Pose2d(-15,-25, Math.toRadians(-90)))
+                .strafeTo(new Vector2d(-15,-50));
 
         TrajectoryActionBuilder segment4 = drive.actionBuilder(new Pose2d(-5,-50,Math.toRadians(-90)))
                 .strafeToLinearHeading(new Vector2d(0,0), Math.toRadians(220));

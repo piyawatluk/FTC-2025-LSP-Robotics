@@ -103,6 +103,7 @@ public class generalUtil {
     // Simple teleop shooter helper
     public void shooter(boolean enabled, double targetRPM, Telemetry telemetry) {
         double power = Math.max(0, Math.min(1, targetRPM / 6000.0));
+        double p2 = enabled ? 1 : 0;
         if (enabled) {
             safeSetMotorPower(hardware.leftShooterMotor, power, "leftShooterMotor");
             safeSetMotorPower(hardware.rightShooterMotor, power, "rightShooterMotor");
@@ -110,6 +111,7 @@ public class generalUtil {
             safeSetMotorPower(hardware.leftShooterMotor, 0.0, "leftShooterMotor");
             safeSetMotorPower(hardware.rightShooterMotor, 0.0, "rightShooterMotor");
         }
+        safeSetServoPower(hardware.placeholderServo2, p2, "placeholderServo2");
 
         double lsm_speed = (new MotorSpeed(hardware.leftShooterMotor).getTicksPerSecond());
         double rsm_speed = (new MotorSpeed(hardware.rightShooterMotor).getTicksPerSecond());
@@ -154,7 +156,7 @@ public class generalUtil {
         double p1 = enabled ? -1 : 0;
         double p2 = enabled ? 1 : 0;
         safeSetServoPower(hardware.placeholderServo1, p1, "placeholderServo1");
-        safeSetServoPower(hardware.placeholderServo2, p2, "placeholderServo2");
+        //safeSetServoPower(hardware.placeholderServo2, p2, "placeholderServo2");
         safeSetMotorPower(hardware.rightBeltDriveMotor, p2, "rightBeltDriveMotor");
     }
 

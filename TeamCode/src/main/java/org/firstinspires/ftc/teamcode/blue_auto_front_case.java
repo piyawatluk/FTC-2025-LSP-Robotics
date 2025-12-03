@@ -81,7 +81,7 @@ public final class blue_auto_front_case extends LinearOpMode {
                             started = true;
                         }
 
-                        if (timer.milliseconds() >= 3000) {
+                        if (timer.milliseconds() >= 2500) {
                             motor.setPower(0);
                             servo1.setPower(0);
                             servo2.setPower(0);
@@ -125,8 +125,8 @@ public final class blue_auto_front_case extends LinearOpMode {
                             motor.setPower(1);
                             servo1.setPower(1);
                             servo2.setPower(1);
-                            left_shooter.setPower(0.45);
-                            right_shooter.setPower(0.45);
+                            left_shooter.setPower(0.48);
+                            right_shooter.setPower(0.48);
                             timer.reset();
                             started = true;
                         }
@@ -184,22 +184,22 @@ public final class blue_auto_front_case extends LinearOpMode {
         TrajectoryActionBuilder segment_1 = drive.actionBuilder(beginPose)
                 .strafeToLinearHeading(
                         new Vector2d(55, -10),
-                        Math.toRadians(198)
+                        Math.toRadians(196)
                 );
 
         TrajectoryActionBuilder segment_2 = drive.actionBuilder(
-                        new Pose2d(55, -10, Math.toRadians(198))
+                        new Pose2d(55, -10, Math.toRadians(196))
                 )
                 .splineToLinearHeading(
-                        new Pose2d(38, -30, Math.toRadians(90)),
+                        new Pose2d(35, -30, Math.toRadians(90)),
                         Math.toRadians(-90)
                 );
 
-        TrajectoryActionBuilder segment_2_5 = drive.actionBuilder(new Pose2d(38,-30,Math.toRadians(90)))
-                .strafeTo(new Vector2d(38, -69),new TranslationalVelConstraint(20));
+        TrajectoryActionBuilder segment_2_5 = drive.actionBuilder(new Pose2d(35,-30,Math.toRadians(90)))
+                .strafeTo(new Vector2d(35, -63),new TranslationalVelConstraint(17.5));
 
 
-        TrajectoryActionBuilder segment_2_7 = drive.actionBuilder(new Pose2d(40,-69,Math.toRadians(90)))
+        TrajectoryActionBuilder segment_2_7 = drive.actionBuilder(new Pose2d(35,-63,Math.toRadians(90)))
                 .strafeToLinearHeading(
                         new Vector2d(55, -10),
                         Math.toRadians(198)
@@ -234,8 +234,7 @@ public final class blue_auto_front_case extends LinearOpMode {
                 //.waitSeconds(2);
 
         Actions.runBlocking(new SequentialAction(
-                shooter.spinup(),
-                segment_1.build(),
+                new ParallelAction(segment_1.build(),shooter.spinup()),
                 //shooter.spinup(),
                 shooter.shoot(),
                 segment_2.build(),
