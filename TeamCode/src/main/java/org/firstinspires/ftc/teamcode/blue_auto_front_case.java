@@ -215,7 +215,7 @@ public final class blue_auto_front_case extends LinearOpMode {
                 //.waitSeconds(2);
 
         TrajectoryActionBuilder segment_3_5 = drive.actionBuilder(new Pose2d(16,-30,Math.toRadians(90)))
-                .strafeTo(new Vector2d(16, -69));
+                .strafeTo(new Vector2d(16, -69),new TranslationalVelConstraint(20));
                 //.waitSeconds(2);
 
         TrajectoryActionBuilder segment_3_7 = drive.actionBuilder(new Pose2d(16,-69,Math.toRadians(90)))
