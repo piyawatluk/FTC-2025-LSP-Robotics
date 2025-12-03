@@ -16,7 +16,6 @@ public class case_1_back {
                 .build();
 
         myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-50, -50, Math.toRadians(230)))
-                .waitSeconds(2)
                 .strafeToLinearHeading(new Vector2d(0,0), Math.toRadians(225))
                 .waitSeconds(2)
                 .splineToLinearHeading(new Pose2d(-12,-25,Math.toRadians(90)), Math.toRadians(-90))
