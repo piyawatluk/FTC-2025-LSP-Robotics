@@ -9,7 +9,9 @@ import com.acmerobotics.roadrunner.SequentialAction;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -50,6 +52,10 @@ public class generalUtil {
         // Optional: early validation (uncomment if you prefer fail-fast)
         // validateHardware(telemetry);
     }
+
+
+
+
 
     // -- Helper safe setters to avoid NPEs --
     private void safeSetMotorPower(DcMotor motor, double power, String nameIfKnown) {
@@ -95,7 +101,7 @@ public class generalUtil {
     }
 
     // Simple teleop shooter helper
-    public void shooter(boolean enabled, double targetRPM) {
+    public void shooter(boolean enabled, double targetRPM, Telemetry telemetry) {
         double power = Math.max(0, Math.min(1, targetRPM / 6000.0));
         if (enabled) {
             safeSetMotorPower(hardware.leftShooterMotor, power, "leftShooterMotor");
@@ -104,7 +110,42 @@ public class generalUtil {
             safeSetMotorPower(hardware.leftShooterMotor, 0.0, "leftShooterMotor");
             safeSetMotorPower(hardware.rightShooterMotor, 0.0, "rightShooterMotor");
         }
+
+        double lsm_speed = (new MotorSpeed(hardware.leftShooterMotor).getTicksPerSecond());
+        double rsm_speed = (new MotorSpeed(hardware.rightShooterMotor).getTicksPerSecond());
+        telemetry.addData("lsm speed", lsm_speed);
+        telemetry.addData("rsm speed", rsm_speed);
+        telemetry.addData("delta", lsm_speed-rsm_speed);
     }
+
+    public class MotorSpeed {
+        private DcMotor motor;
+        private ElapsedTime timer = new ElapsedTime();
+        private int lastPosition = 0;
+
+        public MotorSpeed(DcMotor motor) {
+            this.motor = motor;
+            this.lastPosition = motor.getCurrentPosition();
+            timer.reset();
+        }
+
+        // returns ticks per second (TPS)
+        public double getTicksPerSecond() {
+            int currentPos = motor.getCurrentPosition();
+            double dt = timer.seconds();
+
+            int deltaPos = currentPos - lastPosition;
+
+            // update for next cycle
+            lastPosition = currentPos;
+            timer.reset();
+
+            return deltaPos / dt;
+        }
+    }
+
+
+
 
 
 

@@ -273,7 +273,7 @@ public class Main_Teleop extends OpMode {
             if (autoaim && !overwrite) {
                 if (util != null) {
                     try {
-                        util.shooter(gamepad1.b, shooter_power);
+                        util.shooter(gamepad1.b, shooter_power,telemetry);
                         telemetry.addLine("auto shooter power engage");
                     } catch (Exception e) {
                         telemetry.addData("util.shooter error", e.getMessage());
@@ -366,7 +366,7 @@ public class Main_Teleop extends OpMode {
         // telemetry for logic overwrite
         if (overwrite) {
             telemetry.addLine("shooter overwrite engage");
-            util.shooter(gamepad1.b, manual_RPM);
+            util.shooter(gamepad1.b, manual_RPM, telemetry);
         }
 
         if (!hardwall) {
