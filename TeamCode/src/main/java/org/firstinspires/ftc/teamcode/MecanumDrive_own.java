@@ -40,10 +40,10 @@ public class MecanumDrive_own {
         backRightPower  /= max;
 
         // Apply to hardware
-        hardware.leftFront.setPower(frontLeftPower);
-        hardware.rightFront.setPower(frontRightPower);
-        hardware.leftBack.setPower(backLeftPower);
-        hardware.rightBack.setPower(backRightPower);
+        hardware.leftFront.setPower(frontLeftPower*0.3);
+        hardware.rightFront.setPower(frontRightPower*0.3);
+        hardware.leftBack.setPower(backLeftPower*0.6);
+        hardware.rightBack.setPower(backRightPower*0.6);
     }
 
     public double getMotorPower(String atr) {

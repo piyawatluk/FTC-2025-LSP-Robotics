@@ -152,10 +152,10 @@ public class Main_Teleop extends OpMode {
         //Servo swing gate
 
         if (gamepad1.y && !prevY) {
-            if (hw.placeholderServo3.getPosition() < 0.25) {
-                hw.placeholderServo3.setPosition(0.5);
+            if (hw.placeholderServo3.getPosition() < 0.2) {
+                hw.placeholderServo3.setPosition(0.3);
             } else {
-                hw.placeholderServo3.setPosition(0.0);
+                hw.placeholderServo3.setPosition(0.05);
             }
         }
 
@@ -326,7 +326,7 @@ public class Main_Teleop extends OpMode {
                 telemetry.addData("areaLimiter.limit error", e.getMessage());
             }
             try {
-                areaLimiter.hardWall(hardwall);
+                //areaLimiter.hardWall(hardwall);
             } catch (Exception e) {
                 telemetry.addData("areaLimiter.hardWall error", e.getMessage());
             }

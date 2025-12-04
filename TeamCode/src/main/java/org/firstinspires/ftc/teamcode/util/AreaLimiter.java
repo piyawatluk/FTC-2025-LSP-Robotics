@@ -15,7 +15,7 @@ public class AreaLimiter {
     public double Y_MIN =  -10;
     public double Y_MAX =  10;
     public boolean softWall = false;
-    public boolean hardWall;
+    public boolean hardWall = false;
     public boolean WantToShoot = false;
     public double DisplaceX;
     public double DisplaceY;
@@ -55,10 +55,6 @@ public class AreaLimiter {
         return new double[]{driveX, driveY};
     }
 
-
-    public void hardWall(boolean b) {
-        hardWall = b;
-    }
     public Boolean inShootingZone (double x, double y)
     {
         //note this assumes that the center is (0,0) and the obelisk is at x-positive just tell me if i'm wrong
