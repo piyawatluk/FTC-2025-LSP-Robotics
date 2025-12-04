@@ -48,6 +48,7 @@ public class Main_Teleop extends OpMode {
     boolean wasDpadDownPressed = false;
 
     private boolean prevA = false;
+    private boolean prevY = false;
     boolean autoaim = false;
 
 
@@ -147,6 +148,24 @@ public class Main_Teleop extends OpMode {
         if (gamepad1.a && !prevA){
             autoaim = !autoaim;
         }
+
+        //Servo swing gate
+
+        if (gamepad1.y && !prevY) {
+            if (hw.placeholderServo3.getPosition() < 0.25) {
+                hw.placeholderServo3.setPosition(0.5);
+            } else {
+                hw.placeholderServo3.setPosition(0.0);
+            }
+        }
+
+        // adjustable for finding the right position
+        /*if (gamepad1.y && !prevY && Deg < 1){
+            hw.placeholderServo3.setPosition(Deg);
+            Deg += 0.1;
+        }*/
+
+        prevY = gamepad1.y;
 
         prevA = gamepad1.a;
 
