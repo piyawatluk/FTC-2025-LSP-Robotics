@@ -123,14 +123,14 @@ public class Main_Teleop extends OpMode {
         boolean inTriangle = false;
 
         double bearing = 0; // initial value for bearing
-        double manual_RPM = 2800;
+        double manual_RPM = 3000;
         double return_val = 0;
 
         boolean bothBumpersG2 = gamepad2.left_bumper && gamepad2.right_bumper;
         boolean bothBumpersG1 = gamepad1.left_bumper && gamepad1.right_bumper;
 
-        if (bothBumpersG2 && !prevBothBumpersG2) overwrite = !overwrite;
-        if (bothBumpersG1 && !prevBothBumpersG1) hardwall = !hardwall;
+        if (bothBumpersG2 && !prevBothBumpersG2) hardwall = !hardwall;
+        if (bothBumpersG1 && !prevBothBumpersG1) overwrite = !overwrite;
 
         prevBothBumpersG2 = bothBumpersG2;
         prevBothBumpersG1 = bothBumpersG1;
