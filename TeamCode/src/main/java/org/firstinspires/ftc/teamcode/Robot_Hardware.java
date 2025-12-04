@@ -36,9 +36,12 @@ public class Robot_Hardware {
     // Rename the servos
     public String placeholderServoName1;
     public String placeholderServoName2;
+    public String placeholderServoName3;
 
     public CRServo placeholderServo1 = null;
     public CRServo placeholderServo2 = null;
+    public Servo placeholderServo3 = null;
+
 
     public Robot_Hardware() { }
 
@@ -72,6 +75,7 @@ public class Robot_Hardware {
 
         placeholderServoName1 = prop.getProperty("Robot.PLACEHOLDER_SERVO1_NAME", "null");
         placeholderServoName2 = prop.getProperty("Robot.PLACEHOLDER_SERVO2_NAME", "null");
+        placeholderServoName3 = prop.getProperty("Robot.PLACEHOLDER_SERVO3_NAME", "null");
 
         // map hardware
         frontLeftMotor = hardwareMap.get(DcMotor.class, frontLeftMotorName);
@@ -118,9 +122,11 @@ public class Robot_Hardware {
 
         placeholderServo1 = hardwareMap.get(CRServo.class, placeholderServoName1);
         placeholderServo2 = hardwareMap.get(CRServo.class, placeholderServoName2);
+        placeholderServo3 = hardwareMap.get(Servo.class, placeholderServoName3);
 
         placeholderServo1.setDirection(CRServo.Direction.FORWARD);
         placeholderServo2.setDirection(CRServo.Direction.FORWARD);
+        placeholderServo3.setDirection(Servo.Direction.FORWARD);
 
     }
 }

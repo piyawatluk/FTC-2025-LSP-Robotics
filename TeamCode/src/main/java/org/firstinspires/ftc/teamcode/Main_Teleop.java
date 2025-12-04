@@ -42,6 +42,9 @@ public class Main_Teleop extends OpMode {
     private boolean prevBothBumpersG2 = false;
     boolean overwrite = false;
     boolean hardwall = true;
+    private boolean prevY;
+    public double Deg = 0;
+
 
     //apriltag declare
     private AprilTag aprilTag;
@@ -124,6 +127,24 @@ public class Main_Teleop extends OpMode {
 
         prevBothBumpersG2 = bothBumpersG2;
         prevBothBumpersG1 = bothBumpersG1;
+
+        //Servo swing gate
+
+        if (gamepad1.y && !prevY) {
+            if (hw.placeholderServo3.getPosition() < 0.25) {
+                hw.placeholderServo3.setPosition(0.5);
+            } else {
+                hw.placeholderServo3.setPosition(0.0);
+            }
+        }
+
+        // adjustable for finding the right position
+        /*if (gamepad1.y && !prevY && Deg < 1){
+            hw.placeholderServo3.setPosition(Deg);
+            Deg += 0.1;
+        }*/
+
+        prevY = gamepad1.y;
 
         // Apriltag NPE checking
         List < AprilTagDetection > detections = null;
