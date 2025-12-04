@@ -51,7 +51,6 @@ public class Main_Teleop extends OpMode {
     boolean autoaim = false;
 
 
-
     //apriltag declare
     private AprilTag aprilTag;
 
@@ -171,7 +170,7 @@ public class Main_Teleop extends OpMode {
                                     detection.ftcPose.y * detection.ftcPose.y
                     );
 
-                    shooter_power = Math.max(2600, (distanceToAprilTag / 118) * 3000);
+                    shooter_power = Math.max(2700, (distanceToAprilTag / 118) * 3000);
                     telemetry.addData("test baring", detection.ftcPose.bearing);
 
                     bearing = detection.ftcPose.bearing;
@@ -263,7 +262,7 @@ public class Main_Teleop extends OpMode {
 
         //AprilTag NPE checking? : subject to change
         if (aprilTag != null) {
-            if (distanceToAprilTag < infinite_distance) {
+            if (distanceToAprilTag < infinite_distance ) {
                 telemetry.addData("Distance to April Tag", distanceToAprilTag);
             } else {
                 telemetry.addLine("April Tag not detected");
@@ -372,7 +371,6 @@ public class Main_Teleop extends OpMode {
         if (!hardwall) {
             telemetry.addLine("hardwall overwrite engage");
         }
-
         telemetry.update();
     }
 

@@ -118,10 +118,8 @@ public final class blue_auto_back_case extends LinearOpMode {
                             started = true;
                         }
 
-                        if (timer.milliseconds() >= 5000) {
+                        if (timer.milliseconds() >= 4000) {
                             motor.setPower(0);
-                            left_shooter.setPower(0);
-                            right_shooter.setPower(0);
                             servo1.setPower(0);
                             servo2.setPower(0);
                             return false;
@@ -175,18 +173,18 @@ public final class blue_auto_back_case extends LinearOpMode {
 
         TrajectoryActionBuilder segment2 = drive.actionBuilder(new Pose2d(0, 0, Math.toRadians(230)))
                 .splineToLinearHeading(
-                        new Pose2d(-15, -25, Math.toRadians(90)),
+                        new Pose2d(-5, -25, Math.toRadians(90)),
                         Math.toRadians(-90)
                 );
 
-        TrajectoryActionBuilder segment3 = drive.actionBuilder(new Pose2d(-15, -25, Math.toRadians(90)))
-                .strafeTo(new Vector2d(-15, -50));
+        TrajectoryActionBuilder segment3 = drive.actionBuilder(new Pose2d(-5, -25, Math.toRadians(90)))
+                .strafeTo(new Vector2d(-5, -50));
 
-        TrajectoryActionBuilder segment4 = drive.actionBuilder(new Pose2d(-15, -50, Math.toRadians(90)))
+        TrajectoryActionBuilder segment4 = drive.actionBuilder(new Pose2d(-5, -50, Math.toRadians(90)))
                 .strafeToLinearHeading(new Vector2d(0, 0), Math.toRadians(220));
 
         TrajectoryActionBuilder EndTrajectory = drive.actionBuilder(new Pose2d(0, 0, Math.toRadians(220)))
-                .strafeToLinearHeading(new Vector2d(0, -50), Math.toRadians(180));
+                .strafeToLinearHeading(new Vector2d(0, -65), Math.toRadians(180));
 
         // Main autonomous path
         Actions.runBlocking(new SequentialAction(
