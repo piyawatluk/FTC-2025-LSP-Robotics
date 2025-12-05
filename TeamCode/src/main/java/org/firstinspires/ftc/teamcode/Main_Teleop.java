@@ -21,6 +21,9 @@ import org.firstinspires.ftc.teamcode.util.AreaLimiter;
 import org.firstinspires.ftc.teamcode.util.generalUtil;
 import org.firstinspires.ftc.teamcode.util.AprilTag;
 import com.acmerobotics.roadrunner.Pose2d;
+
+
+import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import java.util.List;
 
@@ -50,9 +53,16 @@ public class Main_Teleop extends OpMode {
     private boolean prevA = false;
     boolean autoaim = false;
 
+    private VisionPortal visionPortal;
+
 
     //apriltag declare
     private AprilTag aprilTag;
+
+    private long lastLoopTimeNs = 0;
+    private double loopMs = 0;
+    private double avgLoopMs = 0;
+
 
     @Override
     public void init() {
@@ -96,8 +106,28 @@ public class Main_Teleop extends OpMode {
         telemetry.addData("Status", "Initialized");
     }
 
+
+
     @Override
     public void loop() {
+        long now = System.nanoTime();
+
+        if (lastLoopTimeNs != 0) {
+            loopMs = (now - lastLoopTimeNs) / 1e6;
+
+            // Smooth average (prevents flicker)
+            avgLoopMs = 0.9 * avgLoopMs + 0.1 * loopMs;
+
+            telemetry.addData("Loop Time (ms)", String.format("%.2f", loopMs));
+            telemetry.addData("Avg Loop (ms)", String.format("%.2f", avgLoopMs));
+
+            if (avgLoopMs > 50) telemetry.addLine("CPU HIGH LOAD");
+            if (avgLoopMs > 80) telemetry.addLine("CPU OVERLOAD");
+            if (avgLoopMs > 120) telemetry.addLine("CRASH IMMINENT");
+        }
+
+        lastLoopTimeNs = now;
+
         telemetry.addLine("LSP Robotic Senior - Teleop");
         final double infinite_distance = 300;
         double distanceToAprilTag = infinite_distance;
@@ -149,6 +179,12 @@ public class Main_Teleop extends OpMode {
 
         prevA = gamepad1.a;
 
+        if (!autoaim) {
+            if (aprilTag != null) aprilTag.shutdown();
+        } else if (autoaim) {
+            if (aprilTag != null) aprilTag.initialize(hardwareMap);
+        }
+
         // Apriltag NPE checking
         List < AprilTagDetection > detections = null;
         if (aprilTag != null) {
@@ -170,7 +206,7 @@ public class Main_Teleop extends OpMode {
                                     detection.ftcPose.y * detection.ftcPose.y
                     );
 
-                    shooter_power = Math.max(2700, (distanceToAprilTag / 118) * 3000);
+                    shooter_power = Math.max(2700, (distanceToAprilTag / 118) * 3000); //tbd
                     telemetry.addData("test baring", detection.ftcPose.bearing);
 
                     bearing = detection.ftcPose.bearing;
@@ -272,7 +308,14 @@ public class Main_Teleop extends OpMode {
             if (autoaim && !overwrite) {
                 if (util != null) {
                     try {
-                        util.shooter(gamepad1.b, shooter_power,telemetry);
+                        double rawPower = (distanceToAprilTag / 112.0) * 3000.0;
+
+                        if (Double.isNaN(rawPower) || Double.isInfinite(rawPower)) {
+                            shooter_power = 2700;
+                        } else {
+                            shooter_power = Math.max(2700, rawPower);
+                        }
+
                         telemetry.addLine("auto shooter power engage");
                     } catch (Exception e) {
                         telemetry.addData("util.shooter error", e.getMessage());
@@ -376,13 +419,23 @@ public class Main_Teleop extends OpMode {
 
     @Override
     public void stop() {
-        if (aprilTag != null) {
-            try {
+        try {
+            if (aprilTag != null) {
                 aprilTag.shutdown();
-            } catch (Exception e) {
-                telemetry.addData("aprilTagHelper.shutdown error", e.getMessage());
+                aprilTag = null;
             }
+
+            mecanumDriveOwn = null;
+            md = null;
+            areaLimiter = null;
+            util = null;
+            hw = null;
+
+            System.gc(); // Encourage memory cleanup on FTC devices
+        } catch (Exception e) {
+            telemetry.addData("Stop cleanup error", e.getMessage());
         }
     }
+
 
 }

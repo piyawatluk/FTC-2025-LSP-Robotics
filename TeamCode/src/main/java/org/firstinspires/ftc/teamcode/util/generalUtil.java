@@ -106,9 +106,11 @@ public class generalUtil {
         if (enabled) {
             safeSetMotorPower(hardware.leftShooterMotor, power, "leftShooterMotor");
             safeSetMotorPower(hardware.rightShooterMotor, power, "rightShooterMotor");
+            hardware.placeholderServo2.setPosition(0.5);
         } else {
             safeSetMotorPower(hardware.leftShooterMotor, 0.0, "leftShooterMotor");
             safeSetMotorPower(hardware.rightShooterMotor, 0.0, "rightShooterMotor");
+            hardware.placeholderServo2.setPosition(0);
         }
 
         double lsm_speed = (new MotorSpeed(hardware.leftShooterMotor).getTicksPerSecond());
@@ -153,8 +155,9 @@ public class generalUtil {
     public void feeder(boolean enabled) {
         double p1 = enabled ? -1 : 0;
         double p2 = enabled ? 1 : 0;
+        //double pos = enabled ? 0.5:0;
         safeSetServoPower(hardware.placeholderServo1, p1, "placeholderServo1");
-        safeSetServoPower(hardware.placeholderServo2, p2, "placeholderServo2");
+
         safeSetMotorPower(hardware.rightBeltDriveMotor, p2, "rightBeltDriveMotor");
     }
 
@@ -179,7 +182,7 @@ public class generalUtil {
                 telemetry.addLine("lift are at position 2");
             }
 
-            hardware.liftMotor.setPower(0.4);
+            hardware.liftMotor.setPower(1);
             hardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             if (telemetry != null) {
@@ -192,13 +195,8 @@ public class generalUtil {
         }
     }
 
-    public void Exterior_Feeder(double l2, double l1) {
-        // Combine feed values into a belt motor; check for null
-        safeSetMotorPower(hardware.rightBeltDriveMotor, -l2 + l1, "rightBeltDriveMotor");
-    }
-
     public double Auto_aim(boolean atr, double bearing, Telemetry telemetry) {
-        final double Kp = 0.03;
+        final double Kp = 0.035;
         final double Ki = 0.0001;
         final double Kd = 0.0001;
 

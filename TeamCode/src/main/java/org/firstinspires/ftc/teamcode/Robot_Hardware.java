@@ -38,7 +38,7 @@ public class Robot_Hardware {
     public String placeholderServoName2;
 
     public CRServo placeholderServo1 = null;
-    public CRServo placeholderServo2 = null;
+    public Servo placeholderServo2 = null;
 
     public Robot_Hardware() { }
 
@@ -87,10 +87,10 @@ public class Robot_Hardware {
 
         liftMotor = hardwareMap.get(DcMotor.class, liftMotorName);
 
-        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rearLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rearRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rearLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rearRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         rightShooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         leftShooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -113,14 +113,14 @@ public class Robot_Hardware {
         rightBeltDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);//tbd
 
         liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         placeholderServo1 = hardwareMap.get(CRServo.class, placeholderServoName1);
-        placeholderServo2 = hardwareMap.get(CRServo.class, placeholderServoName2);
+        placeholderServo2 = hardwareMap.get(Servo.class, placeholderServoName2);
 
         placeholderServo1.setDirection(CRServo.Direction.FORWARD);
-        placeholderServo2.setDirection(CRServo.Direction.REVERSE);
+        placeholderServo2.setDirection(Servo.Direction.REVERSE);
 
     }
 }
