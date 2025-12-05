@@ -41,6 +41,7 @@ public class Main_Teleop extends OpMode {
     private boolean prevBothBumpersG1 = false;
     private boolean prevBothBumpersG2 = false;
     boolean overwrite = false;
+    boolean overwrite2 = false;
     boolean hardwall = true;
 
     int dPadCount = 0;
@@ -49,6 +50,8 @@ public class Main_Teleop extends OpMode {
 
     private boolean prevA = false;
     private boolean prevY = false;
+
+    private boolean prevX = false;
     boolean autoaim = false;
 
 
@@ -123,14 +126,21 @@ public class Main_Teleop extends OpMode {
         boolean inTriangle = false;
 
         double bearing = 0; // initial value for bearing
-        double manual_RPM = 3000;
+        double manual_RPM = 3200;
+        double manual_RPM2 = 2500;
         double return_val = 0;
 
         boolean bothBumpersG2 = gamepad2.left_bumper && gamepad2.right_bumper;
         boolean bothBumpersG1 = gamepad1.left_bumper && gamepad1.right_bumper;
+        boolean padx = gamepad1.x;
 
         if (bothBumpersG2 && !prevBothBumpersG2) hardwall = !hardwall;
         if (bothBumpersG1 && !prevBothBumpersG1) overwrite = !overwrite;
+        if (padx && !prevX) {
+            overwrite2 = !overwrite2;   // toggle only on press
+        }
+
+        prevX = padx;
 
         prevBothBumpersG2 = bothBumpersG2;
         prevBothBumpersG1 = bothBumpersG1;
@@ -386,6 +396,10 @@ public class Main_Teleop extends OpMode {
         if (overwrite) {
             telemetry.addLine("shooter overwrite engage");
             util.shooter(gamepad1.b, manual_RPM, telemetry);
+        }
+        if (overwrite && overwrite2){
+            telemetry.addLine("shooter overwrite engage but it's NEARRRRR");
+            util.shooter(gamepad1.b, manual_RPM2, telemetry);
         }
 
         if (!hardwall) {

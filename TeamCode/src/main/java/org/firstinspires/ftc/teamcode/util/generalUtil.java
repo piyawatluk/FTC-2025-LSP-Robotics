@@ -103,9 +103,10 @@ public class generalUtil {
     // Simple teleop shooter helper
     public void shooter(boolean enabled, double targetRPM, Telemetry telemetry) {
         double power = Math.max(0, Math.min(1, targetRPM / 6000.0));
+        double powerR = Math.max(0, Math.min(1, (targetRPM-500) / 6000.0));
         if (enabled) {
             safeSetMotorPower(hardware.leftShooterMotor, power, "leftShooterMotor");
-            safeSetMotorPower(hardware.rightShooterMotor, power, "rightShooterMotor");
+            safeSetMotorPower(hardware.rightShooterMotor, powerR, "rightShooterMotor");
         } else {
             safeSetMotorPower(hardware.leftShooterMotor, 0.0, "leftShooterMotor");
             safeSetMotorPower(hardware.rightShooterMotor, 0.0, "rightShooterMotor");
