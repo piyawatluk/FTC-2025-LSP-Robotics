@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -30,6 +31,13 @@ public class generalUtil {
     private Sequencer belt = new Sequencer();
     private Sequencer shooter = new Sequencer();
     private Sequencer feeder = new Sequencer();
+    private Sequencer barrier_Gate = new Sequencer();
+
+    // Barrier gate
+    public double gatePos1 = 0.05;
+    public double gatePos2 = 0.3;
+
+    public boolean gateBusy = false;
 
     // PID state
     private double aimIntegral = 0.0;
@@ -52,6 +60,36 @@ public class generalUtil {
         // Optional: early validation (uncomment if you prefer fail-fast)
         // validateHardware(telemetry);
     }
+    public void updateSequences() {
+        if (gateBusy) {
+            barrier_Gate.step();  // runs the current action
+
+            if (barrier_Gate.sequenceFinished()) {
+                gateBusy = false; // done, free to shoot again
+            }
+        }
+    }
+    public void startGateSequence() {
+        gateBusy = true;
+
+        // Clear any old actions
+        barrier_Gate.clearSeq();
+
+        // 1) Open gate to gatePos2 and wait 200ms
+        barrier_Gate.add(hardware.placeholderServo3, gatePos2, 200);
+
+        // 2) Close gate to gatePos1, no extra wait needed
+        barrier_Gate.add(hardware.placeholderServo3, gatePos1, 0);
+    }
+    //For april tag freezing
+
+    public boolean isGateBusy() {
+        return gateBusy;
+    }
+
+    public boolean shouldFreezeAprilTag() {
+        return gateBusy;
+    }
 
 
 
@@ -69,16 +107,17 @@ public class generalUtil {
             RobotLog.ee("generalUtil", e, "Failed to set power on motor: %s", nameIfKnown == null ? "<unknown>" : nameIfKnown);
         }
     }
-
-    private void safeSetServoPower(CRServo servo, double power, String nameIfKnown) {
+    private void safeSetServoPosition(Servo servo, double position, String nameIfKnown) {
         if (servo == null) {
-            RobotLog.w("generalUtil", "Attempt to set power on null servo: %s", nameIfKnown == null ? "<unknown>" : nameIfKnown);
+            RobotLog.w("generalUtil", "Attempt to set position on null servo: %s",
+                    nameIfKnown == null ? "<unknown>" : nameIfKnown);
             return;
         }
         try {
-            servo.setPower(power);
+            servo.setPosition(position);
         } catch (Exception e) {
-            RobotLog.ee("generalUtil", e, "Failed to set power on servo: %s", nameIfKnown == null ? "<unknown>" : nameIfKnown);
+            RobotLog.ee("generalUtil", e, "Failed to set position on servo: %s",
+                    nameIfKnown == null ? "<unknown>" : nameIfKnown);
         }
     }
 
@@ -143,59 +182,6 @@ public class generalUtil {
 
             return deltaPos / dt;
         }
-    }
-
-
-
-
-
-
-    // Teleop feeder helper
-    public void feeder(boolean enabled) {
-        double p1 = enabled ? -1 : 0;
-        double p2 = enabled ? 1 : 0;
-        safeSetServoPower(hardware.placeholderServo1, p1, "placeholderServo1");
-        safeSetServoPower(hardware.placeholderServo2, p2, "placeholderServo2");
-        safeSetMotorPower(hardware.rightBeltDriveMotor, p2, "rightBeltDriveMotor");
-    }
-
-    public void lift(Telemetry telemetry, int dPadCount) {
-        if (hardware.liftMotor == null) {
-            RobotLog.w("generalUtil", "liftMotor is null, cannot move lift");
-            if (telemetry != null) telemetry.addData("lift", "MISSING liftMotor");
-            return;
-        }
-        try {
-
-            if (dPadCount == 0){
-                hardware.liftMotor.setTargetPosition(0);
-                telemetry.addLine("lift are at closing position");
-            }
-            if (dPadCount == 1){
-                hardware.liftMotor.setTargetPosition(555);
-                telemetry.addLine("lift are at position 1");
-            }
-            if (dPadCount == 2){
-                hardware.liftMotor.setTargetPosition(1000);
-                telemetry.addLine("lift are at position 2");
-            }
-
-            hardware.liftMotor.setPower(0.2);
-            hardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            if (telemetry != null) {
-                telemetry.addData("lift position", hardware.liftMotor.getCurrentPosition());
-
-            }
-        } catch (Exception e) {
-            RobotLog.ee("generalUtil", e, "Error operating liftMotor");
-            if (telemetry != null) telemetry.addData("lift", "exception");
-        }
-    }
-
-    public void Exterior_Feeder(double l2, double l1) {
-        // Combine feed values into a belt motor; check for null
-        safeSetMotorPower(hardware.rightBeltDriveMotor, -l2 + l1, "rightBeltDriveMotor");
     }
 
     public double Auto_aim(boolean atr, double bearing, Telemetry telemetry) {

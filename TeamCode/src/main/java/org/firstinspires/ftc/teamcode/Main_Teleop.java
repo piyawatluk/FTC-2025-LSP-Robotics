@@ -17,6 +17,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.util.AreaLimiter;
 import org.firstinspires.ftc.teamcode.util.generalUtil;
 import org.firstinspires.ftc.teamcode.util.AprilTag;
@@ -53,6 +54,8 @@ public class Main_Teleop extends OpMode {
 
     private boolean prevX = false;
     boolean autoaim = false;
+
+    double shooter_power = 0;
 
 
 
@@ -109,8 +112,6 @@ public class Main_Teleop extends OpMode {
 
         boolean canShoot = false;
 
-        double shooter_power = 0;
-
         double rawLX = gamepad1.left_stick_x; // strafe (left/right)
         double rawLY = -gamepad1.left_stick_y; // forward/back (invert so up = +)
         double turn = gamepad1.right_stick_x; // rotation
@@ -161,13 +162,12 @@ public class Main_Teleop extends OpMode {
 
         //Servo swing gate
 
-        if (gamepad1.y && !prevY) {
-            if (hw.placeholderServo3.getPosition() < 0.2) {
-                hw.placeholderServo3.setPosition(0.3);
-            } else {
-                hw.placeholderServo3.setPosition(0.05);
-            }
+        util.updateSequences();
+
+        if (gamepad1.y && !prevY && !util.isGateBusy()) {
+            util.startGateSequence();
         }
+        prevY = gamepad1.y;
 
         // adjustable for finding the right position
         /*if (gamepad1.y && !prevY && Deg < 1){
@@ -175,20 +175,26 @@ public class Main_Teleop extends OpMode {
             Deg += 0.1;
         }*/
 
-        prevY = gamepad1.y;
+
 
         prevA = gamepad1.a;
 
-        // Apriltag NPE checking
-        List < AprilTagDetection > detections = null;
-        if (aprilTag != null) {
-            try {
-                detections = aprilTag.getDetections();
-            } catch (Exception e) {
-                telemetry.addData("AprilTagHelper.getDetections error", e.getMessage());
-            }
+        //Utilizing freeze and NPE checking
+
+        List<AprilTagDetection> detections = null;
+
+        if (util.shouldFreezeAprilTag()) {
+            telemetry.addLine("AprilTag Frozen (Gate Busy)");
         } else {
-            telemetry.addLine("aprilTagHelper is null; skipping vision");
+            if (aprilTag != null) {
+                try {
+                    detections = aprilTag.getDetections();
+                } catch (Exception e) {
+                    telemetry.addData("AprilTagHelper.getDetections error", e.getMessage());
+                }
+            } else {
+                telemetry.addLine("aprilTagHelper is null; skipping vision");
+            }
         }
 
         if (detections != null && !detections.isEmpty()) {
@@ -353,22 +359,6 @@ public class Main_Teleop extends OpMode {
             }
         } else {
             telemetry.addLine("mecanumDriveOwn is null; cannot drive");
-        }
-
-        // utility function NPE checking? : subject to change
-        if (util != null) {
-            try {
-                util.feeder(gamepad1.b);
-            } catch (Exception e) {
-                telemetry.addData("util.feeder error", e.getMessage());
-            }
-            try {
-                util.lift(telemetry, dPadCount);
-            } catch (Exception e) {
-                telemetry.addData("util.lift error", e.getMessage());
-            }
-        } else {
-            telemetry.addLine("util is null; feeder/lift skipped");
         }
 
 
