@@ -110,6 +110,7 @@ public class Main_Teleop extends OpMode {
 
     @Override
     public void loop() {
+        //hw.placeholderServo2.setPosition(0.5);
         long now = System.nanoTime();
 
         if (lastLoopTimeNs != 0) {
@@ -315,6 +316,7 @@ public class Main_Teleop extends OpMode {
                         } else {
                             shooter_power = Math.max(2700, rawPower);
                         }
+                        util.shooter(gamepad1.b, shooter_power, telemetry, gamepad1.right_bumper);
 
                         telemetry.addLine("auto shooter power engage");
                     } catch (Exception e) {
@@ -408,7 +410,7 @@ public class Main_Teleop extends OpMode {
         // telemetry for logic overwrite
         if (overwrite) {
             telemetry.addLine("shooter overwrite engage");
-            util.shooter(gamepad1.b, manual_RPM, telemetry);
+            util.shooter(gamepad1.b, manual_RPM, telemetry, gamepad1.right_bumper);
         }
 
         if (!hardwall) {

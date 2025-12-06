@@ -101,16 +101,21 @@ public class generalUtil {
     }
 
     // Simple teleop shooter helper
-    public void shooter(boolean enabled, double targetRPM, Telemetry telemetry) {
+    public void shooter(boolean enabled, double targetRPM, Telemetry telemetry, boolean right_bumper) {
         double power = Math.max(0, Math.min(1, targetRPM / 6000.0));
         if (enabled) {
             safeSetMotorPower(hardware.leftShooterMotor, power, "leftShooterMotor");
             safeSetMotorPower(hardware.rightShooterMotor, power, "rightShooterMotor");
-            hardware.placeholderServo2.setPosition(0.5);
+            if (right_bumper){
+                hardware.placeholderServo2.setPosition(1);
+            }
+            else {
+                hardware.placeholderServo2.setPosition(0.5);
+            }
+
         } else {
             safeSetMotorPower(hardware.leftShooterMotor, 0.0, "leftShooterMotor");
             safeSetMotorPower(hardware.rightShooterMotor, 0.0, "rightShooterMotor");
-            hardware.placeholderServo2.setPosition(0);
         }
 
         double lsm_speed = (new MotorSpeed(hardware.leftShooterMotor).getTicksPerSecond());
