@@ -25,6 +25,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Util;
 
@@ -57,13 +58,13 @@ public final class blue_auto_front_case extends LinearOpMode {
         class feeder {
             private DcMotorEx motor;
             private CRServo servo1;
-            private CRServo servo2;
+            private Servo servo2;
             public feeder(HardwareMap hardwareMap) {
-            motor = hardwareMap.get(DcMotorEx.class, "rbdm");
-            servo1 = hardwareMap.get(CRServo.class, "tbd_0");
-            servo2 = hardwareMap.get(CRServo.class,"tbd_1");
-            servo1.setDirection(DcMotorSimple.Direction.REVERSE);
-            servo2.setDirection(DcMotorSimple.Direction.REVERSE);
+                motor = hardwareMap.get(DcMotorEx.class, "rbdm");
+                servo1 = hardwareMap.get(CRServo.class, "tbd_0");
+                servo2 = hardwareMap.get(Servo.class,"tbd_1");
+                servo1.setDirection(DcMotorSimple.Direction.REVERSE);
+                servo2.setDirection(Servo.Direction.REVERSE);
             }
 
             public Action spinUp() {
@@ -76,15 +77,58 @@ public final class blue_auto_front_case extends LinearOpMode {
                         if (!started) {
                             motor.setPower(1);
                             servo1.setPower(1);
-                            servo2.setPower(1);
+                            servo2.setPosition(0.5);
                             timer.reset();
                             started = true;
                         }
 
-                        if (timer.milliseconds() >= 3000) {
+                        if (timer.milliseconds() >= 2300) {
                             motor.setPower(0);
                             servo1.setPower(0);
-                            servo2.setPower(0);
+                            servo2.setPosition(0.5);
+                            //servo2.setPower(0);
+                            return false;
+                        }
+
+                        return true;
+                    }
+                };
+            }
+
+        }
+
+        class feeder_2 {
+            private DcMotorEx motor;
+            private CRServo servo1;
+            private Servo servo2;
+            public feeder_2(HardwareMap hardwareMap) {
+                motor = hardwareMap.get(DcMotorEx.class, "rbdm");
+                servo1 = hardwareMap.get(CRServo.class, "tbd_0");
+                servo2 = hardwareMap.get(Servo.class,"tbd_1");
+                servo1.setDirection(DcMotorSimple.Direction.REVERSE);
+                servo2.setDirection(Servo.Direction.REVERSE);
+            }
+
+            public Action spinUp() {
+                return new Action() {
+                    private ElapsedTime timer = new ElapsedTime();
+                    private boolean started = false;
+                    @Override
+
+                    public boolean run(@NonNull TelemetryPacket packet) {
+                        if (!started) {
+                            motor.setPower(1);
+                            servo1.setPower(1);
+                            servo2.setPosition(0.5);
+                            timer.reset();
+                            started = true;
+                        }
+
+                        if (timer.milliseconds() >= 2700) {
+                            motor.setPower(0);
+                            servo1.setPower(0);
+                            servo2.setPosition(0.5);
+                            //servo2.setPower(0);
                             return false;
                         }
 
@@ -100,7 +144,7 @@ public final class blue_auto_front_case extends LinearOpMode {
             private DcMotorEx left_shooter;
             private DcMotorEx right_shooter;
             private CRServo servo1;
-            private CRServo servo2;
+            private Servo servo2;
             public shooter(HardwareMap hardwareMap) {
                 motor = hardwareMap.get(DcMotorEx.class, "rbdm");
                 left_shooter = hardwareMap.get(DcMotorEx.class, "lsm");
@@ -110,8 +154,9 @@ public final class blue_auto_front_case extends LinearOpMode {
                 right_shooter.setDirection(DcMotorSimple.Direction.FORWARD);
                 right_shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 servo1 = hardwareMap.get(CRServo.class, "tbd_0");
-                servo2 = hardwareMap.get(CRServo.class,"tbd_1");
+                servo2 = hardwareMap.get(Servo.class,"tbd_1");
                 servo1.setDirection(DcMotorSimple.Direction.REVERSE);
+                servo2.setDirection(Servo.Direction.REVERSE);
             }
 
             public Action shoot() {
@@ -124,7 +169,7 @@ public final class blue_auto_front_case extends LinearOpMode {
                         if (!started) {
                             motor.setPower(1);
                             servo1.setPower(1);
-                            servo2.setPower(1);
+                            servo2.setPosition(1);
                             left_shooter.setPower(0.45);
                             right_shooter.setPower(0.45);
                             timer.reset();
@@ -133,10 +178,8 @@ public final class blue_auto_front_case extends LinearOpMode {
 
                         if (timer.milliseconds() >= 5000) {
                             motor.setPower(0);
-                            left_shooter.setPower(0);
-                            right_shooter.setPower(0);
                             servo1.setPower(0);
-                            servo2.setPower(0);
+                            servo2.setPosition(0.5);
                             return false;
                         }
 
@@ -154,14 +197,14 @@ public final class blue_auto_front_case extends LinearOpMode {
                         if (!started) {
                             //motor.setPower(1);
                             //servo1.setPower(1);
-                            //servo2.setPower(1);
-                            left_shooter.setPower(0.5);
-                            right_shooter.setPower(0.5);
+                            servo2.setPosition(0.5);
+                            left_shooter.setPower(0.45);
+                            right_shooter.setPower(0.45);
                             timer.reset();
                             started = true;
                         }
 
-                        if (timer.milliseconds() >= 1000) {
+                        if (timer.milliseconds() >= 100) {
                             //motor.setPower(0);
                             //servo1.setPower(0);
                             //servo2.setPower(0);
@@ -175,8 +218,44 @@ public final class blue_auto_front_case extends LinearOpMode {
 
         }
 
+        class gate {
+            private Servo servo2;
+            public gate(HardwareMap hardwareMap){
+                servo2 = hardwareMap.get(Servo.class,"tbd_1");
+                servo2.setDirection(Servo.Direction.REVERSE);
+            }
+            public Action open(){
+                return new Action() {
+                    private ElapsedTime timer = new ElapsedTime();
+                    private boolean started = false;
+                    @Override
+
+                    public boolean run(@NonNull TelemetryPacket packet) {
+                        if (!started) {
+                            //motor.setPower(1);
+                            //servo1.setPower(1);
+                            servo2.setPosition(1);
+                            timer.reset();
+                            started = true;
+                        }
+
+                        if (timer.milliseconds() >= 100) {
+                            //motor.setPower(0);
+                            //servo1.setPower(0);
+                            //servo2.setPower(0);
+                            return false;
+                        }
+
+                        return true;
+                    }
+                };
+            }
+        }
+
         feeder feeder = new feeder(hardwareMap);
+        feeder_2 feeder_2 = new feeder_2(hardwareMap);
         shooter shooter = new shooter(hardwareMap);
+        gate gate = new gate(hardwareMap);
 
         waitForStart();
         if (isStopRequested()) return;
@@ -243,8 +322,9 @@ public final class blue_auto_front_case extends LinearOpMode {
                 new ParallelAction(segment_2_7.build(),shooter.spinup()),
                 shooter.shoot(),
                 segment_3.build(),
-                segment_3_5.build(),
-                segment_3_7.build(),
+                new ParallelAction(segment_3_5.build(),feeder.spinUp()),
+                new ParallelAction(segment_3_7.build(),shooter.spinup()),
+                shooter.shoot(),
                 end_trajectory.build()
 
         )); //hope it works

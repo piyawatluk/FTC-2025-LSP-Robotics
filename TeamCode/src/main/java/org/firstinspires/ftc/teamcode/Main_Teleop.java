@@ -215,6 +215,11 @@ public class Main_Teleop extends OpMode {
                 } catch (Exception e) {
                     telemetry.addData("Error reading detection pose", e.getMessage());
                 }
+                try {
+                    telemetry.addData("AprilTag ID : ",detections.get(0).id);
+                } catch (Exception e) {
+                    //nothing
+                }
             } else {
                 telemetry.addLine("AprilTag detected but pose unavailable.");
             }
@@ -294,7 +299,7 @@ public class Main_Teleop extends OpMode {
                 return_val = 0;
             }
         } else {
-            telemetry.addLine("util is null; aimmer skipped");
+            telemetry.addLine("util is null; aimer skipped");
         }
 
         //AprilTag NPE checking? : subject to change
@@ -305,7 +310,7 @@ public class Main_Teleop extends OpMode {
                 telemetry.addLine("April Tag not detected");
             }
             telemetry.addData("In shooting range", canShoot);
-            telemetry.addData("In Shooting Area (Front)", inTriangle);
+//            telemetry.addData("In Shooting Area (Front)", inTriangle);
             if (autoaim && !overwrite) {
                 if (util != null) {
                     try {
@@ -325,9 +330,9 @@ public class Main_Teleop extends OpMode {
                 }
                 //telemetry.addData("return val", return_val);
                 factor = return_val;
-                telemetry.addLine("GO SHOOT!!!");
+                telemetry.addLine("SHOOT");
             } else {
-                telemetry.addLine("DO NOT SHOOT!!!");
+                telemetry.addLine("DON'T SHOOT");
                 factor = 0;
             }
 
@@ -404,17 +409,17 @@ public class Main_Teleop extends OpMode {
         //telemetry.addData("limited Y", limitedLY);
 
         //shooter power
-        telemetry.addData("shooter power", shooter_power);
+        telemetry.addData("Shooter power :", shooter_power);
 
 
         // telemetry for logic overwrite
         if (overwrite) {
-            telemetry.addLine("shooter overwrite engage");
+            telemetry.addLine("Shooter Overwrite Engaged");
             util.shooter(gamepad1.b, manual_RPM, telemetry, gamepad1.right_bumper);
         }
 
         if (!hardwall) {
-            telemetry.addLine("hardwall overwrite engage");
+            telemetry.addLine("Hardwall Overwrite Engaged");
         }
         telemetry.update();
     }
