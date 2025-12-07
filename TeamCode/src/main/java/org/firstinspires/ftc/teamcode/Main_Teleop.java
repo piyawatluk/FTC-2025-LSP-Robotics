@@ -125,6 +125,7 @@ public class Main_Teleop extends OpMode {
         double y = 0;
         double heading = 0;
         boolean inTriangle = false;
+        double Deg = 0;
 
         double bearing = 0; // initial value for bearing
         double manual_RPM = 3200;
@@ -162,18 +163,18 @@ public class Main_Teleop extends OpMode {
 
         //Servo swing gate
 
-        util.updateSequences();
+        /*util.updateSequences();
 
         if (gamepad1.y && !prevY && !util.isGateBusy()) {
             util.startGateSequence();
         }
-        prevY = gamepad1.y;
+        prevY = gamepad1.y;*/
 
         // adjustable for finding the right position
-        /*if (gamepad1.y && !prevY && Deg < 1){
+        if (gamepad1.y && !prevY){
             hw.placeholderServo3.setPosition(Deg);
-            Deg += 0.1;
-        }*/
+            Deg += 0.05;
+        }
 
 
 
@@ -206,7 +207,7 @@ public class Main_Teleop extends OpMode {
                                     detection.ftcPose.y * detection.ftcPose.y
                     );
 
-                    shooter_power = Math.max(2600, (distanceToAprilTag / 118) * 3000);
+                    shooter_power = Math.max(2750, (distanceToAprilTag / 93) * 3000);
                     telemetry.addData("test baring", detection.ftcPose.bearing);
 
                     bearing = detection.ftcPose.bearing;
@@ -369,6 +370,7 @@ public class Main_Teleop extends OpMode {
         //telemetry.addData("Right front motor speed", mecanumDriveOwn.getMotorPower("RFM"));
         //telemetry.addData("Left rear motor speed", mecanumDriveOwn.getMotorPower("LBM"));
         //telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
+        telemetry.addData("Servo position = ",Deg);
 
         // estimate pose
         //telemetry.addData("X", x);

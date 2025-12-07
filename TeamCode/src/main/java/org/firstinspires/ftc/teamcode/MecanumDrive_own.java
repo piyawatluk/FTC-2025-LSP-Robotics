@@ -62,7 +62,6 @@ public class MecanumDrive_own {
         float stickLY = (float) -driveX;
 
         double computedX_l = CoordinateConverter.computeX(stickLX, stickLY, 1);
-        computedX_l = -computedX_l;
         double computedY_l = CoordinateConverter.computeY(stickLX, stickLY, 1);
 
         float stickRX = (float) turn;
@@ -70,9 +69,9 @@ public class MecanumDrive_own {
 
         // Same motor mixing as in drive()
         double fl = (-computedY_l + computedX_l*straff_dampening_factor) + (computedX_r);
-        double fr = (computedY_l - computedX_l*straff_dampening_factor) + (computedX_r);
+        double fr = (computedY_l + computedX_l*straff_dampening_factor) + (computedX_r);
         double bl = (-computedY_l - computedX_l*straff_dampening_factor) + (computedX_r);
-        double br = (computedY_l + computedX_l*straff_dampening_factor) + (computedX_r);
+        double br = (computedY_l - computedX_l*straff_dampening_factor) + (computedX_r);
 
         // Normalize so no wheel |power| > 1
         double max = Math.max(1.0,

@@ -25,6 +25,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Util;
 
@@ -34,8 +35,8 @@ import org.firstinspires.ftc.teamcode.util.generalUtil;
 import java.security.CryptoPrimitive;
 import java.util.Arrays;
 
-@Autonomous(name = "autoforleave", group = "Autonomous")
-public final class autoforleave extends LinearOpMode {
+@Autonomous(name = "BlueAutoJRleave", group = "Autonomous")
+public final class BlueAutoJRleave extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -54,53 +55,12 @@ public final class autoforleave extends LinearOpMode {
 
         Sequencer sequencer = new Sequencer();
 
-        class feeder {
-            private DcMotorEx motor;
-            private CRServo servo1;
-            private CRServo servo2;
-            public feeder(HardwareMap hardwareMap) {
-                motor = hardwareMap.get(DcMotorEx.class, "rbdm");
-                servo1 = hardwareMap.get(CRServo.class, "tbd_0");
-                servo2 = hardwareMap.get(CRServo.class,"tbd_1");
-                servo1.setDirection(DcMotorSimple.Direction.REVERSE);
-                servo2.setDirection(DcMotorSimple.Direction.REVERSE);
-            }
-
-            public Action spinUp() {
-                return new Action() {
-                    private ElapsedTime timer = new ElapsedTime();
-                    private boolean started = false;
-                    @Override
-
-                    public boolean run(@NonNull TelemetryPacket packet) {
-                        if (!started) {
-                            motor.setPower(1);
-                            servo1.setPower(1);
-                            servo2.setPower(1);
-                            timer.reset();
-                            started = true;
-                        }
-
-                        if (timer.milliseconds() >= 3000) {
-                            motor.setPower(0);
-                            servo1.setPower(0);
-                            servo2.setPower(0);
-                            return false;
-                        }
-
-                        return true;
-                    }
-                };
-            }
-
-        }
-
         class shooter {
             private DcMotorEx motor;
             private DcMotorEx left_shooter;
             private DcMotorEx right_shooter;
             private CRServo servo1;
-            private CRServo servo2;
+            private Servo servo2;
             public shooter(HardwareMap hardwareMap) {
                 motor = hardwareMap.get(DcMotorEx.class, "rbdm");
                 left_shooter = hardwareMap.get(DcMotorEx.class, "lsm");
@@ -110,8 +70,9 @@ public final class autoforleave extends LinearOpMode {
                 right_shooter.setDirection(DcMotorSimple.Direction.FORWARD);
                 right_shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 servo1 = hardwareMap.get(CRServo.class, "tbd_0");
-                servo2 = hardwareMap.get(CRServo.class,"tbd_1");
+                servo2 = hardwareMap.get(Servo.class,"tbd_1");
                 servo1.setDirection(DcMotorSimple.Direction.REVERSE);
+                servo2.setDirection(Servo.Direction.REVERSE);
             }
 
             public Action shoot() {
@@ -124,19 +85,17 @@ public final class autoforleave extends LinearOpMode {
                         if (!started) {
                             motor.setPower(1);
                             servo1.setPower(1);
-                            servo2.setPower(1);
+                            servo2.setPosition(1);
                             left_shooter.setPower(0.45);
                             right_shooter.setPower(0.45);
                             timer.reset();
                             started = true;
                         }
 
-                        if (timer.milliseconds() >= 5000) {
+                        if (timer.milliseconds() >= 4000) {
                             motor.setPower(0);
-                            left_shooter.setPower(0);
-                            right_shooter.setPower(0);
                             servo1.setPower(0);
-                            servo2.setPower(0);
+                            servo2.setPosition(0.5);
                             return false;
                         }
 
@@ -154,14 +113,14 @@ public final class autoforleave extends LinearOpMode {
                         if (!started) {
                             //motor.setPower(1);
                             //servo1.setPower(1);
-                            //servo2.setPower(1);
-                            left_shooter.setPower(0.5);
-                            right_shooter.setPower(0.5);
+                            servo2.setPosition(0.5);
+                            left_shooter.setPower(0.45);
+                            right_shooter.setPower(0.45);
                             timer.reset();
                             started = true;
                         }
 
-                        if (timer.milliseconds() >= 1000) {
+                        if (timer.milliseconds() >= 100) {
                             //motor.setPower(0);
                             //servo1.setPower(0);
                             //servo2.setPower(0);
@@ -175,8 +134,41 @@ public final class autoforleave extends LinearOpMode {
 
         }
 
-        feeder feeder = new feeder(hardwareMap);
+        class gate {
+            private Servo servo2;
+            public gate(HardwareMap hardwareMap){
+                servo2 = hardwareMap.get(Servo.class,"tbd_1");
+                servo2.setDirection(Servo.Direction.REVERSE);
+            }
+            public Action open(){
+                return new Action() {
+                    private ElapsedTime timer = new ElapsedTime();
+                    private boolean started = false;
+                    @Override
+
+                    public boolean run(@NonNull TelemetryPacket packet) {
+                        if (!started) {
+                            //motor.setPower(1);
+                            //servo1.setPower(1);
+                            servo2.setPosition(1);
+                            timer.reset();
+                            started = true;
+                        }
+
+                        if (timer.milliseconds() >= 100) {
+                            //motor.setPower(0);
+                            //servo1.setPower(0);
+                            //servo2.setPower(0);
+                            return false;
+                        }
+
+                        return true;
+                    }
+                };
+            }
+        }
         shooter shooter = new shooter(hardwareMap);
+        gate gate = new gate(hardwareMap);
 
         waitForStart();
         if (isStopRequested()) return;
@@ -195,51 +187,19 @@ public final class autoforleave extends LinearOpMode {
                         Math.toRadians(-90)
                 );
 
-        TrajectoryActionBuilder segment_2_5 = drive.actionBuilder(new Pose2d(38,-30,Math.toRadians(90)))
-                .strafeTo(new Vector2d(38, -69),new TranslationalVelConstraint(20));
-
-
-        TrajectoryActionBuilder segment_2_7 = drive.actionBuilder(new Pose2d(40,-69,Math.toRadians(90)))
-                .strafeToLinearHeading(
-                        new Vector2d(55, -10),
-                        Math.toRadians(198)
-                );
-
-        TrajectoryActionBuilder segment_3 = drive.actionBuilder(
-                        new Pose2d(55, -10, Math.toRadians(198))
-                )
-                .strafeToLinearHeading(
-                        new Vector2d(16, -30),
-                        Math.toRadians(90)
-                );
-        //.waitSeconds(2);
-
-        TrajectoryActionBuilder segment_3_5 = drive.actionBuilder(new Pose2d(16,-30,Math.toRadians(90)))
-                .strafeTo(new Vector2d(16, -69));
-        //.waitSeconds(2);
-
-        TrajectoryActionBuilder segment_3_7 = drive.actionBuilder(new Pose2d(16,-69,Math.toRadians(90)))
-                .strafeToLinearHeading(
-                        new Vector2d(55, -10),
-                        Math.toRadians(198)
-                );
-
         TrajectoryActionBuilder end_trajectory = drive.actionBuilder(
-                        new Pose2d(55, -10, Math.toRadians(198))
+                        new Pose2d(55, -20, Math.toRadians(198))
                 )
                 .strafeToLinearHeading(
                         new Vector2d(55, 70),
                         Math.toRadians(180)
                 );
-        TrajectoryActionBuilder leavinglol = drive.actionBuilder(new Pose2d(0,0,Math.toRadians(90)))
-                .strafeToLinearHeading(
-                        new Vector2d(0, 30),
-                        Math.toRadians(180)
-                );
         //.waitSeconds(2);
 
         Actions.runBlocking(new SequentialAction(
-                leavinglol.build()
+                segment_1.build(),
+                shooter.shoot(),
+                end_trajectory.build()
 
         )); //hope it works
     }

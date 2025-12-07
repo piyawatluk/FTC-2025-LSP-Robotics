@@ -76,7 +76,7 @@ public class generalUtil {
         barrier_Gate.clearSeq();
 
         // 1) Open gate to gatePos2 and wait 200ms
-        barrier_Gate.add(hardware.placeholderServo3, gatePos2, 200);
+        barrier_Gate.add(hardware.placeholderServo3, gatePos2, 4000);
 
         // 2) Close gate to gatePos1, no extra wait needed
         barrier_Gate.add(hardware.placeholderServo3, gatePos1, 0);
