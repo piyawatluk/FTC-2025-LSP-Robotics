@@ -34,8 +34,8 @@ public class generalUtil {
     private Sequencer barrier_Gate = new Sequencer();
 
     // Barrier gate
-    public double gatePos1 = 0.05;
-    public double gatePos2 = 0.3;
+    public double gatePos1 = 0.85;
+    public double gatePos2 = 1;
 
     public boolean gateBusy = false;
 

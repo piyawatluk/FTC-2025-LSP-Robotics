@@ -56,6 +56,7 @@ public class Main_Teleop extends OpMode {
     boolean autoaim = false;
 
     double shooter_power = 0;
+    double Deg = 0;
 
 
 
@@ -125,11 +126,10 @@ public class Main_Teleop extends OpMode {
         double y = 0;
         double heading = 0;
         boolean inTriangle = false;
-        double Deg = 0;
 
         double bearing = 0; // initial value for bearing
-        double manual_RPM = 3200;
-        double manual_RPM2 = 2500;
+        double manual_RPM = 3500;
+        double manual_RPM2 = 2900;
         double return_val = 0;
 
         boolean bothBumpersG2 = gamepad2.left_bumper && gamepad2.right_bumper;
@@ -163,18 +163,18 @@ public class Main_Teleop extends OpMode {
 
         //Servo swing gate
 
-        /*util.updateSequences();
+        util.updateSequences();
 
         if (gamepad1.y && !prevY && !util.isGateBusy()) {
             util.startGateSequence();
         }
-        prevY = gamepad1.y;*/
+        prevY = gamepad1.y;
 
         // adjustable for finding the right position
-        if (gamepad1.y && !prevY){
+        /*if (gamepad1.y && !prevY){
             hw.placeholderServo3.setPosition(Deg);
             Deg += 0.05;
-        }
+        }*/
 
 
 
@@ -207,7 +207,7 @@ public class Main_Teleop extends OpMode {
                                     detection.ftcPose.y * detection.ftcPose.y
                     );
 
-                    shooter_power = Math.max(2750, (distanceToAprilTag / 93) * 3000);
+                    shooter_power = Math.max(2900, (distanceToAprilTag / 90) * 3250);
                     telemetry.addData("test baring", detection.ftcPose.bearing);
 
                     bearing = detection.ftcPose.bearing;
