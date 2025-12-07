@@ -7,12 +7,14 @@
 สุปะฏิปันโน ภะคะวะโต สาวะกะสังโฆ อุชุปะฏิปันโน ภะคะวะโต สาวะกะสังโฆ ญายะปะฏิปันโน ภะคะวะโต สาวะกะสังโฆ สามีจิปะฏิปันโน ภะคะวะโต สาวะกะสังโฆ
 ยะทิทัง จัตตาริ ปุริสะยุคานิ อัฏฐะ ปุริสะปุคคะลา เอสะ ภะคะวะโต สาวะกะสังโฆ อาหุเนยโย ปาหุเนยโย ทักขิเณยโย อัญชะลีกะระณีโย อะนุตตะรัง ปุญญักเขตตัง โลกัสสาติ
 
-may god be with us
+may god be with us amen!
 */
 
 package org.firstinspires.ftc.teamcode;
 
 //essential module import
+
+import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -20,11 +22,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.util.AreaLimiter;
 import org.firstinspires.ftc.teamcode.util.generalUtil;
 import org.firstinspires.ftc.teamcode.util.AprilTag;
+
 import com.acmerobotics.roadrunner.Pose2d;
-
-
-import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+
 import java.util.List;
 
 @TeleOp(name = "Teleop", group = "Iterative OpMode")
@@ -43,25 +44,27 @@ public class Main_Teleop extends OpMode {
     //overwrite logic declare
     private boolean prevBothBumpersG1 = false;
     private boolean prevBothBumpersG2 = false;
+    boolean prevSquare = false;
     boolean overwrite = false;
-    boolean hardwall = true;
+    boolean hardwall = false;
 
     int dPadCount = 0;
     boolean wasDpadUpPressed = false;
     boolean wasDpadDownPressed = false;
+    boolean prevY = false;
 
     private boolean prevA = false;
     boolean autoaim = false;
-
-    private VisionPortal visionPortal;
+    boolean power = false;
 
 
     //apriltag declare
     private AprilTag aprilTag;
 
     private long lastLoopTimeNs = 0;
-    private double loopMs = 0;
     private double avgLoopMs = 0;
+
+    boolean teamblue = true; //blue on default, red if toggled
 
 
     @Override
@@ -107,17 +110,15 @@ public class Main_Teleop extends OpMode {
     }
 
 
-
+    @SuppressLint("DefaultLocale")
     @Override
     public void loop() {
-        //hw.placeholderServo2.setPosition(0.5);
 
 
         telemetry.addLine("LSP Robotic Senior - Teleop");
+
         final double infinite_distance = 300;
         double distanceToAprilTag = infinite_distance;
-
-        boolean canShoot = false;
 
         double shooter_power = 0;
 
@@ -132,15 +133,25 @@ public class Main_Teleop extends OpMode {
         double factor;
         double x = 0;
         double y = 0;
-        double heading = 0;
-        boolean inTriangle = false;
 
         double bearing = 0; // initial value for bearing
-        double manual_RPM = 2800;
+        double manual_RPM;
         double return_val = 0;
 
         boolean bothBumpersG2 = gamepad2.left_bumper && gamepad2.right_bumper;
         boolean bothBumpersG1 = gamepad1.left_bumper && gamepad1.right_bumper;
+
+        if (gamepad1.y && prevY){
+            power = !power;
+        }
+        prevY = gamepad1.y;
+
+        if (power){
+            manual_RPM = 2500;
+        }
+        else {
+            manual_RPM = 2900;
+        }
 
         if (bothBumpersG2 && !prevBothBumpersG2) overwrite = !overwrite;
         if (bothBumpersG1 && !prevBothBumpersG1) hardwall = !hardwall;
@@ -148,17 +159,23 @@ public class Main_Teleop extends OpMode {
         prevBothBumpersG2 = bothBumpersG2;
         prevBothBumpersG1 = bothBumpersG1;
 
+        if(gamepad2.x && !prevSquare) teamblue = !teamblue;
 
-        if (gamepad1.dpad_up && !wasDpadUpPressed){
-            dPadCount = Math.min(dPadCount + 1,2);
+        prevSquare = gamepad2.square;
+
+        if(teamblue) telemetry.addLine("Team Blue");
+        else telemetry.addLine("Team Red");
+
+        if (gamepad1.dpad_up && !wasDpadUpPressed) {
+            dPadCount = Math.min(dPadCount + 1, 2);
         } else if (gamepad1.dpad_down && !wasDpadDownPressed) {
-            dPadCount = Math.max(dPadCount -1,0);
+            dPadCount = Math.max(dPadCount - 1, 0);
         }
 
         wasDpadUpPressed = gamepad1.dpad_up;
         wasDpadDownPressed = gamepad1.dpad_down;
 
-        if (gamepad1.a && !prevA){
+        if (gamepad1.a && !prevA) {
             autoaim = !autoaim;
         }
 
@@ -166,12 +183,13 @@ public class Main_Teleop extends OpMode {
 
         if (!autoaim) {
             if (aprilTag != null) aprilTag.shutdown();
-        } else if (autoaim) {
+        } else {
             if (aprilTag != null) aprilTag.initialize(hardwareMap);
         }
 
+
         // Apriltag NPE checking
-        List < AprilTagDetection > detections = null;
+        List<AprilTagDetection> detections = null;
         if (aprilTag != null) {
             try {
                 detections = aprilTag.getDetections();
@@ -181,38 +199,37 @@ public class Main_Teleop extends OpMode {
         } else {
             telemetry.addLine("aprilTagHelper is null; skipping vision");
         }
-
+        int targetTagId = teamblue ? 20 : 24;
+        AprilTagDetection targetDetection = null;
         if (detections != null && !detections.isEmpty()) {
-            AprilTagDetection detection = detections.get(0);
-            if (detection != null && detection.ftcPose != null) {
+            for (AprilTagDetection detection : detections) {
+                if (detection != null && detection.id == targetTagId) {
+                    targetDetection = detection;
+                    break; // stop once the correct team tag is found
+                }
+            }
+            if (targetDetection != null && targetDetection .ftcPose != null) {
                 try {
                     distanceToAprilTag = Math.sqrt(
-                            detection.ftcPose.x * detection.ftcPose.x +
-                                    detection.ftcPose.y * detection.ftcPose.y
+                            targetDetection .ftcPose.x * targetDetection .ftcPose.x +
+                                    targetDetection .ftcPose.y * targetDetection .ftcPose.y
                     );
 
-                    shooter_power = Math.max(2700, (distanceToAprilTag / 118) * 3000); //tbd
-                    telemetry.addData("test baring", detection.ftcPose.bearing);
+                    //shooter_power = Math.max(2700, (distanceToAprilTag / 118) * 3000); //tbd
+                    bearing = targetDetection .ftcPose.bearing;
+                    telemetry.addData("test baring", bearing);
 
-                    bearing = detection.ftcPose.bearing;
-                    if (distanceToAprilTag >= 67) canShoot = true;
+
                 } catch (Exception e) {
                     telemetry.addData("Error reading detection pose", e.getMessage());
                 }
                 try {
-                    telemetry.addData("AprilTag ID : ",detections.get(0).id);
+                    telemetry.addData("Team AprilTag ID : ", targetDetection.id);
                 } catch (Exception e) {
-                   telemetry.addLine("Cannot detected AprilTag ID");
+                    telemetry.addLine("Cannot find team's AprilTag");
                 }
             } else {
                 telemetry.addLine("AprilTag detected but pose unavailable.");
-            }
-        } else {
-            // If aprilTagHelper existed but no detections, keep INFF
-            if (aprilTag != null) {
-                //telemetry.addLine("No AprilTag detections");
-            } else {
-                telemetry.addLine("April Tag not available (helper null)");
             }
         }
 
@@ -245,19 +262,10 @@ public class Main_Teleop extends OpMode {
                 // guard for possible nulls inside pose
                 x = pose.position.x;
                 y = pose.position.y;
-                try {
-                    heading = Math.toDegrees(pose.heading.toDouble());
-                    //telemetry.addData("heading", heading);
-                } catch (Exception e) {
-                    // fallback if heading access fails
-                    telemetry.addData("Warning", "pose.heading access failed: " + e.getMessage());
-                    heading = 0;
-                }
             } catch (Exception e) {
                 telemetry.addData("Error reading pose fields", e.getMessage());
                 x = 0;
                 y = 0;
-                heading = 0;
             }
         } else {
             telemetry.addLine("Pose unavailable; using x=0,y=0,heading=0");
@@ -266,7 +274,7 @@ public class Main_Teleop extends OpMode {
         //AreaLimiter NPE checking
         if (areaLimiter != null) {
             try {
-                inTriangle = areaLimiter.inShootingZone(x, y);
+                //telemetry.addLine("Telemetry not null");
             } catch (Exception e) {
                 telemetry.addData("areaLimiter.inShootingZone error", e.getMessage());
             }
@@ -288,42 +296,25 @@ public class Main_Teleop extends OpMode {
 
         //AprilTag NPE checking? : subject to change
         if (aprilTag != null) {
-            if (distanceToAprilTag < infinite_distance ) {
+            if (distanceToAprilTag < infinite_distance) {
                 telemetry.addData("Distance to April Tag", distanceToAprilTag);
-            } else {
-                //telemetry.addLine("April Tag not detected");
             }
-            //telemetry.addData("In shooting range", canShoot);
-//            telemetry.addData("In Shooting Area (Front)", inTriangle);
             if (autoaim && !overwrite) {
                 if (util != null) {
                     try {
-                        double rawPower = (distanceToAprilTag / 112.0) * 3000.0;
-
-                        if (Double.isNaN(rawPower) || Double.isInfinite(rawPower)) {
-                            shooter_power = 2700;
-                        } else {
-                            shooter_power = Math.max(2700, rawPower);
-                        }
-                        util.shooter(gamepad1.b, shooter_power, telemetry, gamepad1.right_bumper);
-
-                        telemetry.addLine("auto shooter power engage");
+                        util.shooter(gamepad1.b, manual_RPM);
                     } catch (Exception e) {
                         telemetry.addData("util.shooter error", e.getMessage());
                     }
                 }
-                //telemetry.addData("return val", return_val);
                 factor = return_val;
-                //telemetry.addLine("SHOOT");
             } else {
-                //telemetry.addLine("DON'T SHOOT");
                 factor = 0;
             }
 
         } else {
             telemetry.addLine("camera assist not available, shooter are set to 2800 RPM");
             factor = 0;
-            //util.shooter(gamepad1.b, manual_RPM);
         }
 
         //AreaLimiter NPE checking? : subject to change
@@ -360,7 +351,7 @@ public class Main_Teleop extends OpMode {
         }
 
         // utility function NPE checking? : subject to change
-        if (util != null) {
+        if (util != null && !autoaim) {
             try {
                 util.feeder(gamepad1.b);
             } catch (Exception e) {
@@ -375,42 +366,30 @@ public class Main_Teleop extends OpMode {
             telemetry.addLine("util is null; feeder/lift skipped");
         }
 
-
-
-
-        // motor speed
-        //telemetry.addData("Left front motor speed", mecanumDriveOwn.getMotorPower("LFM"));
-        //telemetry.addData("Right front motor speed", mecanumDriveOwn.getMotorPower("RFM"));
-        //telemetry.addData("Left rear motor speed", mecanumDriveOwn.getMotorPower("LBM"));
-        //telemetry.addData("Right rear motor speed", mecanumDriveOwn.getMotorPower("RBM"));
-
-        // estimate pose
-        //telemetry.addData("X", x);
-        //telemetry.addData("Y", y);
-
-        //value return from area limiter
-        //telemetry.addData("limited X", limitedLX);
-        //telemetry.addData("limited Y", limitedLY);
-
         //shooter power
-        telemetry.addData("Shooter power :", shooter_power);
+        //telemetry.addData("Shooter power :", shooter_power);
 
 
         // telemetry for logic overwrite
         if (overwrite) {
             telemetry.addLine("Shooter Overwrite Engaged");
-            util.shooter(gamepad1.b, manual_RPM, telemetry, gamepad1.right_bumper);
+
         }
 
         if (!hardwall) {
             telemetry.addLine("Hardwall Overwrite Engaged");
         }
-        telemetry.update();
+
+        if (!power){
+            telemetry.addLine("power at 3000 rpm");
+        } else {
+            telemetry.addLine("power at 2800 rpm");
+        }
 
         long now = System.nanoTime();
 
         if (lastLoopTimeNs != 0) {
-            loopMs = (now - lastLoopTimeNs) / 1e6;
+            double loopMs = (now - lastLoopTimeNs) / 1e6;
 
             // Smooth average (prevents flicker)
             avgLoopMs = 0.9 * avgLoopMs + 0.1 * loopMs;
@@ -424,6 +403,9 @@ public class Main_Teleop extends OpMode {
         }
 
         lastLoopTimeNs = now;
+        telemetry.update();
+
+
     }
 
     @Override
@@ -440,7 +422,7 @@ public class Main_Teleop extends OpMode {
             util = null;
             hw = null;
 
-            System.gc(); // Encourage memory cleanup on FTC devices
+            //System.gc(); // Encourage memory cleanup on FTC devices
         } catch (Exception e) {
             telemetry.addData("Stop cleanup error", e.getMessage());
         }

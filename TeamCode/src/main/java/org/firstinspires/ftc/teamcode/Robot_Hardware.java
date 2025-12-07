@@ -92,8 +92,8 @@ public class Robot_Hardware {
         frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rearRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        rightShooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        leftShooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightShooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftShooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         rightBeltDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -119,7 +119,7 @@ public class Robot_Hardware {
         placeholderServo1 = hardwareMap.get(CRServo.class, placeholderServoName1);
         placeholderServo2 = hardwareMap.get(Servo.class, placeholderServoName2);
 
-        placeholderServo1.setDirection(CRServo.Direction.FORWARD);
+        placeholderServo1.setDirection(CRServo.Direction.REVERSE);
         placeholderServo2.setDirection(Servo.Direction.REVERSE);
 
     }

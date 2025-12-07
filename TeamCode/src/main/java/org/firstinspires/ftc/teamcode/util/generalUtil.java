@@ -89,19 +89,24 @@ public class generalUtil {
     }
 
     // Simple teleop shooter helper
-    public void shooter(boolean enabled, double targetRPM, Telemetry telemetry, boolean right_bumper) {
+    public void shooter(boolean enabled, double targetRPM) {
         double power = Math.max(0, Math.min(1, targetRPM / 6000.0));
         if (enabled) {
+            safeSetMotorPower(hardware.leftShooterMotor, power, "leftShooterMotor");
+            safeSetMotorPower(hardware.rightShooterMotor, power, "rightShooterMotor");
             hardware.placeholderServo2.setPosition(1);
             if (hardware.placeholderServo2.getPosition() > 0.8){
                 safeSetMotorPower(hardware.leftShooterMotor, power, "leftShooterMotor");
                 safeSetMotorPower(hardware.rightShooterMotor, power, "rightShooterMotor");
+                feeder(true);
             }
-            else {
-                hardware.placeholderServo2.setPosition(0.5);
-                safeSetMotorPower(hardware.leftShooterMotor, 0.0, "leftShooterMotor");
-                safeSetMotorPower(hardware.rightShooterMotor, 0.0, "rightShooterMotor");
-            }
+
+        }
+        else {
+            hardware.placeholderServo2.setPosition(0.5);
+            safeSetMotorPower(hardware.leftShooterMotor, 0.0, "leftShooterMotor");
+            safeSetMotorPower(hardware.rightShooterMotor, 0.0, "rightShooterMotor");
+            feeder(false);
         }
 
         //double lsm_speed = (new MotorSpeed(hardware.leftShooterMotor).getTicksPerSecond());
@@ -173,7 +178,7 @@ public class generalUtil {
                 telemetry.addLine("lift are at position 2");
             }
 
-            hardware.liftMotor.setPower(1);
+            hardware.liftMotor.setPower(0.7);
             hardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             if (telemetry != null) {
@@ -194,6 +199,7 @@ public class generalUtil {
         long now = System.nanoTime();
         double dt = (lastTime != 0) ? (now - lastTime) / 1e9 : 0.0;
         lastTime = now;
+
 
         double error = bearing;
 

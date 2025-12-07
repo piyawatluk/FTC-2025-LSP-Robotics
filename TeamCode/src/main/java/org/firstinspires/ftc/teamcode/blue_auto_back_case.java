@@ -51,7 +51,7 @@ public final class blue_auto_back_case extends LinearOpMode {
                 motor = hardwareMap.get(DcMotorEx.class, "rbdm");
                 servo1 = hardwareMap.get(CRServo.class, "tbd_0");
                 servo2 = hardwareMap.get(Servo.class,"tbd_1");
-                servo1.setDirection(DcMotorSimple.Direction.REVERSE);
+                servo1.setDirection(DcMotorSimple.Direction.FORWARD);
                 servo2.setDirection(Servo.Direction.REVERSE);
             }
 
@@ -93,7 +93,7 @@ public final class blue_auto_back_case extends LinearOpMode {
                 motor = hardwareMap.get(DcMotorEx.class, "rbdm");
                 servo1 = hardwareMap.get(CRServo.class, "tbd_0");
                 servo2 = hardwareMap.get(Servo.class,"tbd_1");
-                servo1.setDirection(DcMotorSimple.Direction.REVERSE);
+                servo1.setDirection(DcMotorSimple.Direction.FORWARD);
                 servo2.setDirection(Servo.Direction.REVERSE);
             }
 
@@ -143,7 +143,7 @@ public final class blue_auto_back_case extends LinearOpMode {
                 right_shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 servo1 = hardwareMap.get(CRServo.class, "tbd_0");
                 servo2 = hardwareMap.get(Servo.class,"tbd_1");
-                servo1.setDirection(DcMotorSimple.Direction.REVERSE);
+                servo1.setDirection(DcMotorSimple.Direction.FORWARD);
                 servo2.setDirection(Servo.Direction.REVERSE);
             }
 
@@ -158,8 +158,8 @@ public final class blue_auto_back_case extends LinearOpMode {
                             motor.setPower(1);
                             servo1.setPower(1);
                             servo2.setPosition(1);
-                            left_shooter.setPower(0.423);
-                            right_shooter.setPower(0.423);
+                            left_shooter.setPower(0.41);
+                            right_shooter.setPower(0.41);
                             timer.reset();
                             started = true;
                         }
@@ -186,8 +186,8 @@ public final class blue_auto_back_case extends LinearOpMode {
                             //motor.setPower(1);
                             //servo1.setPower(1);
                             servo2.setPosition(0.5);
-                            left_shooter.setPower(0.423);
-                            right_shooter.setPower(0.423);
+                            left_shooter.setPower(0.41);
+                            right_shooter.setPower(0.41);
                             timer.reset();
                             started = true;
                         }
