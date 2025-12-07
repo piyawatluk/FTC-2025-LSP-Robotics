@@ -176,7 +176,7 @@ public final class blue_auto_front_case extends LinearOpMode {
                             started = true;
                         }
 
-                        if (timer.milliseconds() >= 5000) {
+                        if (timer.milliseconds() >= 4000) {
                             motor.setPower(0);
                             servo1.setPower(0);
                             servo2.setPosition(0.5);
@@ -275,10 +275,10 @@ public final class blue_auto_front_case extends LinearOpMode {
                 );
 
         TrajectoryActionBuilder segment_2_5 = drive.actionBuilder(new Pose2d(38,-30,Math.toRadians(90)))
-                .strafeTo(new Vector2d(38, -69),new TranslationalVelConstraint(20));
+                .strafeTo(new Vector2d(38, -60),new TranslationalVelConstraint(20));
 
 
-        TrajectoryActionBuilder segment_2_7 = drive.actionBuilder(new Pose2d(40,-69,Math.toRadians(90)))
+        TrajectoryActionBuilder segment_2_7 = drive.actionBuilder(new Pose2d(38,-60,Math.toRadians(90)))
                 .strafeToLinearHeading(
                         new Vector2d(55, -10),
                         Math.toRadians(198)
@@ -288,16 +288,16 @@ public final class blue_auto_front_case extends LinearOpMode {
                         new Pose2d(55, -10, Math.toRadians(198))
                 )
                 .strafeToLinearHeading(
-                        new Vector2d(16, -30),
+                        new Vector2d(12, -30),
                         Math.toRadians(90)
                 );
                 //.waitSeconds(2);
 
-        TrajectoryActionBuilder segment_3_5 = drive.actionBuilder(new Pose2d(16,-30,Math.toRadians(90)))
-                .strafeTo(new Vector2d(16, -69));
+        TrajectoryActionBuilder segment_3_5 = drive.actionBuilder(new Pose2d(12,-30,Math.toRadians(90)))
+                .strafeTo(new Vector2d(12, -60));
                 //.waitSeconds(2);
 
-        TrajectoryActionBuilder segment_3_7 = drive.actionBuilder(new Pose2d(16,-69,Math.toRadians(90)))
+        TrajectoryActionBuilder segment_3_7 = drive.actionBuilder(new Pose2d(12,-60,Math.toRadians(90)))
                 .strafeToLinearHeading(
                         new Vector2d(55, -10),
                         Math.toRadians(198)
