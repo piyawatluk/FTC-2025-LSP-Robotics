@@ -1,35 +1,23 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import androidx.annotation.NonNull;
-
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ParallelAction;
-import com.acmerobotics.roadrunner.SequentialAction;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot_Hardware;
 
-import java.io.InputStream;
-import java.util.Properties;
 
 public class generalUtil {
 
     private final Robot_Hardware hardware;
 
-    // (Sequencers kept if you use them elsewhere)
+/*    // (Sequencers kept if you use them elsewhere)
     private Sequencer sequence1 = new Sequencer();
     private Sequencer lift_seq = new Sequencer();
     private Sequencer belt = new Sequencer();
     private Sequencer shooter = new Sequencer();
-    private Sequencer feeder = new Sequencer();
+    private Sequencer feeder = new Sequencer();*/
 
     // PID state
     private double aimIntegral = 0.0;
@@ -40,7 +28,7 @@ public class generalUtil {
         this.hardware = hw;
     }
 
-    public void init(HardwareMap hardwareMap, Telemetry telemetry) {
+    /*public void init(HardwareMap hardwareMap, Telemetry telemetry) {
         Properties prop = new Properties();
         try (InputStream input = hardwareMap.appContext.getAssets().open("Robot.config")) {
             prop.load(input);
@@ -51,7 +39,7 @@ public class generalUtil {
 
         // Optional: early validation (uncomment if you prefer fail-fast)
         // validateHardware(telemetry);
-    }
+    }*/
 
 
 
@@ -104,28 +92,26 @@ public class generalUtil {
     public void shooter(boolean enabled, double targetRPM, Telemetry telemetry, boolean right_bumper) {
         double power = Math.max(0, Math.min(1, targetRPM / 6000.0));
         if (enabled) {
-            safeSetMotorPower(hardware.leftShooterMotor, power, "leftShooterMotor");
-            safeSetMotorPower(hardware.rightShooterMotor, power, "rightShooterMotor");
-            if (right_bumper){
-                hardware.placeholderServo2.setPosition(1);
+            hardware.placeholderServo2.setPosition(1);
+            if (hardware.placeholderServo2.getPosition() > 0.8){
+                safeSetMotorPower(hardware.leftShooterMotor, power, "leftShooterMotor");
+                safeSetMotorPower(hardware.rightShooterMotor, power, "rightShooterMotor");
             }
             else {
                 hardware.placeholderServo2.setPosition(0.5);
+                safeSetMotorPower(hardware.leftShooterMotor, 0.0, "leftShooterMotor");
+                safeSetMotorPower(hardware.rightShooterMotor, 0.0, "rightShooterMotor");
             }
-
-        } else {
-            safeSetMotorPower(hardware.leftShooterMotor, 0.0, "leftShooterMotor");
-            safeSetMotorPower(hardware.rightShooterMotor, 0.0, "rightShooterMotor");
         }
 
-        double lsm_speed = (new MotorSpeed(hardware.leftShooterMotor).getTicksPerSecond());
-        double rsm_speed = (new MotorSpeed(hardware.rightShooterMotor).getTicksPerSecond());
-        telemetry.addData("lsm speed", lsm_speed);
-        telemetry.addData("rsm speed", rsm_speed);
-        telemetry.addData("delta", lsm_speed-rsm_speed);
+        //double lsm_speed = (new MotorSpeed(hardware.leftShooterMotor).getTicksPerSecond());
+        //double rsm_speed = (new MotorSpeed(hardware.rightShooterMotor).getTicksPerSecond());
+        //telemetry.addData("lsm speed", lsm_speed);
+        //telemetry.addData("rsm speed", rsm_speed);
+        //telemetry.addData("delta", lsm_speed-rsm_speed);
     }
 
-    public class MotorSpeed {
+    /*public class MotorSpeed {
         private DcMotor motor;
         private ElapsedTime timer = new ElapsedTime();
         private int lastPosition = 0;
@@ -149,7 +135,7 @@ public class generalUtil {
 
             return deltaPos / dt;
         }
-    }
+    }*/
 
 
 
