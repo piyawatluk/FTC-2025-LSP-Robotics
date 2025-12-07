@@ -111,23 +111,7 @@ public class Main_Teleop extends OpMode {
     @Override
     public void loop() {
         //hw.placeholderServo2.setPosition(0.5);
-        long now = System.nanoTime();
 
-        if (lastLoopTimeNs != 0) {
-            loopMs = (now - lastLoopTimeNs) / 1e6;
-
-            // Smooth average (prevents flicker)
-            avgLoopMs = 0.9 * avgLoopMs + 0.1 * loopMs;
-
-            telemetry.addData("Loop Time (ms)", String.format("%.2f", loopMs));
-            telemetry.addData("Avg Loop (ms)", String.format("%.2f", avgLoopMs));
-
-            if (avgLoopMs > 50) telemetry.addLine("CPU HIGH LOAD");
-            if (avgLoopMs > 80) telemetry.addLine("CPU OVERLOAD");
-            if (avgLoopMs > 120) telemetry.addLine("CRASH IMMINENT");
-        }
-
-        lastLoopTimeNs = now;
 
         telemetry.addLine("LSP Robotic Senior - Teleop");
         final double infinite_distance = 300;
@@ -215,13 +199,18 @@ public class Main_Teleop extends OpMode {
                 } catch (Exception e) {
                     telemetry.addData("Error reading detection pose", e.getMessage());
                 }
+                try {
+                    telemetry.addData("AprilTag ID : ",detections.get(0).id);
+                } catch (Exception e) {
+                   telemetry.addLine("Cannot detected AprilTag ID");
+                }
             } else {
                 telemetry.addLine("AprilTag detected but pose unavailable.");
             }
         } else {
             // If aprilTagHelper existed but no detections, keep INFF
             if (aprilTag != null) {
-                telemetry.addLine("No AprilTag detections");
+                //telemetry.addLine("No AprilTag detections");
             } else {
                 telemetry.addLine("April Tag not available (helper null)");
             }
@@ -294,7 +283,7 @@ public class Main_Teleop extends OpMode {
                 return_val = 0;
             }
         } else {
-            telemetry.addLine("util is null; aimmer skipped");
+            telemetry.addLine("util is null; aimer skipped");
         }
 
         //AprilTag NPE checking? : subject to change
@@ -302,10 +291,10 @@ public class Main_Teleop extends OpMode {
             if (distanceToAprilTag < infinite_distance ) {
                 telemetry.addData("Distance to April Tag", distanceToAprilTag);
             } else {
-                telemetry.addLine("April Tag not detected");
+                //telemetry.addLine("April Tag not detected");
             }
-            telemetry.addData("In shooting range", canShoot);
-            telemetry.addData("In Shooting Area (Front)", inTriangle);
+            //telemetry.addData("In shooting range", canShoot);
+//            telemetry.addData("In Shooting Area (Front)", inTriangle);
             if (autoaim && !overwrite) {
                 if (util != null) {
                     try {
@@ -325,9 +314,9 @@ public class Main_Teleop extends OpMode {
                 }
                 //telemetry.addData("return val", return_val);
                 factor = return_val;
-                telemetry.addLine("GO SHOOT!!!");
+                //telemetry.addLine("SHOOT");
             } else {
-                telemetry.addLine("DO NOT SHOOT!!!");
+                //telemetry.addLine("DON'T SHOOT");
                 factor = 0;
             }
 
@@ -404,19 +393,37 @@ public class Main_Teleop extends OpMode {
         //telemetry.addData("limited Y", limitedLY);
 
         //shooter power
-        telemetry.addData("shooter power", shooter_power);
+        telemetry.addData("Shooter power :", shooter_power);
 
 
         // telemetry for logic overwrite
         if (overwrite) {
-            telemetry.addLine("shooter overwrite engage");
+            telemetry.addLine("Shooter Overwrite Engaged");
             util.shooter(gamepad1.b, manual_RPM, telemetry, gamepad1.right_bumper);
         }
 
         if (!hardwall) {
-            telemetry.addLine("hardwall overwrite engage");
+            telemetry.addLine("Hardwall Overwrite Engaged");
         }
         telemetry.update();
+
+        long now = System.nanoTime();
+
+        if (lastLoopTimeNs != 0) {
+            loopMs = (now - lastLoopTimeNs) / 1e6;
+
+            // Smooth average (prevents flicker)
+            avgLoopMs = 0.9 * avgLoopMs + 0.1 * loopMs;
+
+            telemetry.addData("Loop Time (ms)", String.format("%.2f", loopMs));
+            telemetry.addData("Avg Loop (ms)", String.format("%.2f", avgLoopMs));
+
+            if (avgLoopMs > 50) telemetry.addLine("CPU HIGH LOAD");
+            if (avgLoopMs > 80) telemetry.addLine("CPU OVERLOAD");
+            if (avgLoopMs > 120) telemetry.addLine("CRASH IMMINENT");
+        }
+
+        lastLoopTimeNs = now;
     }
 
     @Override
