@@ -179,11 +179,11 @@ public class generalUtil {
                 telemetry.addLine("lift are at closing position");
             }
             if (dPadCount == 1){
-                hardware.liftMotor.setTargetPosition(500);
+                hardware.liftMotor.setTargetPosition(1000);
                 telemetry.addLine("lift are at position 1");
             }
             if (dPadCount == 2){
-                hardware.liftMotor.setTargetPosition(600);
+                hardware.liftMotor.setTargetPosition(1300);
                 telemetry.addLine("lift are at position 2");
             }
 
