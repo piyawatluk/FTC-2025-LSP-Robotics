@@ -49,13 +49,16 @@ public class Main_Teleop extends OpMode {
     boolean hardwall = false;
 
     int dPadCount = 0;
+    int dPadCount_sec = 0;
     boolean wasDpadUpPressed = false;
     boolean wasDpadDownPressed = false;
+    boolean wasDpadLeftPressed = false;
+    boolean wasDpadRightPressed = false;
     boolean prevY = false;
 
     private boolean prevA = false;
     boolean autoaim = false;
-    boolean power = false;
+    //boolean power = false;
 
 
     //apriltag declare
@@ -65,6 +68,7 @@ public class Main_Teleop extends OpMode {
     private double avgLoopMs = 0;
 
     boolean teamblue = true; //blue on default, red if toggled
+    double manual_RPM;
 
 
     @Override
@@ -135,23 +139,23 @@ public class Main_Teleop extends OpMode {
         double y = 0;
 
         double bearing = 0; // initial value for bearing
-        double manual_RPM;
+
         double return_val = 0;
 
         boolean bothBumpersG2 = gamepad2.left_bumper && gamepad2.right_bumper;
         boolean bothBumpersG1 = gamepad1.left_bumper && gamepad1.right_bumper;
 
-        if (gamepad1.y && prevY){
-            power = !power;
-        }
-        prevY = gamepad1.y;
+        //if (gamepad1.y && prevY){
+            //power = !power;
+        //}
+        //prevY = gamepad1.y;
 
-        if (power){
-            manual_RPM = 2500;
-        }
-        else {
-            manual_RPM = 2900;
-        }
+        //if (power){
+            //manual_RPM = 2500;
+        //}
+        //else {
+            //manual_RPM = 2900;
+        //}
 
         if (bothBumpersG2 && !prevBothBumpersG2) overwrite = !overwrite;
         if (bothBumpersG1 && !prevBothBumpersG1) hardwall = !hardwall;
@@ -174,6 +178,35 @@ public class Main_Teleop extends OpMode {
 
         wasDpadUpPressed = gamepad1.dpad_up;
         wasDpadDownPressed = gamepad1.dpad_down;
+
+        if (gamepad1.dpad_right && !wasDpadRightPressed){
+            dPadCount_sec = Math.min(dPadCount_sec + 1,5);
+        } else if (gamepad1.dpad_left && ! wasDpadLeftPressed) {
+            dPadCount_sec = Math.max(dPadCount_sec - 1,0);
+        }
+
+        wasDpadLeftPressed = gamepad1.dpad_left;
+        wasDpadRightPressed = gamepad1.dpad_right;
+
+        if (dPadCount_sec == 0){
+            manual_RPM = 2500;
+            telemetry.addLine("2500");
+        } else if (dPadCount_sec == 1) {
+            manual_RPM = 2600;
+            telemetry.addLine("2600");
+        } else if (dPadCount_sec == 2) {
+            manual_RPM = 2700;
+            telemetry.addLine("2700");
+        } else if (dPadCount_sec == 3) {
+            manual_RPM = 2800;
+            telemetry.addLine("2800");
+        } else if (dPadCount_sec == 4) {
+            manual_RPM = 2900;
+            telemetry.addLine("2900");
+        } else if (dPadCount_sec == 5) {
+            manual_RPM = 3000;
+            telemetry.addLine("3000");
+        }
 
         if (gamepad1.a && !prevA) {
             autoaim = !autoaim;
@@ -313,7 +346,7 @@ public class Main_Teleop extends OpMode {
             }
 
         } else {
-            telemetry.addLine("camera assist not available, shooter are set to 2800 RPM");
+            //telemetry.addLine("camera assist not available, shooter are set to 2800 RPM");
             factor = 0;
         }
 
@@ -380,11 +413,11 @@ public class Main_Teleop extends OpMode {
             telemetry.addLine("Hardwall Overwrite Engaged");
         }
 
-        if (!power){
-            telemetry.addLine("power at 3000 rpm");
-        } else {
-            telemetry.addLine("power at 2800 rpm");
-        }
+        //if (!power){
+            //telemetry.addLine("power at 3000 rpm");
+        //} else {
+            //telemetry.addLine("power at 2800 rpm");
+        //}
 
         long now = System.nanoTime();
 

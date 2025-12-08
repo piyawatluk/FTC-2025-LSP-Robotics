@@ -170,7 +170,7 @@ public class generalUtil {
                 telemetry.addLine("lift are at closing position");
             }
             if (dPadCount == 1){
-                hardware.liftMotor.setTargetPosition(1000);
+                hardware.liftMotor.setTargetPosition(800);
                 telemetry.addLine("lift are at position 1");
             }
             if (dPadCount == 2){
@@ -178,7 +178,7 @@ public class generalUtil {
                 telemetry.addLine("lift are at position 2");
             }
 
-            hardware.liftMotor.setPower(0.7);
+            hardware.liftMotor.setPower(0.6);
             hardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             if (telemetry != null) {
