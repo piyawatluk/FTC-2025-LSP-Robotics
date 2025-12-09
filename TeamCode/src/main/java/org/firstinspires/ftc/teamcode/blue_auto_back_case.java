@@ -158,8 +158,8 @@ public final class blue_auto_back_case extends LinearOpMode {
                             motor.setPower(1);
                             servo1.setPower(1);
                             servo2.setPosition(1);
-                            left_shooter.setPower(0.41);
-                            right_shooter.setPower(0.41);
+                            left_shooter.setPower(0.3);
+                            right_shooter.setPower(0.3);
                             timer.reset();
                             started = true;
                         }
@@ -186,8 +186,8 @@ public final class blue_auto_back_case extends LinearOpMode {
                             //motor.setPower(1);
                             //servo1.setPower(1);
                             servo2.setPosition(0.5);
-                            left_shooter.setPower(0.41);
-                            right_shooter.setPower(0.41);
+                            left_shooter.setPower(0.3);
+                            right_shooter.setPower(0.3);
                             timer.reset();
                             started = true;
                         }
@@ -251,11 +251,11 @@ public final class blue_auto_back_case extends LinearOpMode {
         if (isStopRequested()) return;
 
         TrajectoryActionBuilder segment1 = drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(-15.5, -15.5), Math.toRadians(225));
+                .strafeToLinearHeading(new Vector2d(0, 0), Math.toRadians(225));
 
         TrajectoryActionBuilder segment2 = drive.actionBuilder(new Pose2d(-15.5, -15.5, Math.toRadians(230)))
                 .splineToLinearHeading(
-                        new Pose2d(-3.5, -20, Math.toRadians(90)),
+                        new Pose2d(10, -4, Math.toRadians(90)),
                         Math.toRadians(-90)
                 );
 
@@ -285,14 +285,14 @@ public final class blue_auto_back_case extends LinearOpMode {
                 new ParallelAction(segment1.build(),shooter.spinup(),gate.open()),
                 //util.fireAction(2800, 0.5, 1.0),
                 shooter.shoot(),
-                segment2.build(),
-                new ParallelAction(segment3.build(),feeder.spinUp()),//.motorAction(hw.rightBeltDriveMotor, 1,3)),
-                new ParallelAction(segment4.build(),shooter.spinup()),
-                shooter.shoot(),
-                segment5.build(),
-                new ParallelAction(segment6.build(),feeder_2.spinUp()),
-                segment4.build(),
-                shooter.shoot()
+                segment2.build()
+                //new ParallelAction(segment3.build(),feeder.spinUp()),//.motorAction(hw.rightBeltDriveMotor, 1,3)),
+                //new ParallelAction(segment4.build(),shooter.spinup()),
+                //shooter.shoot(),
+                //segment5.build(),
+                //new ParallelAction(segment6.build(),feeder_2.spinUp()),
+                //segment4.build(),
+                //shooter.shoot()
                 //util.fireAction(2800, 0.5, 1.0),
                 //EndTrajectory.build()
         ));

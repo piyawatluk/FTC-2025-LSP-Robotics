@@ -171,7 +171,7 @@ public class Main_Teleop extends OpMode {
         else telemetry.addLine("Team Red");
 
         if (gamepad1.dpad_up && !wasDpadUpPressed) {
-            dPadCount = Math.min(dPadCount + 1, 2);
+            dPadCount = Math.min(dPadCount + 1, 3);
         } else if (gamepad1.dpad_down && !wasDpadDownPressed) {
             dPadCount = Math.max(dPadCount - 1, 0);
         }
