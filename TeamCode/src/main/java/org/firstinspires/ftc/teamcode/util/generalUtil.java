@@ -95,18 +95,19 @@ public class generalUtil {
             safeSetMotorPower(hardware.leftShooterMotor, power, "leftShooterMotor");
             safeSetMotorPower(hardware.rightShooterMotor, power, "rightShooterMotor");
             hardware.placeholderServo2.setPosition(1);
-            if (hardware.placeholderServo2.getPosition() > 0.8){
-                safeSetMotorPower(hardware.leftShooterMotor, power, "leftShooterMotor");
-                safeSetMotorPower(hardware.rightShooterMotor, power, "rightShooterMotor");
-                feeder(true);
-            }
+            //hardware.placeholderServo2.setPosition(1);
+                //safeSetMotorPower(hardware.leftShooterMotor, power, "leftShooterMotor");
+                //safeSetMotorPower(hardware.rightShooterMotor, power, "rightShooterMotor");
+            //feeder(true);
+
 
         }
         else {
-            hardware.placeholderServo2.setPosition(0.5);
+            //hardware.placeholderServo2.setPosition(0.5);
             safeSetMotorPower(hardware.leftShooterMotor, 0.0, "leftShooterMotor");
             safeSetMotorPower(hardware.rightShooterMotor, 0.0, "rightShooterMotor");
-            feeder(false);
+            hardware.placeholderServo2.setPosition(0.4);
+            //feeder(false);
         }
 
         //double lsm_speed = (new MotorSpeed(hardware.leftShooterMotor).getTicksPerSecond());
@@ -114,6 +115,15 @@ public class generalUtil {
         //telemetry.addData("lsm speed", lsm_speed);
         //telemetry.addData("rsm speed", rsm_speed);
         //telemetry.addData("delta", lsm_speed-rsm_speed);
+    }
+
+    public void gate(boolean atr){
+        if (atr){
+            hardware.placeholderServo2.setPosition(1);
+        } else {
+            hardware.placeholderServo2.setPosition(0.3);
+        }
+
     }
 
     /*public class MotorSpeed {
@@ -192,7 +202,7 @@ public class generalUtil {
     }
 
     public double Auto_aim(boolean atr, double bearing, Telemetry telemetry) {
-        final double Kp = 0.035;
+        final double Kp = 0.025;
         final double Ki = 0.0001;
         final double Kd = 0.0001;
 

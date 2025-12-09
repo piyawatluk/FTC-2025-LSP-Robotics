@@ -189,23 +189,23 @@ public class Main_Teleop extends OpMode {
         wasDpadRightPressed = gamepad1.dpad_right;
 
         if (dPadCount_sec == 0){
+            manual_RPM = 2300;
+            telemetry.addLine("2300");
+        } else if (dPadCount_sec == 1) {
             manual_RPM = 2500;
             telemetry.addLine("2500");
-        } else if (dPadCount_sec == 1) {
-            manual_RPM = 2600;
-            telemetry.addLine("2600");
         } else if (dPadCount_sec == 2) {
             manual_RPM = 2700;
             telemetry.addLine("2700");
         } else if (dPadCount_sec == 3) {
-            manual_RPM = 2800;
-            telemetry.addLine("2800");
-        } else if (dPadCount_sec == 4) {
             manual_RPM = 2900;
             telemetry.addLine("2900");
+        } else if (dPadCount_sec == 4) {
+            manual_RPM = 3100;
+            telemetry.addLine("3100");
         } else if (dPadCount_sec == 5) {
-            manual_RPM = 3000;
-            telemetry.addLine("3000");
+            manual_RPM = 3300;
+            telemetry.addLine("3300");
         }
 
         if (gamepad1.a && !prevA) {
@@ -335,7 +335,8 @@ public class Main_Teleop extends OpMode {
             if (autoaim && !overwrite) {
                 if (util != null) {
                     try {
-                        util.shooter(gamepad1.b, manual_RPM);
+                        util.shooter(gamepad1.left_bumper, manual_RPM);
+                        //util.gate(gamepad1.left_bumper);
                     } catch (Exception e) {
                         telemetry.addData("util.shooter error", e.getMessage());
                     }
@@ -384,7 +385,7 @@ public class Main_Teleop extends OpMode {
         }
 
         // utility function NPE checking? : subject to change
-        if (util != null && !autoaim) {
+        if (util != null ) {
             try {
                 util.feeder(gamepad1.b);
             } catch (Exception e) {
