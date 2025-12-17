@@ -32,7 +32,7 @@ public final class blue_auto_back_case extends LinearOpMode {
         generalUtil util = new generalUtil(hw);
 
         // Starting pose (this must match your actual robot location on field)
-        Pose2d beginPose = new Pose2d(-50, -50, Math.toRadians(230));
+        Pose2d beginPose = new Pose2d(-45, -51, Math.toRadians(230));
 
         // Create the Road Runner drive
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
@@ -65,15 +65,15 @@ public final class blue_auto_back_case extends LinearOpMode {
                         if (!started) {
                             motor.setPower(1);
                             servo1.setPower(1);
-                            servo2.setPosition(0.5);
+                            servo2.setPosition(0.3);
                             timer.reset();
                             started = true;
                         }
 
-                        if (timer.milliseconds() >= 2300) {
+                        if (timer.milliseconds() >= 4000) {
                             motor.setPower(0);
                             servo1.setPower(0);
-                            servo2.setPosition(0.5);
+                            servo2.setPosition(0.3);
                             //servo2.setPower(0);
                             return false;
                         }
@@ -107,7 +107,7 @@ public final class blue_auto_back_case extends LinearOpMode {
                         if (!started) {
                             motor.setPower(1);
                             servo1.setPower(1);
-                            servo2.setPosition(0.5);
+                            servo2.setPosition(0.3);
                             timer.reset();
                             started = true;
                         }
@@ -115,7 +115,7 @@ public final class blue_auto_back_case extends LinearOpMode {
                         if (timer.milliseconds() >= 2700) {
                             motor.setPower(0);
                             servo1.setPower(0);
-                            servo2.setPosition(0.5);
+                            servo2.setPosition(0.3);
                             //servo2.setPower(0);
                             return false;
                         }
@@ -158,8 +158,8 @@ public final class blue_auto_back_case extends LinearOpMode {
                             motor.setPower(1);
                             servo1.setPower(1);
                             servo2.setPosition(1);
-                            left_shooter.setPower(0.3);
-                            right_shooter.setPower(0.3);
+                            left_shooter.setPower(0.4);
+                            right_shooter.setPower(0.4);
                             timer.reset();
                             started = true;
                         }
@@ -167,7 +167,7 @@ public final class blue_auto_back_case extends LinearOpMode {
                         if (timer.milliseconds() >= 4000) {
                             motor.setPower(0);
                             servo1.setPower(0);
-                            servo2.setPosition(0.5);
+                            servo2.setPosition(0.3);
                             return false;
                         }
 
@@ -185,9 +185,9 @@ public final class blue_auto_back_case extends LinearOpMode {
                         if (!started) {
                             //motor.setPower(1);
                             //servo1.setPower(1);
-                            servo2.setPosition(0.5);
-                            left_shooter.setPower(0.3);
-                            right_shooter.setPower(0.3);
+                            servo2.setPosition(0.3);
+                            left_shooter.setPower(0.4);
+                            right_shooter.setPower(0.4);
                             timer.reset();
                             started = true;
                         }
@@ -251,48 +251,46 @@ public final class blue_auto_back_case extends LinearOpMode {
         if (isStopRequested()) return;
 
         TrajectoryActionBuilder segment1 = drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(0, 0), Math.toRadians(225));
+                .strafeToLinearHeading(new Vector2d(-12, -14), Math.toRadians(230));
 
-        TrajectoryActionBuilder segment2 = drive.actionBuilder(new Pose2d(-15.5, -15.5, Math.toRadians(230)))
-                .splineToLinearHeading(
-                        new Pose2d(10, -4, Math.toRadians(90)),
-                        Math.toRadians(-90)
-                );
+        TrajectoryActionBuilder segment2 = drive.actionBuilder(new Pose2d(-12, -14, Math.toRadians(230)))
+                .strafeTo(new Vector2d(-8,-14))
+                .turnTo(Math.toRadians(90));
 
-        TrajectoryActionBuilder segment3 = drive.actionBuilder(new Pose2d(-3.5, -20, Math.toRadians(90)))
-                .strafeTo(new Vector2d(-3.5, -53), new TranslationalVelConstraint(15));
+        //.strafeToLinearHeading(new Vector2d(1.5, 0), Math.toRadians(270));
 
-        TrajectoryActionBuilder segment4 = drive.actionBuilder(new Pose2d(-3.5, -53, Math.toRadians(90)))
-                .strafeToLinearHeading(new Vector2d(-15, -15), Math.toRadians(212.5));
+        TrajectoryActionBuilder segment3 = drive.actionBuilder(new Pose2d(-8, -14, Math.toRadians(90)))
+                .strafeTo(new Vector2d(-8, -50), new TranslationalVelConstraint(20));
 
-        TrajectoryActionBuilder segment5 = drive.actionBuilder(new Pose2d(-15,-15,Math.toRadians(90)))
-                .splineToLinearHeading(
-                        new Pose2d(27, -25, Math.toRadians(90)),
-                        Math.toRadians(-90)
-                );
+        TrajectoryActionBuilder segment4 = drive.actionBuilder(new Pose2d(-8, -50, Math.toRadians(90)))
+                .strafeToLinearHeading(new Vector2d(-12, -14), Math.toRadians(235
+                ));
 
-        TrajectoryActionBuilder segment6 = drive.actionBuilder(new Pose2d(27,-25,Math.toRadians(90)))
-                .splineToLinearHeading(
-                        new Pose2d(27, -60, Math.toRadians(90)),
-                        Math.toRadians(-90), new TranslationalVelConstraint(15)
-                );
+        TrajectoryActionBuilder segment5 = drive.actionBuilder(new Pose2d(-12,-14,Math.toRadians(230)))
+                .strafeTo(new Vector2d(10,-14))
+                .turnTo(Math.toRadians(90));
 
-        TrajectoryActionBuilder EndTrajectory = drive.actionBuilder(new Pose2d(-15, -15, Math.toRadians(212.5)))
-                .strafeToLinearHeading(new Vector2d(0, -65), Math.toRadians(180));
+        TrajectoryActionBuilder segment6 = drive.actionBuilder(new Pose2d(10,-14,Math.toRadians(90)))
+                .strafeTo(new Vector2d(10, -50), new TranslationalVelConstraint(20));
+
+        TrajectoryActionBuilder segment7 = drive.actionBuilder(new Pose2d(10, -50, Math.toRadians(90)))
+                .strafeToLinearHeading(new Vector2d(-12, -14), Math.toRadians(230));
+
+        //await tuning!!!!
 
         // Main autonomous path
         Actions.runBlocking(new SequentialAction(
                 new ParallelAction(segment1.build(),shooter.spinup(),gate.open()),
                 //util.fireAction(2800, 0.5, 1.0),
                 shooter.shoot(),
-                segment2.build()
-                //new ParallelAction(segment3.build(),feeder.spinUp()),//.motorAction(hw.rightBeltDriveMotor, 1,3)),
-                //new ParallelAction(segment4.build(),shooter.spinup()),
-                //shooter.shoot(),
-                //segment5.build(),
-                //new ParallelAction(segment6.build(),feeder_2.spinUp()),
-                //segment4.build(),
-                //shooter.shoot()
+                segment2.build(),
+                new ParallelAction(segment3.build(),feeder.spinUp()),//.motorAction(hw.rightBeltDriveMotor, 1,3)),
+                new ParallelAction(segment4.build(),shooter.spinup(),gate.open()),
+                shooter.shoot(),
+                segment5.build(),
+                new ParallelAction(segment6.build(),feeder.spinUp()),
+                new ParallelAction(segment7.build(),shooter.spinup(),gate.open()),
+                shooter.shoot()
                 //util.fireAction(2800, 0.5, 1.0),
                 //EndTrajectory.build()
         ));

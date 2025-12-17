@@ -70,7 +70,7 @@ public final class red_auto_back_case extends LinearOpMode {
                             started = true;
                         }
 
-                        if (timer.milliseconds() >= 3500) {
+                        if (timer.milliseconds() >= 4500) {
                             motor.setPower(0);
                             servo1.setPower(0);
                             servo2.setPosition(0.3);
@@ -260,19 +260,19 @@ public final class red_auto_back_case extends LinearOpMode {
                 //.strafeToLinearHeading(new Vector2d(1.5, 0), Math.toRadians(270));
 
         TrajectoryActionBuilder segment3 = drive.actionBuilder(new Pose2d(-4, 14, Math.toRadians(270)))
-                .strafeTo(new Vector2d(-4, 45), new TranslationalVelConstraint(20));
+                .strafeTo(new Vector2d(-4, 50), new TranslationalVelConstraint(25));
 
-        TrajectoryActionBuilder segment4 = drive.actionBuilder(new Pose2d(-4, 45, Math.toRadians(270)))
+        TrajectoryActionBuilder segment4 = drive.actionBuilder(new Pose2d(-4, 50, Math.toRadians(270)))
                 .strafeToLinearHeading(new Vector2d(-12, 14), Math.toRadians(138));
 
-        TrajectoryActionBuilder segment5 = drive.actionBuilder(new Pose2d(-12,14,Math.toRadians(138)))
-                .strafeTo(new Vector2d(12,14))
+        TrajectoryActionBuilder segment5 = drive.actionBuilder(new Pose2d(-12,14,Math.toRadians(135)))
+                .strafeTo(new Vector2d(16,14))
                 .turnTo(Math.toRadians(270));
 
-        TrajectoryActionBuilder segment6 = drive.actionBuilder(new Pose2d(12,14,Math.toRadians(270)))
-                .strafeTo(new Vector2d(12, 45), new TranslationalVelConstraint(20));
+        TrajectoryActionBuilder segment6 = drive.actionBuilder(new Pose2d(16,14,Math.toRadians(270)))
+                .strafeTo(new Vector2d(16, 50), new TranslationalVelConstraint(25));
 
-        TrajectoryActionBuilder segment7 = drive.actionBuilder(new Pose2d(12, 45, Math.toRadians(270)))
+        TrajectoryActionBuilder segment7 = drive.actionBuilder(new Pose2d(16, 50, Math.toRadians(270)))
                 .strafeToLinearHeading(new Vector2d(-12, 14), Math.toRadians(133));
 
         // Main autonomous path
@@ -285,9 +285,9 @@ public final class red_auto_back_case extends LinearOpMode {
                 new ParallelAction(segment4.build(),shooter.spinup(),gate.open()),
                 shooter.shoot(),
                 segment5.build(),
-                new ParallelAction(segment6.build(),feeder.spinUp()),
-                new ParallelAction(segment7.build(),shooter.spinup(),gate.open()),
-                shooter.shoot()
+                new ParallelAction(segment6.build(),feeder.spinUp())
+                //new ParallelAction(segment7.build(),shooter.spinup(),gate.open()),
+                //shooter.shoot()
                 //util.fireAction(2800, 0.5, 1.0),
                 //EndTrajectory.build()
         ));
