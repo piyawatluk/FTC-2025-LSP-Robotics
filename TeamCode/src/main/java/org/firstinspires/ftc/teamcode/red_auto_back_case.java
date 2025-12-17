@@ -23,8 +23,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.util.generalUtil;
 
-@Autonomous(name = "blue_auto_back_case", group = "Autonomous")
-public final class blue_auto_back_case extends LinearOpMode {
+@Autonomous(name = "red_auto_back_case", group = "Autonomous")
+public final class red_auto_back_case extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -32,7 +32,7 @@ public final class blue_auto_back_case extends LinearOpMode {
         generalUtil util = new generalUtil(hw);
 
         // Starting pose (this must match your actual robot location on field)
-        Pose2d beginPose = new Pose2d(-45, -51, Math.toRadians(230));
+        Pose2d beginPose = new Pose2d(-45, 51, Math.toRadians(132));
 
         // Create the Road Runner drive
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
@@ -70,7 +70,7 @@ public final class blue_auto_back_case extends LinearOpMode {
                             started = true;
                         }
 
-                        if (timer.milliseconds() >= 4000) {
+                        if (timer.milliseconds() >= 4500) {
                             motor.setPower(0);
                             servo1.setPower(0);
                             servo2.setPosition(0.3);
@@ -251,32 +251,29 @@ public final class blue_auto_back_case extends LinearOpMode {
         if (isStopRequested()) return;
 
         TrajectoryActionBuilder segment1 = drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(-12, -14), Math.toRadians(230));
+                .strafeToLinearHeading(new Vector2d(-12, 14), Math.toRadians(133));
 
-        TrajectoryActionBuilder segment2 = drive.actionBuilder(new Pose2d(-12, -14, Math.toRadians(230)))
-                .strafeTo(new Vector2d(-8,-14))
-                .turnTo(Math.toRadians(90));
+        TrajectoryActionBuilder segment2 = drive.actionBuilder(new Pose2d(-12, 14, Math.toRadians(133)))
+                .strafeTo(new Vector2d(-4,14))
+                .turnTo(Math.toRadians(270));
 
-        //.strafeToLinearHeading(new Vector2d(1.5, 0), Math.toRadians(270));
+                //.strafeToLinearHeading(new Vector2d(1.5, 0), Math.toRadians(270));
 
-        TrajectoryActionBuilder segment3 = drive.actionBuilder(new Pose2d(-8, -14, Math.toRadians(90)))
-                .strafeTo(new Vector2d(-8, -50), new TranslationalVelConstraint(20));
+        TrajectoryActionBuilder segment3 = drive.actionBuilder(new Pose2d(-4, 14, Math.toRadians(270)))
+                .strafeTo(new Vector2d(-4, 50), new TranslationalVelConstraint(25));
 
-        TrajectoryActionBuilder segment4 = drive.actionBuilder(new Pose2d(-8, -50, Math.toRadians(90)))
-                .strafeToLinearHeading(new Vector2d(-12, -14), Math.toRadians(235
-                ));
+        TrajectoryActionBuilder segment4 = drive.actionBuilder(new Pose2d(-4, 50, Math.toRadians(270)))
+                .strafeToLinearHeading(new Vector2d(-12, 14), Math.toRadians(138));
 
-        TrajectoryActionBuilder segment5 = drive.actionBuilder(new Pose2d(-12,-14,Math.toRadians(230)))
-                .strafeTo(new Vector2d(10,-14))
-                .turnTo(Math.toRadians(90));
+        TrajectoryActionBuilder segment5 = drive.actionBuilder(new Pose2d(-12,14,Math.toRadians(135)))
+                .strafeTo(new Vector2d(16,14))
+                .turnTo(Math.toRadians(270));
 
-        TrajectoryActionBuilder segment6 = drive.actionBuilder(new Pose2d(10,-14,Math.toRadians(90)))
-                .strafeTo(new Vector2d(10, -50), new TranslationalVelConstraint(20));
+        TrajectoryActionBuilder segment6 = drive.actionBuilder(new Pose2d(16,14,Math.toRadians(270)))
+                .strafeTo(new Vector2d(16, 50), new TranslationalVelConstraint(25));
 
-        TrajectoryActionBuilder segment7 = drive.actionBuilder(new Pose2d(10, -50, Math.toRadians(90)))
-                .strafeToLinearHeading(new Vector2d(-12, -14), Math.toRadians(230));
-
-        //await tuning!!!!
+        TrajectoryActionBuilder segment7 = drive.actionBuilder(new Pose2d(16, 50, Math.toRadians(270)))
+                .strafeToLinearHeading(new Vector2d(-12, 14), Math.toRadians(133));
 
         // Main autonomous path
         Actions.runBlocking(new SequentialAction(
@@ -288,9 +285,9 @@ public final class blue_auto_back_case extends LinearOpMode {
                 new ParallelAction(segment4.build(),shooter.spinup(),gate.open()),
                 shooter.shoot(),
                 segment5.build(),
-                new ParallelAction(segment6.build(),feeder.spinUp()),
-                new ParallelAction(segment7.build(),shooter.spinup(),gate.open()),
-                shooter.shoot()
+                new ParallelAction(segment6.build(),feeder.spinUp())
+                //new ParallelAction(segment7.build(),shooter.spinup(),gate.open()),
+                //shooter.shoot()
                 //util.fireAction(2800, 0.5, 1.0),
                 //EndTrajectory.build()
         ));

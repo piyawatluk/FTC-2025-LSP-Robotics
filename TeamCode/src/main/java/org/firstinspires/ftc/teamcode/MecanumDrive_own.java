@@ -8,8 +8,8 @@ public class MecanumDrive_own {
     private double frontRightPower;
     private double backLeftPower;
     private double backRightPower;
-    private final double straff_dampening_factor = 0.7;
-    private double yaw_dampening_factor = 0.5;
+    private final double straff_dampening_factor = 0.9;
+    private double yaw_dampening_factor = 0.7;
 
     private final MecanumDrive hardware;
 
