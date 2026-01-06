@@ -63,14 +63,14 @@ public final class MecanumDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
         // drive model parameters
-        public double inPerTick = 0.0019302038295244;
-        public double lateralInPerTick = 0.1123595505617978;
-        public double trackWidthTicks = 6468.8232;
+        public double inPerTick = 0.03381;
+        public double lateralInPerTick = inPerTick;
+        public double trackWidthTicks = 858;
 
         // feedforward parameters (in tick units)
-        public double kS = 0.905597;
-        public double kV = 0.000271;
-        public double kA = 0.00001;
+        public double kS = 1.669728;
+        public double kV = 0.0041776;
+        public double kA = 0.00055;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 160;
@@ -82,9 +82,9 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 4;
-        public double lateralGain = 12;
-        public double headingGain = 8; // shared with turn
+        public double axialGain = 2.5;
+        public double lateralGain = 1.5;
+        public double headingGain = 1; // shared with turn
 
         public double axialVelGain = 0.0;
         public double lateralVelGain = 0.0;
@@ -249,7 +249,7 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new TwoDeadWheelLocalizer(hardwareMap, lazyImu.get(), PARAMS.inPerTick, pose);
+        localizer = new DriveLocalizer(pose);
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
@@ -455,14 +455,14 @@ public final class MecanumDrive {
     public PoseVelocity2d updatePoseEstimate() {
         PoseVelocity2d vel = localizer.update();
         poseHistory.add(localizer.getPose());
-        
+
         while (poseHistory.size() > 100) {
             poseHistory.removeFirst();
         }
 
         estimatedPoseWriter.write(new PoseMessage(localizer.getPose()));
-        
-        
+
+
         return vel;
     }
 

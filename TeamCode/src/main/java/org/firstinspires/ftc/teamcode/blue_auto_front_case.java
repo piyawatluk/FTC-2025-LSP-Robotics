@@ -19,6 +19,7 @@ import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -35,6 +36,7 @@ import org.firstinspires.ftc.teamcode.util.generalUtil;
 import java.security.CryptoPrimitive;
 import java.util.Arrays;
 
+@Disabled
 @Autonomous(name = "blue_auto_front_case", group = "Autonomous")
 public final class blue_auto_front_case extends LinearOpMode {
 
